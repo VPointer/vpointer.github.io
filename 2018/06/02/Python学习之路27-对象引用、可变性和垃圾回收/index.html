@@ -25,7 +25,7 @@
   <meta name="description" content="《流畅的Python》笔记。 本篇是“面向对象惯用方法”的第一篇，一共六篇。本篇主要是一些概念性的讨论，内容有：Python中的变量，对象标识，值，别名，元组的某些特性，深浅复制，引用，函数参数，垃圾回收，del命令，弱引用等，比较枯燥，但却能解决程序中不易察觉的bug。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Python学习之路27-对象引用、可变性和垃圾回收">
-<meta property="og:url" content="http://www.zuiqiangiron.xyz/2018/06/02/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF27-%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E3%80%81%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/index.html">
+<meta property="og:url" content="https://www.zuiqiangiron.xyz/2018/06/02/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF27-%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E3%80%81%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/index.html">
 <meta property="og:site_name" content="嘴强黑铁">
 <meta property="og:description" content="《流畅的Python》笔记。 本篇是“面向对象惯用方法”的第一篇，一共六篇。本篇主要是一些概念性的讨论，内容有：Python中的变量，对象标识，值，别名，元组的某些特性，深浅复制，引用，函数参数，垃圾回收，del命令，弱引用等，比较枯燥，但却能解决程序中不易察觉的bug。">
 <meta property="og:locale" content="zh_CN">
@@ -37,7 +37,7 @@
 <meta property="article:tag" content="面向对象">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://www.zuiqiangiron.xyz/2018/06/02/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF27-%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E3%80%81%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">
+<link rel="canonical" href="https://www.zuiqiangiron.xyz/2018/06/02/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF27-%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E3%80%81%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">
 
 
 <script id="page-configurations">
@@ -192,7 +192,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.zuiqiangiron.xyz/2018/06/02/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF27-%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E3%80%81%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">
+    <link itemprop="mainEntityOfPage" href="https://www.zuiqiangiron.xyz/2018/06/02/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF27-%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E3%80%81%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/touxiang.jpg">
@@ -390,7 +390,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://www.zuiqiangiron.xyz/2018/06/02/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF27-%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E3%80%81%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" title="Python学习之路27-对象引用、可变性和垃圾回收">http://www.zuiqiangiron.xyz/2018/06/02/Python学习之路27-对象引用、可变性和垃圾回收/</a>
+    <a href="https://www.zuiqiangiron.xyz/2018/06/02/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF27-%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E3%80%81%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" title="Python学习之路27-对象引用、可变性和垃圾回收">https://www.zuiqiangiron.xyz/2018/06/02/Python学习之路27-对象引用、可变性和垃圾回收/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -840,7 +840,7 @@ window.addEventListener('pjax:success', () => {
 </script>
 <script>
   var disqus_config = function() {
-    this.page.url = "http://www.zuiqiangiron.xyz/2018/06/02/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF27-%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E3%80%81%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/";
+    this.page.url = "https://www.zuiqiangiron.xyz/2018/06/02/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF27-%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E3%80%81%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/";
     this.page.identifier = "2018/06/02/Python学习之路27-对象引用、可变性和垃圾回收/";
     this.page.title = "Python学习之路27-对象引用、可变性和垃圾回收";
     };
