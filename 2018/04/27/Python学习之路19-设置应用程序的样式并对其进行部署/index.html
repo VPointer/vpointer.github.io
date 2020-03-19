@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《Python编程：从入门到实践》笔记。 本篇将对Django项目做最后的完善。本篇也是这本书的最后一篇。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路19-设置应用程序的样式并对其进行部署">
+<meta property="og:url" content="http://yoursite.com/2018/04/27/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《Python编程：从入门到实践》笔记。 本篇将对Django项目做最后的完善。本篇也是这本书的最后一篇。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828441/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/1524795383797.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828441/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/1524796050010.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828441/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/1524797184599.png">
+<meta property="article:published_time" content="2018-04-27T13:00:00.000Z">
+<meta property="article:modified_time" content="2018-04-27T13:00:00.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python基础">
+<meta property="article:tag" content="Django">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828441/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/1524795383797.png">
+
+<link rel="canonical" href="http://yoursite.com/2018/04/27/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路19-设置应用程序的样式并对其进行部署 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/27/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路19-设置应用程序的样式并对其进行部署
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-04-27 21:00:00" itemprop="dateCreated datePublished" datetime="2018-04-27T21:00:00+08:00">2018-04-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">Python基础</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/04/27/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/04/27/Python学习之路19-设置应用程序的样式并对其进行部署/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《Python编程：从入门到实践》笔记。 本篇将对Django项目做最后的完善。本篇也是这本书的最后一篇。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="前言">1. 前言</h1>
+<p>在本篇中，我们将：</p>
+<ul>
+<li>使用Bootstrap库设置样式；</li>
+<li>把项目部署到Heroku上。</li>
+</ul>
+<h1 id="设置项目学习笔记的样式">2. 设置项目“学习笔记”的样式</h1>
+<p>之前关注的都是项目的功能，现在来为项目添加样式。</p>
+<p>我们将使用<code>django-bootstrap3</code>来设置样式。首先请在虚拟环境中安装这个第三方库。</p>
+<p>然后像之前在项目<code>settings.py</code>中注册我们自己编写的APP一样，注册<code>bootstrap3</code>这个应用程序。</p>
+<p>还需要包含<code>django-bootstrap3</code>包含<code>jQuery</code>，在<code>settings.py</code>末尾添加如下代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-- snip --</span><br><span class="line">LOGIN_URL = <span class="string">'/users/login/'</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># django-bootstrap3的设置</span></span><br><span class="line">BOOTSTRAP3 = &#123;</span><br><span class="line">    <span class="string">"include_jquery"</span>: <span class="literal">True</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="修改base.html">2.1 修改base.html</h2>
+<h3 id="定义html头部">2.1.1 定义HTML头部</h3>
+<p>实现访问项目的每个页面时，浏览器标题都现实这个网站的名称。另外还添加了一些在模板中使用Bootstrap所需的信息。删除<code>base.html</code>的全部代码，并添加如下代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#123;% load bootstrap3 %&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"x-ua-compatible"</span> <span class="attr">content</span>=<span class="string">"IE=edge"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1"</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Learning Log<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  &#123;% bootstrap_css %&#125;</span><br><span class="line">  &#123;% bootstrap_javascript %&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>第12行使用了<code>django-bootstrap3</code>的一个自定义模板标签，它让Django包含所有的Bootstrap样式文件。第13行启用可能在页面中使用的所有交互式行为，如可折叠的导航栏。</p>
+<h3 id="定义导航栏">2.1.2 定义导航栏</h3>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">-- snip --</span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- Static navbar --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">nav</span> <span class="attr">class</span>=<span class="string">"navbar navbar-default navbar-static-top"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"container"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"navbar-header"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">"button"</span> <span class="attr">class</span>=<span class="string">"navbar-toggle collapsed"</span> <span class="attr">data-toggle</span>=<span class="string">"collapse"</span> </span></span><br><span class="line"><span class="tag">              <span class="attr">data-target</span>=<span class="string">"#navbar"</span> <span class="attr">aria-expanded</span>=<span class="string">"false"</span> <span class="attr">aria-controls</span>=<span class="string">"navbar"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"navbar-brand"</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'learning_logs:index' %&#125;"</span>&gt;</span>Learning Log<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"navbar"</span> <span class="attr">class</span>=<span class="string">"navbar-collapse collapse"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">"nav navbar-nav"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'learning_logs:topics' %&#125;"</span>&gt;</span>Topics<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"></span><br><span class="line">      <span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">"nav navbar-nav navbar-right"</span>&gt;</span></span><br><span class="line">        &#123;% if user.is_authenticated %&#125;</span><br><span class="line">          <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span>&gt;</span>Hello, &#123;&#123; user.username &#125;&#125;.<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'users:logout' %&#125;"</span>&gt;</span>log out<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">        &#123;% else %&#125;</span><br><span class="line">          <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'users:register' %&#125;"</span>&gt;</span>register<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'users:login' %&#125;"</span>&gt;</span>log in<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">        &#123;% endif %&#125;</span><br><span class="line">      <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span><span class="comment">&lt;!--/.nav-collapse --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">nav</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><code>navbar</code>、<code>navbar-default</code>和<code>navbar-static-top</code>是三个选择器，在<code>nav</code>块中的内容将根据选择器在Bootstrap中定义的样式规则来设置样式（额，<code>html</code>中选择器的概念有点忘了，不过不要紧，我们的任务并不是研究HTML）。在第20-28行中是我们之前编写的判断语句，只不过被放在了<code>ul</code>块中，并且设置了一个选择器<code>navbar-right</code>。</p>
+<h3 id="定义页面的主要部分">2.1.3 定义页面的主要部分</h3>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">-- snip --</span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">-- snip --</span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"container"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"page-header"</span>&gt;</span></span><br><span class="line">    &#123;% block header %&#125;&#123;% endblock %&#125;</span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">    &#123;% block content %&#125;&#123;% endblock %&#125;</span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span> <span class="comment">&lt;!-- /container --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这部分包含一个<code>div</code>块，该块的<code>class</code>属性是<code>container</code>（容器），容器中包含两个元素：一个新增的<code>header</code>块和之前用到的<code>content</code>块。<code>header</code>块的内容告诉用户页面包含哪些信息以及用户可以在页面上执行哪些操作，其<code>class</code>属性值<code>page-header</code>将一系列样式应用于这个块。<code>base.html</code>的修改到此为止。</p>
+<h2 id="使用jumbotron设置主页样式">2.2 使用jumbotron设置主页样式</h2>
+<p>下面使用新定义的<code>header</code>块及另一个名为<code>jumbotron</code>的Bootstrap元素修改主页。<code>jumbotron</code>元素是一个大框，通常用于在主页中呈现项目的简要描述，修改<code>index.html</code>：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "learning_logs/base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block header %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"jumbotron"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Track your learning.<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">&#123;% endblock header %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="name">h2</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'users:register' %&#125;"</span>&gt;</span>Register an account<span class="tag">&lt;/<span class="name">a</span>&gt;</span>to make your own</span><br><span class="line">    Learning Log, and list the topics you're learning about.</span><br><span class="line">  <span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h2</span>&gt;</span></span><br><span class="line">    Whenever you learn something new about a topic, make an entry summarizing</span><br><span class="line">    what you've learned.</span><br><span class="line">  <span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>header</code>块中，我们用一个<code>jumbotron</code>元素来修饰一条简短的标语，让首次访问者大致知道网站功能。随后再<code>content</code>块中描述了两种主要操作。下图是实际效果：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828441/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/1524795383797.png" /></p>
+<h2 id="设置登录页面样式">2.3 设置登录页面样式</h2>
+<p>现在的代码改进了登录页面的整体外观（因为修改了<code>base.html</code>），现在来改进登录表单，修改<code>login.html</code>：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "learning_logs/base.html" %&#125;</span><br><span class="line">&#123;% load bootstrap3 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block header %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="name">h2</span>&gt;</span>Log in to your account.<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">&#123;% endblock header %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">form</span> <span class="attr">class</span>=<span class="string">"form"</span> <span class="attr">method</span>=<span class="string">"post"</span> <span class="attr">action</span>=<span class="string">"&#123;% url 'users:login' %&#125;"</span>&gt;</span></span><br><span class="line">    &#123;% csrf_token %&#125;</span><br><span class="line">    &#123;% bootstrap_form form %&#125;</span><br><span class="line"></span><br><span class="line">    &#123;% buttons %&#125;</span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">"btn btn-primary"</span> <span class="attr">name</span>=<span class="string">"submit"</span>&gt;</span>log in<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    &#123;% endbuttons %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"hidden"</span> <span class="attr">name</span>=<span class="string">"next"</span> <span class="attr">value</span>=<span class="string">"&#123;% url 'learning_logs:index' %&#125;"</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"></span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>第2行代码加载了<code>bootstrap3</code>模板标签；</p>
+<p><code>header</code>块描述这个页面时做什么的；</p>
+<p>删除了之前的<code>if form.errors</code>代码块，因为<code>django-bootstrap3</code>位自动管理表单错误；</p>
+<p><code>form</code>块中添加了属性<code>“form"</code>，然后使用标签模板<code>bootstrap_form</code>来显示表单，这个标签替换掉了之前的<code>form.as_p</code>；</p>
+<p><code>button</code>也使用Bootstrap样式进行了替换，下面是实际效果图：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828441/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/1524796050010.png" /></p>
+<h2 id="设置new_topic.html页面样式">2.4 设置new_topic.html页面样式</h2>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "learning_logs/base.html" %&#125;</span><br><span class="line">&#123;% load bootstrap3 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block header %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="name">h2</span>&gt;</span>Add a new topic:<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">&#123;% endblock header %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">form</span> <span class="attr">class</span>=<span class="string">"form"</span> <span class="attr">action</span>=<span class="string">"&#123;% url 'learning_logs:new_topic' %&#125;"</span> <span class="attr">method</span>=<span class="string">"post"</span>&gt;</span></span><br><span class="line">    &#123;% csrf_token %&#125;</span><br><span class="line">    &#123;% bootstrap_form %&#125;</span><br><span class="line"></span><br><span class="line">    &#123;% buttons %&#125;</span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">"btn btn-primary"</span> <span class="attr">name</span>=<span class="string">"submit"</span>&gt;</span>add topic<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    &#123;% endbuttons %&#125;</span><br><span class="line">  <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"></span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的修改大多都类似于对<code>login.html</code>的修改。</p>
+<h2 id="设置topics.html页面样式">2.5 设置topics.html页面样式</h2>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "learning_logs/base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block header %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Topics<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">&#123;% endblock header %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">    &#123;% for topic in topics %&#125;</span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">h3</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'learning_logs:topic' topic.id %&#125;"</span>&gt;</span>&#123;&#123; topic &#125;&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    &#123;% empty %&#125;</span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span>No topics have been added yet.<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    &#123;% endfor %&#125;</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h3</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'learning_logs:new_topic' %&#125;"</span>&gt;</span>Add a new topic:<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>这里并没有加载<code>bootstrap3</code>，因为该文件中并没有使用任何<code>bootstrap3</code>自定义标签。</p>
+<h2 id="设置topic.html中条目的样式">2.6 设置topic.html中条目的样式</h2>
+<p><code>topic</code>页面包含的内容比其他大部分页面都多，所以样式设置要多一些，我们将使用Bootstrap面板（<code>panel</code>）来突出每个条目。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "learning_logs/base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block header %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="name">h2</span>&gt;</span>&#123;&#123; topic &#125;&#125;<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">&#123;% endblock header %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'learning_logs:new_entry' topic.id %&#125;"</span>&gt;</span>add new entry<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  &#123;% for entry in entries %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"panel panel-default"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"panel-heading"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">h3</span>&gt;</span></span><br><span class="line">          &#123;&#123; entry.date_added|date:"M d, Y H:i" &#125;&#125;</span><br><span class="line">          <span class="tag">&lt;<span class="name">small</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'learning_logs:edit_entry' entry.id %&#125;"</span>&gt;</span>edit</span><br><span class="line">              entry<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">small</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"panel-body"</span>&gt;</span></span><br><span class="line">        &#123;&#123; entry.text|linebreaks &#125;&#125;</span><br><span class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span> <span class="comment">&lt;!-- panel --&gt;</span></span><br><span class="line">  &#123;% empty %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span></span><br><span class="line">      There are no entries for this topic yet.</span><br><span class="line">    <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  &#123;% endfor %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>只修改了样式，并没有修改Django代码。下图是实际效果：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828441/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/1524797184599.png" /></p>
+<p>至此已完成了对页面的修改。</p>
+<h1 id="部署学习笔记">3. 部署“学习笔记”</h1>
+<p>由于对Web应用不是很了解，笔者查阅资料现在大多用Apache和Nginx来部署Web项目，但本书使用Heroku来部署我们的Web项目。</p>
+<p>请到Heroku的官网注册账号，它提供免费使用服务，并到https://toolbelt.heroku.com/ 下载命令行工具。</p>
+<p>同时，还需要在Django项目所在的虚拟环境中安装一些额外的包：</p>
+<p><code>dj-database-url</code>：帮助Django与Heroku使用的数据库进行通信；</p>
+<p><code>dj-static</code>，<code>static3</code>：帮助Django正确管理静态文件（静态文件包括样式规则和JavaScript文件）；</p>
+<p><code>gunicorn</code>：一个服务器软件，能够在在线环境中支持应用程序提供的服务。</p>
+<h2 id="创建包含包列表的文件requirements.txt">3.1 创建包含包列表的文件requirements.txt</h2>
+<p>Heroku需要知道我们的项目依赖于哪些包，使用<code>pip</code>命令来生成这个文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">(venv)learning_log&gt;</span><span class="bash">pip freeze &gt; requirements.txt</span></span><br></pre></td></tr></table></figure>
+<p>下面是这个文件所包含的内容（“如果是Windows系统，看到的内容可能不全”——这是书中提示，然而这里的内容还比书中多了一个<code>pytz</code>）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dj-database-url&#x3D;&#x3D;0.5.0</span><br><span class="line">dj-static&#x3D;&#x3D;0.0.6</span><br><span class="line">Django&#x3D;&#x3D;2.0.4</span><br><span class="line">django-bootstrap3&#x3D;&#x3D;9.1.0</span><br><span class="line">gunicorn&#x3D;&#x3D;19.7.1</span><br><span class="line">pytz&#x3D;&#x3D;2018.4</span><br><span class="line">static3&#x3D;&#x3D;0.7.0</span><br></pre></td></tr></table></figure>
+<p>在部署项目时，Heroku将创建一个环境，并根据这个文件安装其中的所有包。也因此，项目部署到Heroku后，行为将与它在本地系统上一样。</p>
+<p>还需要在包列表中添加<code>psycopg2</code>，它帮助Heroku管理活动数据库。需在<code>requirements.txt</code>最后一行添加如下代码：<code>psycopg2&gt;=2.6.1</code>。该语句表示，有新版则装最新版，没有的话最低安装2.6.1版本。</p>
+<h2 id="确定python版本">3.2 确定Python版本</h2>
+<p>如果没有指定Python版本，Heroku将使用其当前的Python默认版本。下面来确保Heroku使用我们所使用的版本。如果不知道使用的python的版本，请在项目所在虚拟环境中执行<code>python --version</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">(venv)learning_log&gt;</span><span class="bash">python --version</span></span><br><span class="line">Python 3.6.4</span><br></pre></td></tr></table></figure>
+<p>再在<code>manage.py</code>所在的文件夹中新建一个名为<code>runtime.txt</code>的文件，输入Python的版本：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python-3.6.4</span><br></pre></td></tr></table></figure>
+<p>注意：单词小写，中间有一个连字符！</p>
+<h2 id="为部署到heroku而修改settings.py">3.3 为部署到Heroku而修改settings.py</h2>
+<p>在<code>settings.py</code>末尾添加一个片段，指定一些Heroku环境设置：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">-- snip --</span><br><span class="line"><span class="comment"># 书中的判断语句是 if os.getcwd() == '/app': </span></span><br><span class="line"><span class="comment"># 现在估计是Heroku升级了，改为了下面的语句，否则待会儿部署的时候会出错</span></span><br><span class="line"><span class="keyword">if</span> os.environ[<span class="string">'HOME'</span>] == <span class="string">"/app"</span>:</span><br><span class="line">    <span class="keyword">import</span> dj_database_url</span><br><span class="line"></span><br><span class="line">    DATABASES = &#123;</span><br><span class="line">        <span class="string">"default"</span>: dj_database_url.config(default=<span class="string">"postgres://localhost"</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 让request.is_secure()承认X-Forwarded-Proto头</span></span><br><span class="line">    SECURE_PROXY_HEADER = (<span class="string">"HTTP_X_FORWARDED_PROTO"</span>, <span class="string">"https"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 支持所有的主机头（host header）</span></span><br><span class="line">    ALLOWED_HOSTS = [<span class="string">"*"</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 静态资产配置</span></span><br><span class="line">    BASE_DIR = os.path.dirname(os.path.abspath(__file__))</span><br><span class="line">    <span class="comment"># 书中设置是这样的： STATIC_ROOT = "staticfiles"</span></span><br><span class="line">    STATIC_ROOT = os.path.join(BASE_DIR, <span class="string">'static'</span>)</span><br><span class="line">    STATICFILES_DIRS = (</span><br><span class="line">        os.path.join(BASE_DIR, <span class="string">"static"</span>),</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+<p>第2行中，使用<code>getcwd()</code>函数获取当前的工作目录，在Heroku中，这个目录总<code>/app</code>。在本地部署中，这个目录通常是项目文件的名称。这个if测试确保仅当项目被部署到Heroku时才运行这个代码块。<strong>这种结构让我们能够将统一配置文件用于本地开发环境和在线服务器。</strong></p>
+<p>在第3行，导入了<code>dj_database_url</code>，用于在Heroku上配置服务器。Heroku使用<code>PostgreSQL</code>（也叫<code>Postgres</code>，一种比<code>SQLite</code>更高级的数据库），这些配置使得项目在Heroku上使用该数据库。</p>
+<p>其他配置作用分别如下：支持HTTPS请求（第10行）；让Django能够使用Heroku的URL来提供项目支持的服务（第13行）；设置项目，使其能够在Heroku上正确地提供静态文件（第16-20行）。</p>
+<h2 id="创建启动进程的procfile">3.4 创建启动进程的Procfile</h2>
+<p><code>Procfile</code>告诉Heroku启动那些进程，以便能够正确地提供项目支持的服务。这个文件只包含一行，文件名为<code>Procfile</code>，不带扩展名，保存到项目根目录。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">web: gunicorn learning_log.wsgi --log-file -</span><br></pre></td></tr></table></figure>
+<p>这段代码让Heroku将<code>gunicorn</code>用过服务器，并使用<code>learning_log/wsgi.py</code>中的设置来启动应用程序。标志<code>log-file</code>告诉Heroku应将哪些类型的时间写入日志。</p>
+<h2 id="为部署到heroku而修改wsgi.py">3.5 为部署到Heroku而修改wsgi.py</h2>
+<p>因为Heroku需要的设置与目前一直使用的设置稍有不同，所以还需要修改<code>wsgi.py</code>文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> django.core.wsgi <span class="keyword">import</span> get_wsgi_application</span><br><span class="line"><span class="keyword">from</span> dj_static <span class="keyword">import</span> Cling</span><br><span class="line"></span><br><span class="line">os.environ.setdefault(<span class="string">"DJANGO_SETTINGS_MODULE"</span>, <span class="string">"learning_log.settings"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 原代码是 application = get_wsgi_application()</span></span><br><span class="line">application = Cling(get_wsgi_application())</span><br></pre></td></tr></table></figure>
+<p>注意，这里只有第4,9行是添加的，其余都是自带的。</p>
+<h2 id="创建用于存储静态文件的目录">3.6 创建用于存储静态文件的目录</h2>
+<p>在Heroku上，Django搜集所有的静态文件，并将它们放在一个地方，以便高效管理。我们需要手动创建这样一个文件夹。在项目文件夹<code>learning_log</code>中，也有一个名为<code>learning_log</code>的子文件夹，在这个子文件夹中，新建一个名为<code>static</code>的文件夹，即这个文件夹的路径为：<code>learning_log/learning_log/static/</code>。由于项目被推送到Heroku时，它将不包含空文件夹，所以，在<code>static</code>文件夹中还需要创建一个占位文件<code>placeholder.txt</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">This file ensures that learning_log&#x2F;static&#x2F; will be added to the project.</span><br><span class="line">Django will collect static files and place them in learning_log&#x2F;static&#x2F;.</span><br></pre></td></tr></table></figure>
+<h2 id="在本地使用gunicorn服务器">3.7 在本地使用gunicorn服务器</h2>
+<p>如果你使用的是Linux或OS X，可在部署到Heroku前尝试在本地使用<code>gunicorn</code>服务器。为此，在虚拟环境中执行命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">(ll_env)learning_log$</span><span class="bash"> heroku <span class="built_in">local</span></span></span><br><span class="line">Installing Heroku Toolbelt v4... done</span><br><span class="line">-- snip --</span><br><span class="line">forego | starting web.1 on port 5000</span><br><span class="line">web.1 | [2018-04-27 14:00:00 -0800] [12875] [INFO] Starting gunicorn 19.3.0</span><br><span class="line">-- snip --</span><br></pre></td></tr></table></figure>
+<p>但如果使用的是Windows，请跳过这个步骤（笔者用的是Windows，所以上面的输出是从书上照搬过来的）。</p>
+<h2 id="使用git跟踪项目文件">3.8 使用Git跟踪项目文件</h2>
+<p>Heroku Toolbelt包含Git，这里不再介绍Git怎么安装。</p>
+<p>Git跟踪谁修改了项目，即便项目由一个人开发。为了实现跟踪，需要提供用户名和email，但对于联系项目，这俩都可以随便起：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">(ll_env)learning_log$</span><span class="bash"> git config --global user.name <span class="string">"example"</span></span></span><br><span class="line"><span class="meta">(ll_env)learning_log$</span><span class="bash"> git config --global user.email <span class="string">"test@example.com"</span></span></span><br></pre></td></tr></table></figure>
+<p>我们无需让Git跟踪项目中的每个文件，因此将让Git忽略一些文件。在项目根目录下创建一个名为 <code>.gitignore</code> 的文件，注意前面有一个实心句点，不含扩展名。在文件中输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ll_env&#x2F;</span><br><span class="line">__pycache__&#x2F;</span><br><span class="line">*.sqlite3</span><br></pre></td></tr></table></figure>
+<p>忽略<code>ll_env</code>目录是因为随时都可以重新创建它；忽略<code>__pycache__</code>是因为这个目录包含了Django运行<code>.py</code>文件时自动创建的<code>.pyc</code>文件，目前都是本地数据（如果使用的是python2.7，请将<code>__pycache__</code>替换为<code>*.pyc</code>）；没有跟踪本地数据库是因为如果你在服务器上使用的是<code>SQLite</code>，当你将项目推送到服务器时，可能会不小心把服务器上的数据给覆盖掉。</p>
+<p>最后，我们提交项目，而在提交之前需要为我们的项目初始化一个Git仓库，将所有必要的文件都加入到这个仓库中，并提交项目的初始状态，如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">(ll_env) learning_log&gt;git init</span><br><span class="line">Initialized empty Git repository <span class="keyword">in</span> E:/Code/Python/learning_log/.git/</span><br><span class="line"></span><br><span class="line">(ll_env) learning_log&gt;git add .</span><br><span class="line"></span><br><span class="line">(ll_env) learning_log&gt;git commit -am <span class="string">"Ready for deployment to heroku."</span></span><br><span class="line">[master (root-commit) 4109cbc] Ready <span class="keyword">for</span> deployment to heroku.</span><br><span class="line"> 39 files changed, 745 insertions(+)</span><br><span class="line"> create mode 100644 .gitignore</span><br><span class="line"> -- snip --</span><br><span class="line"> create mode 100644 users/views.py</span><br><span class="line"></span><br><span class="line">(ll_env) learning_log&gt;git status</span><br><span class="line">On branch master</span><br><span class="line">nothing to commit, working tree clean</span><br></pre></td></tr></table></figure>
+<p>第一个命令在“学习笔记”所在的目录中初始化一个空仓库；第二个命令（最后有个句点！）将未被忽略的文件都添加到这个仓库中；第三个命令中的标志 <code>-a</code> 让Git在这个提交中包含所有修改过的文件，而标志 <code>-m</code> 让Git记录一条日志消息；第四个命令的输出表明当前位于分支<code>master</code>中，而工作目录是干净（<code>clean</code>）的，每当要将项目推送到Heroku时，都希望看到这个状态。</p>
+<h2 id="推送到heroku">3.9 推送到Heroku</h2>
+<p>现在开始推送项目。在项目的虚拟环境中执行下面的命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">(ll_env) learning_log&gt;heroku login</span><br><span class="line">Enter your Heroku credentials:</span><br><span class="line">Email: kevinwen701@gmail.com</span><br><span class="line">Password: ************</span><br><span class="line">Logged <span class="keyword">in</span> as kevinwen701@gmail.com</span><br><span class="line"></span><br><span class="line">(ll_env) learning_log&gt;heroku create</span><br><span class="line">Creating app... <span class="keyword">done</span>, ⬢ pure-anchorage-27981</span><br><span class="line">https://pure-anchorage-27981.herokuapp.com/ | https://git.heroku.com/pure-anchorage-27981.git</span><br><span class="line"></span><br><span class="line">(ll_env) learning_log&gt;git push heroku master</span><br><span class="line">Counting objects: 46, <span class="keyword">done</span>.</span><br><span class="line">-- snip --</span><br><span class="line">remote: Verifying deploy... <span class="keyword">done</span>.</span><br><span class="line">To https://git.heroku.com/pure-anchorage-27981.git</span><br><span class="line"> * [new branch]      master -&gt; master</span><br></pre></td></tr></table></figure>
+<p>首先，在终端会话中，使用你在Heroku官网创建的账号登陆，然后让Heroku创建一个空项目。Heroku生成的项目名由两个单词和一个数字组成（可以修改）。然后我们让Git将项目分值<code>master</code>推送到Heroku刚才建立的仓库中；Heroku随后使用这些文件在其服务器上创建项目。最后输出信息还给出了访问这个项目的URL。</p>
+<p>大概上述命令执行完后，项目便部署好了，但还未对其做全面的配置。为核实正确地启动了服务器进程，请执行命令<code>heroku ps</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(ll_env) learning_log&gt;heroku ps</span><br><span class="line">Free dyno hours quota remaining this month: 550h 0m (100%)</span><br><span class="line">For more information on dyno sleeping and how to upgrade, see:</span><br><span class="line">https://devcenter.heroku.com/articles/dyno-sleeping</span><br><span class="line"></span><br><span class="line">=== web (Free): gunicorn learning_log.wsgi --<span class="built_in">log</span>-file - (1)</span><br><span class="line">web.1: up 2018/04/27 16:36:42 +0800 (~ 6m ago)</span><br></pre></td></tr></table></figure>
+<p>当执行了这条命令后，输出指出项目还可在多长时间内处于活动状态。当超过这个时间后，将显示标准的服务器错误页面，而稍后我们将设置这个错误页面。在倒数第二行，我们发现启动了<code>Procfile</code>指定的进程。</p>
+<p>现在，我们可以使用命令<code>heroku open</code>在浏览器中打开这个APP了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(ll_env) learning_log&gt;heroku open</span><br></pre></td></tr></table></figure>
+<p>它将自动打开浏览器，显示项目的主页。</p>
+<h2 id="在heroku上建立数据库">3.10 在Heroku上建立数据库</h2>
+<p>要对Heroku项目执行Django和Python命令，可使用命令<code>heroku run</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">(ll_env) learning_log&gt;heroku run python manage.py migrate</span><br><span class="line">Running python manage.py migrate on ⬢ pure-anchorage-27981... up, run.9204 (Free)</span><br><span class="line">-- snip --</span><br><span class="line">Operations to perform:</span><br><span class="line">  Apply all migrations: admin, auth, contenttypes, learning_logs, sessions</span><br><span class="line">Running migrations:</span><br><span class="line">  -- snip --</span><br><span class="line">  Applying learning_logs.0003_topic_owner... OK</span><br><span class="line">  Applying sessions.0001_initial... OK</span><br></pre></td></tr></table></figure>
+<p>当执行上述命令后，Heroku创建一个终端会话来执行命令<code>migrate</code>（第2行）。从第6行起，Django应用默认迁移以及我们在开发“学习笔记”期间生成的迁移。</p>
+<p>现在可以像在本地系统上一样使用它。然而其中并没有任何数据，因为之前的测试数据并没有复制到服务器中，而且也不建议将测试数据复制到服务器中。</p>
+<h2 id="改进heroku部署">3.11 改进Heroku部署</h2>
+<h3 id="在heroku上创建超级用户">3.11.1 在Heroku上创建超级用户</h3>
+<p>从上面的命令可以看出，我们可以使用<code>heroku run</code>来执行一次性命令，但可以这样执行命令：在连接到了Heroku服务器的情况下，使用命令<code>heroku run bash</code>来打开Bash终端会话。我们将使用Bash终端会话来创建超级用户，以便能够访问在线应用程序的管理网站：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">(ll_env) learning_log&gt;heroku run bash</span><br><span class="line">Running bash on ⬢ pure-anchorage-27981... up, run.8093 (Free)</span><br><span class="line">~ $ ls</span><br><span class="line">learning_log  learning_logs  manage.py  Procfile  requirements.txt  runtime.txt  users</span><br><span class="line">~ $ python manage.py createsuperuser</span><br><span class="line">/app/.heroku/python/lib/python3.6/site-packages/psycopg2/__init__.py:144: UserWarning:</span><br><span class="line">The psycopg2 wheel package will be renamed from release 2.8; <span class="keyword">in</span> order to keep installing</span><br><span class="line">from binary please use <span class="string">"pip install psycopg2-binary"</span> instead. For details see: </span><br><span class="line">&lt;http://initd.org/psycopg/docs/install.html<span class="comment">#binary-install-from-pypi&gt;.</span></span><br><span class="line">  <span class="string">""</span><span class="string">")</span></span><br><span class="line"><span class="string">Username (leave blank to use 'u10229'): ll_admin</span></span><br><span class="line"><span class="string">Email address:</span></span><br><span class="line"><span class="string">Password:</span></span><br><span class="line"><span class="string">Password (again):</span></span><br><span class="line"><span class="string">Superuser created successfully.</span></span><br><span class="line"><span class="string">~ $ exit</span></span><br><span class="line"><span class="string">exit</span></span><br><span class="line"><span class="string">(venv) learning_log&gt;</span></span><br></pre></td></tr></table></figure>
+<p>进入Bash后，我们首先执行了<code>ls</code>命令，以查看服务器上有哪些文件和目录，发现和本地系统相同。然后我们执行了常见超级用户的命令，执行过程和之前创建超级用户一样。现在可以通过在APP的URL后面加<code>/admin/</code>来登陆管理网站了。</p>
+<h3 id="在heroku上创建对用户友好的url">3.11.2 在Heroku上创建对用户友好的URL</h3>
+<p>由于在服务器上我们的项目名不是<code>learning_log</code>，而是其他自动生成的名字，为此，我们使用一个命令来重命名这个APP：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(ll_env) learning_log&gt;heroku apps:rename kevins-learning-log</span><br><span class="line">Renaming pure-anchorage-27981 to kevins-learning-log... <span class="keyword">done</span></span><br><span class="line">https://kevins-learning-log.herokuapp.com/ | https://git.heroku.com/kevins-learning-log.git</span><br><span class="line">Git remote heroku updated</span><br><span class="line"> !    Don<span class="string">'t forget to update git remotes for all other local checkouts of the app.</span></span><br></pre></td></tr></table></figure>
+<h2 id="确保项目的安全">3.12 确保项目的安全</h2>
+<p>当前这个项目存在一个严重的安全问题：<code>settings.py</code>中包含设置<code>DEBUG=True</code>，它在发生错误时显示调试信息。开发项目时，Django的错误页面向你显示了重要的调试信息，如果将项目部署到服务器后依然保留这个设置，讲给攻击者提供大量可供利用的信息。我们还需要确保任何人都无法看到这些信息，也不能冒充项目托管网站来重定向请求。</p>
+<p>下面修改<code>settings.py</code>文件，以让我们能够在本地看到错误信息，但部署到服务器后不显示任何错误信息：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-- snip --</span><br><span class="line"><span class="keyword">if</span> os.environ[<span class="string">"HOME"</span>] == <span class="string">"/app"</span>:</span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="comment"># 只允许Heroku托管这个项目</span></span><br><span class="line">    ALLOWED_HOSTS = [<span class="string">"kevins-learning-log.herokuapp.com"</span>]</span><br><span class="line">    </span><br><span class="line">    DEBUG = <span class="literal">False</span></span><br><span class="line">    -- snip --</span><br></pre></td></tr></table></figure>
+<p>然后我们提交并推送修改。先将修改提交到Git仓库，在推送到Heroku：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">(venv) E:\Code\Python\learning_log&gt;git commit -am <span class="string">"Set DEBUG=False for heroku."</span></span><br><span class="line">[master 563b175] Set DEBUG=False <span class="keyword">for</span> heroku.</span><br><span class="line"> 1 file changed, 6 insertions(+), 4 deletions(-)</span><br><span class="line"></span><br><span class="line">(venv) E:\Code\Python\learning_log&gt;git status</span><br><span class="line">On branch master</span><br><span class="line">nothing to commit, working tree clean</span><br><span class="line"></span><br><span class="line">(venv) E:\Code\Python\learning_log&gt;git push heroku master</span><br><span class="line">-- snip --</span><br><span class="line">remote: -----&gt; Python app detected</span><br><span class="line">remote: -----&gt; Installing requirements with pip</span><br><span class="line">-- snip --</span><br><span class="line">remote: -----&gt; Launching...</span><br><span class="line">remote:        Released v7</span><br><span class="line">remote:        https://kevins-learning-log.herokuapp.com/ deployed to Heroku</span><br><span class="line">remote:</span><br><span class="line">remote: Verifying deploy... <span class="keyword">done</span>.</span><br><span class="line">To https://git.heroku.com/kevins-learning-log.git</span><br><span class="line">   9bc1c2d..563b175  master -&gt; master</span><br></pre></td></tr></table></figure>
+<p>Heroku发现仓库发生了变化，因此重建了项目，确保所有的修改都已生效。它不会重建数据库，因此本次无需执行命令<code>migrate</code>。</p>
+<p>现在如果访问未定义的扩展将会看到一个标准的错误页面，它不包含任何关于项目的具体信息。</p>
+<h2 id="创建自定义错误页面">3.13 创建自定义错误页面</h2>
+<p>编写两个风格与我们项目相符的404和500错误页面模板。这些模板必须放在根模板目录中。为此，在文件夹<code>leraning_log/learning_log</code>中新建一个文件夹<code>templates</code>，再在这个文件夹中新建一个<code>404.html</code>文件，并输入如下内容：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "learning_logs/base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block header %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="name">h2</span>&gt;</span>The item you requested is not available.(404)<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">&#123;% endblock header %&#125;</span><br></pre></td></tr></table></figure>
+<p>再创建一个名为<code>500.html</code>的文件：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "learning_logs/base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block header %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="name">h2</span>&gt;</span>There has been an internal error. (500)<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">&#123;% endblock header %&#125;</span><br></pre></td></tr></table></figure>
+<p>这些新文件要求对<code>settings.py</code>做细微的修改：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-- snip --</span><br><span class="line">TEMPLATES = [</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">'BACKEND'</span>: <span class="string">'django.template.backends.django.DjangoTemplates'</span>,</span><br><span class="line">        <span class="string">'DIRS'</span>: [os.path.join(BASE_DIR, <span class="string">'learning_log/templates'</span>)],</span><br><span class="line">        <span class="string">'APP_DIRS'</span>: <span class="literal">True</span>,</span><br><span class="line">        -- snip --</span><br><span class="line">    &#125;,</span><br><span class="line">]</span><br><span class="line">-- snip --</span><br></pre></td></tr></table></figure>
+<p>在将修改推送到服务器之前，可以在本地查看错误页面时什么样的，不过得先在本地设置<code>DEBUG=False</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># settings.py文件</span></span><br><span class="line"><span class="comment"># SECURITY WARNING: don't run with debug turned on in production!</span></span><br><span class="line">DEBUG = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">ALLOWED_HOSTS = [<span class="string">"localhost"</span>]</span><br></pre></td></tr></table></figure>
+<p>现在本地访问不存在的页面时将得到我们自定义的错误页面。</p>
+<p>最后，想之前一样，将修改推送到服务器，代码不再演示，注意为推送添加一条简短的日志信息。</p>
+<p>现在，如果用户手工请求不存在的主题或条目将导致500错误。Django尝试渲染请求的页面，但没有足够的信息来完成这项任务，进而引发<code>500</code>错误。对于这种情况，将其视为<code>404</code>错误更合适，为此可使用Django快捷函数<code>get_object_or_404()</code>。这个函数尝试从数据库获取请求的对象，当对象不存在时，引发<code>404</code>错误。我们在<code>views.py</code>中导入这个函数，并用它替换函数<code>get()</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.shortcuts <span class="keyword">import</span> render, get_object_or_404</span><br><span class="line"><span class="meta">@login_required</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">topic</span><span class="params">(request, topic_id)</span>:</span></span><br><span class="line">    <span class="string">"""显示单个主题及其所有的条目"""</span></span><br><span class="line">    topic = get_object_or_404(Topic, id=topic_id)</span><br><span class="line">    -- snip --</span><br></pre></td></tr></table></figure>
+<p>再次提交并推送修改。</p>
+<h2 id="部署总结">3.14 部署总结</h2>
+<p>从前面这些例子可看出，开发与部署的过程如下：</p>
+<p>①修改项目。如果创建了新文件，使用命令 <code>git add</code>. （最后有个句点！）将它们加到Git仓库中。如果要迁移数据库，也需要执行该命令，因为每个迁移都生成了新的迁移文件。</p>
+<p>②执行 <code>git commit -am "commit message"</code>，将修改提交到仓库。</p>
+<p>③执行 <code>git push heroku master</code> 将修改推送到服务器。</p>
+<p>④如果本地迁移了数据库，也需要迁移在线数据库，可以使用一次性命令 <code>heroku run python manage.py migrate</code> ，也可以使用 <code>heroku run bash</code>打开一个远程终端会话，再执行迁移。</p>
+<h2 id="设置secret_key">3.15 设置SECRET_KEY</h2>
+<p>Django根据<code>settings.py</code>中的<code>SECRET_KEY</code>来实现大量的安全协议。本项目中设置的<code>SECRET_KEY</code>对一个练习项目来说已经足够了，但是对于生产网站，请务必认真对待这个值。</p>
+<h2 id="将项目从heroku删除">3.16 将项目从Heroku删除</h2>
+<p>Heroku限制了你可免费托管的项目数，另外，我们也不希望自己的账户中塞满大量的联系项目。除了可以登录到Heroku，在应用程序的Settings中手动删除项目，也可以在命令行中执行如下命令删除项目：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(ll_env)learning_log$ heroku apps:destroy --app appname</span><br></pre></td></tr></table></figure>
+<h1 id="总结">4. 总结</h1>
+<p>现在大家可以访问这个网站 https://kevins-learning-log.herokuapp.com （笔者在免费期过期前不会删除这个网站）。本篇主要介绍了如何使用Bootstrap来设置网页的样式，并学习了如何将项目部署到Heroku的服务器上。至此，Python的Django入门已经完成，这本书也已经看完。暂时告一段落。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/04/27/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/" title="Python学习之路19-设置应用程序的样式并对其进行部署">http://yoursite.com/2018/04/27/Python学习之路19-设置应用程序的样式并对其进行部署/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E5%9F%BA%E7%A1%80/" rel="tag"># Python基础</a>
+              <a href="/tags/Django/" rel="tag"># Django</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/04/26/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF18-%E7%94%A8%E6%88%B7%E8%B4%A6%E6%88%B7/" rel="prev" title="Python学习之路18-用户账户">
+      <i class="fa fa-chevron-left"></i> Python学习之路18-用户账户
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/05/05/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF20-Python%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B/" rel="next" title="Python学习之路20-数据模型">
+      Python学习之路20-数据模型 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置项目学习笔记的样式"><span class="nav-text">2. 设置项目“学习笔记”的样式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#修改base.html"><span class="nav-text">2.1 修改base.html</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义html头部"><span class="nav-text">2.1.1 定义HTML头部</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#定义导航栏"><span class="nav-text">2.1.2 定义导航栏</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#定义页面的主要部分"><span class="nav-text">2.1.3 定义页面的主要部分</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用jumbotron设置主页样式"><span class="nav-text">2.2 使用jumbotron设置主页样式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置登录页面样式"><span class="nav-text">2.3 设置登录页面样式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置new_topic.html页面样式"><span class="nav-text">2.4 设置new_topic.html页面样式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置topics.html页面样式"><span class="nav-text">2.5 设置topics.html页面样式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置topic.html中条目的样式"><span class="nav-text">2.6 设置topic.html中条目的样式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#部署学习笔记"><span class="nav-text">3. 部署“学习笔记”</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建包含包列表的文件requirements.txt"><span class="nav-text">3.1 创建包含包列表的文件requirements.txt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#确定python版本"><span class="nav-text">3.2 确定Python版本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为部署到heroku而修改settings.py"><span class="nav-text">3.3 为部署到Heroku而修改settings.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建启动进程的procfile"><span class="nav-text">3.4 创建启动进程的Procfile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为部署到heroku而修改wsgi.py"><span class="nav-text">3.5 为部署到Heroku而修改wsgi.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建用于存储静态文件的目录"><span class="nav-text">3.6 创建用于存储静态文件的目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在本地使用gunicorn服务器"><span class="nav-text">3.7 在本地使用gunicorn服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用git跟踪项目文件"><span class="nav-text">3.8 使用Git跟踪项目文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#推送到heroku"><span class="nav-text">3.9 推送到Heroku</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在heroku上建立数据库"><span class="nav-text">3.10 在Heroku上建立数据库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#改进heroku部署"><span class="nav-text">3.11 改进Heroku部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#在heroku上创建超级用户"><span class="nav-text">3.11.1 在Heroku上创建超级用户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在heroku上创建对用户友好的url"><span class="nav-text">3.11.2 在Heroku上创建对用户友好的URL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#确保项目的安全"><span class="nav-text">3.12 确保项目的安全</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建自定义错误页面"><span class="nav-text">3.13 创建自定义错误页面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部署总结"><span class="nav-text">3.14 部署总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置secret_key"><span class="nav-text">3.15 设置SECRET_KEY</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#将项目从heroku删除"><span class="nav-text">3.16 将项目从Heroku删除</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text">4. 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/04/27/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/";
+    this.page.identifier = "2018/04/27/Python学习之路19-设置应用程序的样式并对其进行部署/";
+    this.page.title = "Python学习之路19-设置应用程序的样式并对其进行部署";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

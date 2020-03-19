@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《流畅的Python》笔记。 本篇是Python进阶篇的开始。本篇主要是对Python特殊方法的概述。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路20-数据模型">
+<meta property="og:url" content="http://yoursite.com/2018/05/05/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF20-Python%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《流畅的Python》笔记。 本篇是Python进阶篇的开始。本篇主要是对Python特殊方法的概述。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-05-05T13:00:00.000Z">
+<meta property="article:modified_time" content="2018-05-05T13:00:00.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python进阶">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2018/05/05/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF20-Python%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路20-数据模型 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/05/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF20-Python%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路20-数据模型
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-05-05 21:00:00" itemprop="dateCreated datePublished" datetime="2018-05-05T21:00:00+08:00">2018-05-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index"><span itemprop="name">Python进阶</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/05/05/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF20-Python%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/05/05/Python学习之路20-Python数据模型/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《流畅的Python》笔记。</p>
+<p>本篇是Python进阶篇的开始。本篇主要是对Python特殊方法的概述。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="前言">1. 前言</h1>
+<p>数据模型其实是对Python框架的描述，它规范了这门语言自身构件模块的接口，这些模块包括但不限于序列、迭代器、函数、类和上下文管理器。不管在哪种框架下写程序，都会花费大量时间去实现那些会被框架本身调用的方法，Python也不例外。Python解释器碰到特殊句法时，会使用特殊方法去激活一些基本的对象操作，这些特殊方法的名字以两个下划线开头，以两个下划线结尾（所以特殊方法也叫双下方法 dunder method），这些特殊方法名能让自己编写的对象实现和支持以下的语言构架，并与之交互：</p>
+<p>迭代、集合类、属性访问、运算符重载、函数和方法的调用、对象的创建和销毁、字符串表示形式和格式化、管理上下文（即<code>with</code>块）。</p>
+<p>下面通过一些例子来介绍常用的特殊方法。</p>
+<h1 id="python风格纸牌">2. Python风格纸牌</h1>
+<p>首先介绍两个特殊方法<code>__getitem__</code>和<code>__len__</code>这两个特殊方法。以下代码创建了一个纸牌类：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> collections</span><br><span class="line"></span><br><span class="line">Card = collections.namedtuple(<span class="string">"Card"</span>, [<span class="string">"rank"</span>, <span class="string">"suit"</span>])</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FrenchDeck</span>:</span></span><br><span class="line">    ranks = [str(n) <span class="keyword">for</span> n <span class="keyword">in</span> range(<span class="number">2</span>, <span class="number">11</span>)] + list(<span class="string">"JQKA"</span>)</span><br><span class="line">    <span class="comment"># 黑桃，红桃，方块，梅花</span></span><br><span class="line">    suits = <span class="string">"spades diamonds clubs hearts"</span>.split()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># 嵌套循环</span></span><br><span class="line">        self._cards = [Card(rank, suit) <span class="keyword">for</span> suit <span class="keyword">in</span> self.suits <span class="keyword">for</span> rank <span class="keyword">in</span> self.ranks]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__len__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> len(self._cards)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getitem__</span><span class="params">(self, position)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self._cards[position]</span><br></pre></td></tr></table></figure>
+<p><code>namedtuple</code>，即命名元组，类似于<code>C/C++</code>中的<code>struct</code>，定义如下：</p>
+<p><code>collections.namedtuple(typename, field_names, verbose=False, rename=False)</code></p>
+<p>第一个参数是元组名；第二个是该元组中含的属性名；第三个参数表示在构建该命名元组之前先打印出该命名元组的结构，如果在控制台输入第3行代码，并置<code>verbose</code>为<code>True</code>的话，会输出该命名元组的内部结构，实际上它是一个继承自<code>tuple</code>的类，由于输出过长，请大家自行实验；如果该命名元组的元素名中有Python关键字，则需要置第四个参数为<code>True</code>，这些与关键字重名的元素名会被特殊处理。</p>
+<p>用命名元组创建一个不带方法的对象十分简单：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from chapter20 import Card, FrenchDeck</span><br><span class="line">&gt;&gt;&gt; beer_card = Card(<span class="string">"7"</span>, <span class="string">"diamonds"</span>)</span><br><span class="line">&gt;&gt;&gt; beer_card</span><br><span class="line">Card(rank=<span class="string">'7'</span>, suit=<span class="string">'diamonds'</span>)</span><br></pre></td></tr></table></figure>
+<p>由于<code>FrenchDeck</code>实现了<code>__getitem__</code>方法，所以可以像操作<code>List</code>或<code>Tuple</code>一样操作<code>FrenchDeck</code>，比如随机访问，切片：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; deck = FrenchDeck()</span><br><span class="line">&gt;&gt;&gt; len(deck)</span><br><span class="line">52</span><br><span class="line">&gt;&gt;&gt; deck[0]</span><br><span class="line">Card(rank=<span class="string">'2'</span>, suit=<span class="string">'spades'</span>)</span><br><span class="line">&gt;&gt;&gt; deck[-1]</span><br><span class="line">Card(rank=<span class="string">'A'</span>, suit=<span class="string">'hearts'</span>)</span><br><span class="line">&gt;&gt;&gt; from random import choice</span><br><span class="line">&gt;&gt;&gt; choice(deck)</span><br><span class="line">Card(rank=<span class="string">'4'</span>, suit=<span class="string">'clubs'</span>)</span><br><span class="line">&gt;&gt;&gt; choice(deck)</span><br><span class="line">Card(rank=<span class="string">'J'</span>, suit=<span class="string">'clubs'</span>)</span><br><span class="line">&gt;&gt;&gt; deck[:3]</span><br><span class="line">[Card(rank=<span class="string">'2'</span>, suit=<span class="string">'spades'</span>), Card(rank=<span class="string">'3'</span>, suit=<span class="string">'spades'</span>), Card(rank=<span class="string">'4'</span>, suit=<span class="string">'spades'</span>)]</span><br><span class="line">&gt;&gt;&gt; deck[12::13]</span><br><span class="line">[Card(rank=<span class="string">'A'</span>, suit=<span class="string">'spades'</span>), Card(rank=<span class="string">'A'</span>, suit=<span class="string">'diamonds'</span>), </span><br><span class="line">Card(rank=<span class="string">'A'</span>, suit=<span class="string">'clubs'</span>), Card(rank=<span class="string">'A'</span>, suit=<span class="string">'hearts'</span>)]</span><br></pre></td></tr></table></figure>
+<p>由于实现了该方法，<code>FrenchDeck</code>还是个可迭代对象，即可以用<code>for</code>循环对其访问（也可以反向访问<code>reversed</code>）:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; <span class="keyword">for</span> card <span class="keyword">in</span> deck:</span><br><span class="line">&gt;&gt;&gt; ... <span class="built_in">print</span>(card)</span><br><span class="line">    </span><br><span class="line">Card(rank=<span class="string">'2'</span>, suit=<span class="string">'spades'</span>)</span><br><span class="line">Card(rank=<span class="string">'3'</span>, suit=<span class="string">'spades'</span>)</span><br><span class="line">Card(rank=<span class="string">'4'</span>, suit=<span class="string">'spades'</span>)</span><br><span class="line">-- snip --</span><br><span class="line">Card(rank=<span class="string">'Q'</span>, suit=<span class="string">'hearts'</span>)</span><br><span class="line">Card(rank=<span class="string">'K'</span>, suit=<span class="string">'hearts'</span>)</span><br><span class="line">Card(rank=<span class="string">'A'</span>, suit=<span class="string">'hearts'</span>)</span><br></pre></td></tr></table></figure>
+<p>迭代通常是隐式的，譬如说一个集合类型没有实现<code>__contains__</code>方法，那么in运算符就会按顺序做一次迭代搜索（调用<code>__getitem__</code>），于是<code>in</code>运算符可以用在<code>FrenchDeck</code>上：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; Card(<span class="string">'2'</span>, <span class="string">'spades'</span>) <span class="keyword">in</span> deck</span><br><span class="line">True</span><br></pre></td></tr></table></figure>
+<p>如果对上述<code>deck</code>变量调用<code>sorted</code>函数，Python将按<code>ASCII</code>码进行排序，但这并不是扑克牌的正确排序，所以下面我们自定义排序方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">suit_values = dict(spades=<span class="number">3</span>, hearts=<span class="number">2</span>, diamonds=<span class="number">1</span>, clubs=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">spades_high</span><span class="params">(card)</span>:</span></span><br><span class="line">    rank_value = FrenchDeck.ranks.index(card.rank)</span><br><span class="line">    <span class="keyword">return</span> rank_value * len(suit_values) + suit_values[card.suit]</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> card <span class="keyword">in</span> sorted(deck, key=spades_high):</span><br><span class="line">    print(card)</span><br></pre></td></tr></table></figure>
+<p>此时输出的结果就是先按点数排序，再按花色排序。</p>
+<h1 id="如何使用特殊方法">3. 如何使用特殊方法</h1>
+<p>需要明确一点，特殊方法的存在是为了给Python解释器调用到，作为程序员并不需要调用他们，也即是说，没有<code>my_object.__len__()</code>这种写法，而应该是<code>len(my_object)</code>。说到<code>__len__</code>方法，如果是Python内置类型，CPython会抄个近路，该方法实际上会直接返回<code>PyVarObject</code>里的<code>ob_size</code>属性，而<code>PyVarObject</code>是表示内存中长度可变的内痔对象的C语言结构体。</p>
+<p>很多时候特殊方法的调用是隐式的，比如<code>for i in x:</code>这个语句，背后其实用的是<code>iter(x)</code>，而这个函数的背后则是<code>x.__iter__()</code>方法，当然前提是这个方法在<code>x</code>中被实现（如果没被实现则会调用<code>__getitem__</code>方法）。</p>
+<p>直接调用这个值比调用一个方法快很多。直接调用特殊方法的频率应该远远低于你去实现它们的次数。</p>
+<p>通过内置的函数（例如<code>len</code>，<code>iter</code>，<code>str</code>等）来使用特殊方法是最好的选择。这些内置函数不仅会调用特殊方法，通常还提供额外的好处，而且对于内置的类来说，它们的速度更快。</p>
+<p>还有一点值得注意：不要想当然地随意添加特殊方法，比如<code>__foo__</code>之类的，因为虽然现在这个名字没有被Python内部使用，以后就不一定了。</p>
+<h2 id="自定义向量vector">3.1 自定义向量Vector</h2>
+<p>使用5个特殊方法实现<code>Vector</code>的字符串输出，取绝对值（如果是复数则是取模），返回布尔值，加法和数乘等运算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> hypot</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vector</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, x=<span class="number">0</span>, y=<span class="number">0</span>)</span>:</span></span><br><span class="line">        self.x = x</span><br><span class="line">        self.y = y</span><br><span class="line">	</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__repr__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Vector(%r, %r)"</span> % (self.x, self.y)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__abs__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> hypot(self.x, self.y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 在Python中，只有0，NULL才是False，其余均为True</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__bool__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># 更简单的写法是：</span></span><br><span class="line">        <span class="comment"># return bool(self.x or self.y)</span></span><br><span class="line">        <span class="keyword">return</span> bool(abs(self))</span><br><span class="line">	</span><br><span class="line">    <span class="comment"># 实现加法运算符重载</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__add__</span><span class="params">(self, other)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> Vector(self.x + other.x, self.y + other.y)</span><br><span class="line">	</span><br><span class="line">    <span class="comment"># 实现乘法运算符重载，这里是数乘，且还没有实现交换律（需要实现__rmul__方法）</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__mul__</span><span class="params">(self, scalar)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> Vector(self.x * scalar, self.y * scalar)</span><br></pre></td></tr></table></figure>
+<p>Python有一个内置函数叫做<code>repr</code>。该函数通过特殊方法<code>__repr__</code>来得到一个对象的字符串表示形式，如果没有该特殊方法，当我们在控制台打印一个向量对象时，得到的字符串可能是<code>&lt;Vector object at 0x10e00070&gt;</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码：</span></span><br><span class="line">v1 = Vector(<span class="number">2</span>, <span class="number">4</span>)</span><br><span class="line">v2 = Vector(<span class="number">2</span>, <span class="number">1</span>)</span><br><span class="line">print(v1 + v2)</span><br><span class="line">print(abs(v1))</span><br><span class="line">print(v1 * <span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果：</span></span><br><span class="line">Vector(<span class="number">4</span>, <span class="number">5</span>)</span><br><span class="line"><span class="number">4.47213595499958</span></span><br><span class="line">Vector(<span class="number">6</span>, <span class="number">12</span>)</span><br></pre></td></tr></table></figure>
+<p><code>__repr__</code>与<code>__str__</code>的区别与联系：前者方便我们调试和记录日志，后者则是给终端用户看的。后者是在<code>str()</code>函数被使用，或者是在<code>print</code>函数打印一个对象的时候才被调用，它返回的字符串对终端用户友好。如果只想实现这两个特殊方法中的一个，<code>__repr__</code>是更好的选择，因为如果一个对象没有<code>__str__</code>函数，Python又需要调用它时，解释器会用<code>__repr__</code>代替。</p>
+<p>上述<code>Vector</code>类实现了<code>__bool__</code>方法，它可用于需要布尔值的上下文中（<code>if</code>, <code>while</code>, <code>and</code>, <code>or</code>, <code>not</code>等）。默认情况下，我们自己定义的类的实例总被认为是<code>True</code>，除非重写了这个类的<code>__bool__</code>或<code>__len__</code>方法。<code>bool(x)</code>的背后是调用<code>x.__bool__()</code>；如果不存在<code>__bool__</code>方法，那么<code>bool(x)</code>会尝试调用<code>x.__len__()</code>，如果该方法返回0，则<code>bool</code>返回<code>False</code>，否则返回<code>True</code>。</p>
+<h2 id="为什么len不是普通方法">3.2 为什么len不是普通方法</h2>
+<p>“实用胜于纯粹”（Python之禅里的一句话）。<code>len</code>之所以不是一个普通方法，是为了让Python自带的数据结构可以走后门，<code>abs</code>也是同理。但多亏了它是特殊方法，我们也可以把<code>len</code>用于自定义数据类型。这种处理方式在保持内置类型的效率和保证语言的一致性之间找到了一个平衡点，也印证了“Python之禅”中的另一句话：“不能让特例特殊到考试破坏既定规则”。</p>
+<h1 id="总结">4. 总结</h1>
+<p>通过实现特殊方法，自定义数据类型可以表现得跟内置类型一样，从而让我们写出更具Python风格（Pythonic）的代码。后面的内容将围绕更多的特殊方法展开。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/05/05/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF20-Python%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B/" title="Python学习之路20-数据模型">http://yoursite.com/2018/05/05/Python学习之路20-Python数据模型/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E8%BF%9B%E9%98%B6/" rel="tag"># Python进阶</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/04/27/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF19-%E8%AE%BE%E7%BD%AE%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%A0%B7%E5%BC%8F%E5%B9%B6%E5%AF%B9%E5%85%B6%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2/" rel="prev" title="Python学习之路19-设置应用程序的样式并对其进行部署">
+      <i class="fa fa-chevron-left"></i> Python学习之路19-设置应用程序的样式并对其进行部署
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/05/06/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF21-%E5%BA%8F%E5%88%97%E6%9E%84%E6%88%90%E7%9A%84%E6%95%B0%E7%BB%84/" rel="next" title="Python学习之路21-序列构成的数组">
+      Python学习之路21-序列构成的数组 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#python风格纸牌"><span class="nav-text">2. Python风格纸牌</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#如何使用特殊方法"><span class="nav-text">3. 如何使用特殊方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义向量vector"><span class="nav-text">3.1 自定义向量Vector</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么len不是普通方法"><span class="nav-text">3.2 为什么len不是普通方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text">4. 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/05/05/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF20-Python%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B/";
+    this.page.identifier = "2018/05/05/Python学习之路20-Python数据模型/";
+    this.page.title = "Python学习之路20-数据模型";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

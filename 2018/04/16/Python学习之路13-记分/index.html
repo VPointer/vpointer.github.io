@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《Python编程：从入门到实践》笔记。 本篇是Python小游戏《外星人入侵》的最后一篇。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路13-记分">
+<meta property="og:url" content="http://yoursite.com/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《Python编程：从入门到实践》笔记。 本篇是Python小游戏《外星人入侵》的最后一篇。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828259/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/1523880843704.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828259/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/1523895161395.png">
+<meta property="article:published_time" content="2018-04-16T10:02:16.000Z">
+<meta property="article:modified_time" content="2018-04-16T10:02:16.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python基础">
+<meta property="article:tag" content="Python游戏">
+<meta property="article:tag" content="pygame">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828259/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/1523880843704.png">
+
+<link rel="canonical" href="http://yoursite.com/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路13-记分 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路13-记分
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-04-16 18:02:16" itemprop="dateCreated datePublished" datetime="2018-04-16T18:02:16+08:00">2018-04-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">Python基础</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/04/16/Python学习之路13-记分/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《Python编程：从入门到实践》笔记。 本篇是Python小游戏《外星人入侵》的最后一篇。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="前言">1. 前言</h1>
+<p>本篇我们将结束Pygame小游戏《外星人入侵》的开发。在本篇中，我们将添加如下内容：</p>
+<ul>
+<li>添加一个Play按钮，用于根据需要启动游戏以及在游戏结束后重启游戏；</li>
+<li>使玩家能提高等级，并在提高等级时加快节奏；</li>
+<li>添加一个记分系统</li>
+</ul>
+<h1 id="添加play按钮">2. 添加Play按钮</h1>
+<p>首先为了通过点击Play按钮来开始游戏，需要在<code>GameStats</code>类的构造函数中将<code>self.game_active</code>设置为<code>False</code>。</p>
+<h2 id="button类">2.1 Button类</h2>
+<p>为了添加<code>Play</code>按钮，我们需要先添加一个<code>Button</code>类。将这个类放在<code>button.py</code>模块中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pygame</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Button</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, ai_settings, screen, msg)</span>:</span></span><br><span class="line">        <span class="string">"""初始化按钮属性"""</span></span><br><span class="line">        self.screen = screen</span><br><span class="line">        self.screen_rect = screen.get_rect()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 设置按钮尺寸和其他属性</span></span><br><span class="line">        self.width, self.height = <span class="number">200</span>, <span class="number">50</span>   <span class="comment"># 解包，平行赋值</span></span><br><span class="line">        self.button_color = (<span class="number">0</span>, <span class="number">255</span>, <span class="number">0</span>)</span><br><span class="line">        self.text_color = (<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>)</span><br><span class="line">        self.font = pygame.font.SysFont(<span class="literal">None</span>, <span class="number">48</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 创建按钮的rect对象，并使其居中</span></span><br><span class="line">        self.rect = pygame.Rect(<span class="number">0</span>, <span class="number">0</span>, self.width, self.height)</span><br><span class="line">        self.rect.center = self.screen_rect.center</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 按钮的标签只需创建一次</span></span><br><span class="line">        self.prep_msg(msg)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">prep_msg</span><span class="params">(self, msg)</span>:</span></span><br><span class="line">        <span class="string">"""将msg渲染为图像，并使其在按钮上居中"""</span></span><br><span class="line">        self.msg_image = self.font.render(msg, <span class="literal">True</span>, self.text_color, self.button_color)</span><br><span class="line">        self.msg_image_rect = self.msg_image.get_rect()</span><br><span class="line">        self.msg_image_rect.center = self.rect.center</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">draw_button</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># 绘制一个用颜色填充的按钮，再绘制文本</span></span><br><span class="line">        self.screen.fill(self.button_color, self.rect)</span><br><span class="line">        self.screen.blit(self.msg_image, self.msg_image_rect)</span><br></pre></td></tr></table></figure>
+<p>pygame将字符串渲染为图像来处理文本，通过<code>pygame.font</code>的<code>render()</code>方法来渲染文字，它的第一个参数是要渲染的字符串，第二个是抗锯齿设定（打游戏的老铁应该对这个词很熟悉~~），第三个是字体颜色，第四个是背景颜色，第四个参数如果不设定，将以透明背景的方式渲染文本。最后通过<code>draw_button()</code>方法在窗体中绘制<code>Play</code>按钮。</p>
+<h2 id="修改alien_invasion.py">2.2 修改alien_invasion.py</h2>
+<p>在主程序中实例化一个<code>Play</code>按钮，并添加它的响应事件，以及将其画出。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">-- snip --</span><br><span class="line"><span class="keyword">from</span> button <span class="keyword">import</span> Button</span><br><span class="line">-- snip --</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_game</span><span class="params">()</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    pygame.display.set_caption(<span class="string">"Alien Invasion"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 创建Play按钮</span></span><br><span class="line">    play_button = Button(ai_settings, screen, <span class="string">"Play"</span>)</span><br><span class="line">    </span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="comment"># 开始游戏的主循环</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="comment"># 增加了参数，为按钮添加响应事件</span></span><br><span class="line">        gf.check_events(ai_settings, screen, ship, bullets, stats, play_button, aliens)</span><br><span class="line">        -- snip --</span><br><span class="line">        <span class="comment"># 增加了参数，在窗体中画出按钮</span></span><br><span class="line">        gf.update_screen(ai_settings, screen, ship, bullets, aliens, stats, play_button)</span><br><span class="line"></span><br><span class="line">run_game()</span><br></pre></td></tr></table></figure>
+<p>注意，不光新增了实例化按钮的代码，还修改了<code>update_screen()</code>和<code>check_events()</code>函数。</p>
+<h2 id="修改game_functions.py">2.3 修改game_functions.py</h2>
+<p><strong>修改update_screen()函数</strong>：在窗体中画出<code>Play</code>按钮</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 增加了参数，记得修改主程序</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_screen</span><span class="params">(ai_settings, screen, ship, bullets, aliens, stats, play_button)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="comment"># 如果游戏没启动，则显示Play按钮</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> stats.game_active:</span><br><span class="line">        play_button.draw_button()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 让最近绘制的屏幕可见</span></span><br><span class="line">    pygame.display.flip()</span><br></pre></td></tr></table></figure>
+<p><strong>修改check_events()函数</strong>：为<code>Play</code>按钮添加响应事件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 增加了参数，记得修改主程序</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_events</span><span class="params">(ai_settings, screen, ship, bullets, stats, play_button, aliens)</span>:</span></span><br><span class="line">    <span class="keyword">for</span> event <span class="keyword">in</span> pygame.event.get():</span><br><span class="line">        -- snip --</span><br><span class="line">        <span class="keyword">elif</span> event.type == pygame.MOUSEBUTTONDOWN:</span><br><span class="line">            mouse_x, mouse_y = pygame.mouse.get_pos()</span><br><span class="line">            check_play_button(stats, play_button, mouse_x, mouse_y, ai_settings,</span><br><span class="line">                              screen, ship, aliens, bullets)</span><br></pre></td></tr></table></figure>
+<p><code>pygame.MOUSEBUTTONDOWN</code>表示鼠标按下事件；通过<code>pygame.mouse</code>的<code>get_pos()</code>来获得鼠标点击处的坐标；最后，通过<code>check_play_button()</code>函数来响应鼠标点击事件，该函数的内容如下：</p>
+<p><strong>新增check_play_button()函数</strong>：处理鼠标点击事件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_play_button</span><span class="params">(stats, play_button, mouse_x, mouse_y, ai_settings, screen,</span></span></span><br><span class="line"><span class="function"><span class="params">                      ship, aliens, bullets)</span>:</span></span><br><span class="line">    <span class="string">"""在玩家单机Play按钮时开始新游戏"""</span></span><br><span class="line">    <span class="keyword">if</span> play_button.rect.collidepoint(mouse_x, mouse_y) <span class="keyword">and</span> <span class="keyword">not</span> stats.game_active:</span><br><span class="line">        <span class="comment"># 隐藏光标</span></span><br><span class="line">        pygame.mouse.set_visible(<span class="literal">False</span>)</span><br><span class="line">        <span class="comment"># 重置游戏统计信息</span></span><br><span class="line">        stats.reset_stats()</span><br><span class="line">        stats.game_active = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 清空外星人列表和子弹列表</span></span><br><span class="line">        aliens.empty()</span><br><span class="line">        bullets.empty()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 创建一群新的外星人，并让飞船居中</span></span><br><span class="line">        create_fleet(ai_settings, screen, ship, aliens)</span><br><span class="line">        ship.center_ship()</span><br></pre></td></tr></table></figure>
+<p>通过<code>play_button.rect</code>的<code>collidepoint()</code>方法来确定鼠标是否点击到了<code>button</code>，如果点击到了，并且当前游戏是“非启动”状态，则启动或者重置游戏；</p>
+<p>如果不对<code>stats.game_active</code>进行确认，则在游戏中，即使<code>Play</code>按钮消失了，鼠标点击它原来所在的地方，也会重置游戏。</p>
+<p>在游戏中，为了避免光标的影响，游戏时我们通过<code>pygame.mouse</code>的<code>set_visible()</code>方法将其隐藏；游戏结束时，重新显示光标，为此，需要<strong>修改ship_hit()函数</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ship_hit</span><span class="params">(ai_settings, stats, screen, ship, aliens, bullets)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        -- snip --</span><br><span class="line">        pygame.mouse.set_visible(<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+<p>最后，程序的效果如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828259/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/1523880843704.png" /></p>
+<h1 id="游戏提速">3. 游戏提速</h1>
+<p>每当消灭一批舰队后，我们就为游戏里的元素提个速，为此，需要修改<code>settings.py</code>和<code>game_functions.py</code>模块。</p>
+<h2 id="修改settings.py">3.1 修改settings.py</h2>
+<p>添加一个提速倍率参数，并增加两个方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Settings</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        -- snip --</span><br><span class="line">        <span class="comment"># 以什么样的速度提节奏</span></span><br><span class="line">        self.speedup_scale = <span class="number">1.1</span></span><br><span class="line">        <span class="comment"># 前面有四个属性放到了该方法中</span></span><br><span class="line">        self.initialize_dynamic_settings()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">initialize_dynamic_settings</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""初始化随游戏进行而变化的设置"""</span></span><br><span class="line">        self.ship_speed_factor = <span class="number">1.5</span></span><br><span class="line">        self.bullet_speed_factor = <span class="number">3</span></span><br><span class="line">        self.alien_speed_factor = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 外星舰队方向标志：1向右，-1向左</span></span><br><span class="line">        self.fleet_direction = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">increase_speed</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""提高速度"""</span></span><br><span class="line">        self.ship_speed_factor *= self.speedup_scale</span><br><span class="line">        self.bullet_speed_factor *= self.speedup_scale</span><br><span class="line">        self.alien_speed_factor *= self.speedup_scale</span><br></pre></td></tr></table></figure>
+<p>我们将需要修改的四个参数放到了<code>initialize_dynamic_settings()</code>方法中，<code>increase_speed()</code>方法用于动态改变游戏参数。</p>
+<h2 id="修改game_functions.py-1">3.2 修改game_functions.py</h2>
+<p>每消灭一批外星舰队，就对游戏提速，需要<strong>修改check_bullet_alien_collisions()函数</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_bullet_alien_collisions</span><span class="params">(ai_settings, screen, ship, aliens, bullets)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="keyword">if</span> len(aliens) == <span class="number">0</span>:</span><br><span class="line">        -- snip --</span><br><span class="line">        ai_settings.increase_speed()</span><br><span class="line">        -- snip --</span><br></pre></td></tr></table></figure>
+<p>当重新开始游戏时，需要将这些被修改了的参数改回默认值，为此，需要<strong>修改check_play_button()函数</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_play_button</span><span class="params">(stats, play_button, mouse_x, mouse_y, ai_settings, screen,</span></span></span><br><span class="line"><span class="function"><span class="params">                      ship, aliens, bullets)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> play_button.rect.collidepoint(mouse_x,</span><br><span class="line">                                     mouse_y) <span class="keyword">and</span> <span class="keyword">not</span> stats.game_active:</span><br><span class="line">        <span class="comment"># 重置游戏设置</span></span><br><span class="line">        ai_settings.initialize_dynamic_settings()</span><br><span class="line">        -- snip --</span><br></pre></td></tr></table></figure>
+<h1 id="记分板">4. 记分板</h1>
+<p>下面我们将实现一个记分系统，实时跟踪玩家的得分，并显示最高得分，当前等级和余下的飞船数。首先，我们需要创建一个<code>Scoreboard</code>类。</p>
+<h2 id="新增scoreboard.py">4.1 新增scoreboard.py</h2>
+<p>新增一个<code>Scoreboard</code>类，用作屏幕中的记分板，它的屏幕正中央上方部分是最高分数，屏幕右边是当前分数和等级，左上角是剩余的飞船数量，飞船数量用图片表示，因此，我们<strong>还要将Ship类更改为从Sprite继承</strong>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pygame</span><br><span class="line"><span class="keyword">from</span> pygame.sprite <span class="keyword">import</span> Group</span><br><span class="line"><span class="keyword">from</span> ship <span class="keyword">import</span> Ship</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Scoreboard</span>:</span></span><br><span class="line">    <span class="string">"""显示得分信息的类"""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, ai_settings, screen, stats)</span>:</span></span><br><span class="line">        <span class="string">"""初始化显示得分涉及的属性"""</span></span><br><span class="line">        self.screen = screen</span><br><span class="line">        self.screen_rect = screen.get_rect()</span><br><span class="line">        self.ai_settings = ai_settings</span><br><span class="line">        self.stats = stats</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 显示得分信息时使用的字体设置</span></span><br><span class="line">        self.text_color = (<span class="number">30</span>, <span class="number">30</span>, <span class="number">30</span>)</span><br><span class="line">        self.font = pygame.font.SysFont(<span class="literal">None</span>, <span class="number">48</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 生成当前得分、最高得分、当前等级和当前剩余的飞船数</span></span><br><span class="line">        self.prep_score()</span><br><span class="line">        self.prep_high_score()</span><br><span class="line">        self.prep_level()</span><br><span class="line">        self.prep_ships()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">prep_score</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""将得分转换为图片"""</span></span><br><span class="line">        rounded_score = round(self.stats.score, <span class="number">-1</span>)</span><br><span class="line">        <span class="comment"># 在得分中插入逗号</span></span><br><span class="line">        score_str = <span class="string">"&#123;:,&#125;"</span>.format(rounded_score)</span><br><span class="line">        self.score_image = self.font.render(score_str, <span class="literal">True</span>, self.text_color,</span><br><span class="line">                                            self.ai_settings.bg_color)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将得分放在屏幕右上角</span></span><br><span class="line">        self.score_rect = self.score_image.get_rect()</span><br><span class="line">        self.score_rect.right = self.screen_rect.right - <span class="number">20</span></span><br><span class="line">        self.score_rect.top = <span class="number">20</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">prep_high_score</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""将最高得分转化为图像"""</span></span><br><span class="line">        high_score = round(self.stats.high_score, <span class="number">-1</span>)</span><br><span class="line">        high_score_str = <span class="string">"&#123;:,&#125;"</span>.format(high_score)</span><br><span class="line">        self.high_score_image = self.font.render(high_score_str, <span class="literal">True</span>, self.text_color,</span><br><span class="line">                                                 self.ai_settings.bg_color)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将最高得分放在屏幕顶部中央</span></span><br><span class="line">        self.high_score_rect = self.high_score_image.get_rect()</span><br><span class="line">        self.high_score_rect.centerx = self.screen_rect.centerx</span><br><span class="line">        self.high_score_rect.top = self.score_rect.top</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">prep_level</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""将等级转化为图像"""</span></span><br><span class="line">        self.level_image = self.font.render(str(self.stats.level), <span class="literal">True</span>, self.text_color,</span><br><span class="line">                                            self.ai_settings.bg_color)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将等级放在得分下方</span></span><br><span class="line">        self.level_rect = self.level_image.get_rect()</span><br><span class="line">        self.level_rect.right = self.score_rect.right</span><br><span class="line">        self.level_rect.top = self.score_rect.bottom + <span class="number">10</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">prep_ships</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""显示还余下多少艘飞船"""</span></span><br><span class="line">        self.ships = Group()</span><br><span class="line">        <span class="keyword">for</span> ship_number <span class="keyword">in</span> range(self.stats.ships_left):</span><br><span class="line">            ship = Ship(self.ai_settings, self.screen)</span><br><span class="line">            ship.rect.x = <span class="number">10</span> + ship_number * ship.rect.width</span><br><span class="line">            ship.rect.y = <span class="number">10</span></span><br><span class="line">            self.ships.add(ship)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">show_score</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""在屏幕上显示得分板"""</span></span><br><span class="line">        self.screen.blit(self.score_image, self.score_rect)</span><br><span class="line">        self.screen.blit(self.high_score_image, self.high_score_rect)</span><br><span class="line">        self.screen.blit(self.level_image, self.level_rect)</span><br><span class="line">        <span class="comment"># 绘制飞船</span></span><br><span class="line">        self.ships.draw(self.screen)</span><br></pre></td></tr></table></figure>
+<h2 id="修改settings.py-1">4.2 修改settings.py</h2>
+<p>设置外星人的分数，外星人分数增长的速度：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Settings</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        -- snip --</span><br><span class="line">        <span class="comment"># 外星人点数的提高速度</span></span><br><span class="line">        self.score_scale = <span class="number">1.5</span></span><br><span class="line"></span><br><span class="line">        self.initialize_dynamic_settings()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">initialize_dynamic_settings</span><span class="params">(self)</span>:</span></span><br><span class="line">        -- snip --</span><br><span class="line">        <span class="comment"># 记分, 每一个外星人的分数</span></span><br><span class="line">        self.alien_points = <span class="number">50</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">increase_speed</span><span class="params">(self)</span>:</span></span><br><span class="line">        -- snip --</span><br><span class="line">        <span class="comment"># 动态增加每个外星人的分数</span></span><br><span class="line">        self.alien_points = int(self.alien_points * self.score_scale)</span><br></pre></td></tr></table></figure>
+<h2 id="修改game_stats.py">4.3 修改game_stats.py</h2>
+<p>在<code>GameStats</code>中设置一个用于记录最高分的属性，也正因此，应该将它放在构造函数中，它只会变大，在没有重新运行游戏前，它不会被重置为<code>0</code>；在<code>reset_stats()</code>方法中，初始化<code>score</code>和<code>level</code>两个属性，这两个属性每点一次<code>Play</code>按钮都会被重置。对于<code>level</code>这个属性，每消灭一批舰队，<code>level</code>就加1.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameStats</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, ai_settings)</span>:</span></span><br><span class="line">        -- snip --</span><br><span class="line">        <span class="comment"># 在任何情况下都不应重置最高得分</span></span><br><span class="line">        self.high_score = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">reset_stats</span><span class="params">(self)</span>:</span></span><br><span class="line">        -- snip --</span><br><span class="line">        self.score = <span class="number">0</span></span><br><span class="line">        self.level = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<h2 id="修改主程序alien_invasion.py">4.4 修改主程序alien_invasion.py</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">-- snip --</span><br><span class="line"><span class="keyword">from</span> scoreboard <span class="keyword">import</span> Scoreboard</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_game</span><span class="params">()</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="comment"># 创建计分板</span></span><br><span class="line">    score = Scoreboard(ai_settings, screen, stats)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 开始游戏的主循环</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="comment"># 添加score参数</span></span><br><span class="line">        gf.check_events(ai_settings, screen, ship, bullets, stats, play_button,</span><br><span class="line">                        aliens, score)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> stats.game_active:</span><br><span class="line">            ship.update()</span><br><span class="line">            <span class="comment"># 添加score参数</span></span><br><span class="line">            gf.update_bullets(bullets, aliens, ship, screen, ai_settings, stats, score)</span><br><span class="line">            <span class="comment"># 添加score参数</span></span><br><span class="line">            gf.update_aliens(ai_settings, aliens, ship, screen, bullets, stats, score)</span><br><span class="line">        <span class="comment"># 添加score参数</span></span><br><span class="line">        gf.update_screen(ai_settings, screen, ship, bullets, aliens, stats,</span><br><span class="line">                         play_button, score)</span><br></pre></td></tr></table></figure>
+<p>从上面的注释可以看出，我们生成了一个计分板的实例<code>score</code>；<code>game_functions.py</code>中的四个函数都要添加<code>score</code>参数，换句话说，这四个函数都要修改，下面我们逐一修改这四个函数。</p>
+<h2 id="修改game_functions.py-2">4.5 修改game_functions.py</h2>
+<h3 id="修改参数">4.5.1 修改参数</h3>
+<p>有几个函数只需要在参数列表中增加<code>score</code>参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 增加score参数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_events</span><span class="params">(ai_settings, screen, ship, bullets, stats, play_button, aliens, score)</span>:</span></span><br><span class="line">    <span class="keyword">for</span> event <span class="keyword">in</span> pygame.event.get():</span><br><span class="line">        -- snip --</span><br><span class="line">        <span class="keyword">elif</span> event.type == pygame.MOUSEBUTTONDOWN:</span><br><span class="line">            mouse_x, mouse_y = pygame.mouse.get_pos()</span><br><span class="line">            <span class="comment"># 增加score参数, 该函数有所改动</span></span><br><span class="line">            check_play_button(stats, play_button, mouse_x, mouse_y, ai_settings,</span><br><span class="line">                              screen, ship, aliens, bullets, score)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 增加score参数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_bullets</span><span class="params">(bullets, aliens, ship, screen, ai_settings, stats, score)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="comment"># 增加score参数，该函数有所改动</span></span><br><span class="line">    check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets, stats, score)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 增加score参数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_aliens</span><span class="params">(ai_settings, aliens, ship, screen, bullets, stats, score)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="keyword">if</span> pygame.sprite.spritecollideany(ship, aliens):</span><br><span class="line">        <span class="comment"># 增加score参数，该函数有所改动</span></span><br><span class="line">        ship_hit(ai_settings, stats, screen, ship, aliens, bullets, score)</span><br><span class="line">    <span class="comment"># 增加score参数，该函数有所改动</span></span><br><span class="line">    check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets, score)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 增加score参数，该函数有所改动</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_screen</span><span class="params">(ai_settings, screen, ship, bullets, aliens, stats, play_button, score)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    aliens.draw(screen)</span><br><span class="line">    <span class="comment"># 在if语句前面添加绘制计分板的代码</span></span><br><span class="line">    <span class="comment"># 显示得分</span></span><br><span class="line">    score.show_score()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> stats.game_active:</span><br><span class="line">        play_button.draw_button()</span><br><span class="line">    -- snip --</span><br></pre></td></tr></table></figure>
+<p>接下来是改动较多的函数。</p>
+<h3 id="修改check_play_button函数">4.5.2 修改check_play_button()函数</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加了score参数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_play_button</span><span class="params">(stats, play_button, mouse_x, mouse_y, ai_settings, screen,</span></span></span><br><span class="line"><span class="function"><span class="params">                      ship, aliens, bullets, score)</span>:</span></span><br><span class="line">    <span class="string">"""在玩家单机Play按钮时开始新游戏"""</span></span><br><span class="line">    <span class="keyword">if</span> play_button.rect.collidepoint(mouse_x,</span><br><span class="line">                                     mouse_y) <span class="keyword">and</span> <span class="keyword">not</span> stats.game_active:</span><br><span class="line">        -- snip --</span><br><span class="line">        stats.game_active = <span class="literal">True</span>  <span class="comment"># 这一句不是新增的</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 以下四行是新增的</span></span><br><span class="line">        score.prep_score()</span><br><span class="line">        score.prep_high_score()</span><br><span class="line">        score.prep_level()</span><br><span class="line">        score.prep_ships()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 清空外星人列表和子弹列表</span></span><br><span class="line">        -- snip --</span><br></pre></td></tr></table></figure>
+<p>首先参数列表添加了<code>score</code>参数，<code>if</code>判断中还添加了四行生成计分板的代码。之所以这里要添加这四行代码，其实是为了当你重新开始（也就是第二次及以后点击<code>Play</code>按钮）游戏时，计分板能正确显示。</p>
+<p>当第一运行游戏时，没有这四行也能正确显示计分板。但是从第二次点击Play开始，如果没有这四行，游戏的各个参数虽然更新了（通过<code>check_play_button()</code>中的各种重置函数得到了更新），可这些更新还没有让记分板中这四个参数的图像得到重新绘制，即属性的更新没有自动触发<code>score</code>的这四个函数。所以显示会不正确，因此必须在这里添加这四行代码。</p>
+<h3 id="修改update_screen函数">4.5.3 修改update_screen()函数</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 增加了score参数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_screen</span><span class="params">(ai_settings, screen, ship, bullets, aliens, stats, play_button, score)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="comment"># 增加显示得分的代码</span></span><br><span class="line">    score.show_score()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> stats.game_active:</span><br><span class="line">        -- snip --</span><br></pre></td></tr></table></figure>
+<h3 id="修改update_bullets和update_aliens函数">4.5.4 修改update_bullets()和update_aliens()函数</h3>
+<p>这俩函数只是增加参数而已。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 增加了score参数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_bullets</span><span class="params">(bullets, aliens, ship, screen, ai_settings, stats, score)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="comment"># 增加了score参数, 函数有改动</span></span><br><span class="line">    check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets, stats, score)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 增加了score参数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_aliens</span><span class="params">(ai_settings, aliens, ship, screen, bullets, stats, score)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="comment"># 检测外星人和飞船之间的碰撞</span></span><br><span class="line">    <span class="keyword">if</span> pygame.sprite.spritecollideany(ship, aliens):</span><br><span class="line">        <span class="comment"># 增加了score参数, 函数有改动</span></span><br><span class="line">        ship_hit(ai_settings, stats, screen, ship, aliens, bullets, score)</span><br><span class="line">    <span class="comment"># 增加了score参数</span></span><br><span class="line">    check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets, score)</span><br></pre></td></tr></table></figure>
+<p><code>check_aliens_bottom()</code>内也变化也不大，该函数的变化不再以代码的形式单独列出：</p>
+<p>该函数增加了一个<code>score</code>参数，它内部调用了<code>ship_hit()</code>函数，为这个调用也增加<code>score</code>参数。这就是全部变化。</p>
+<h3 id="修改check_bullet_alien_collisions函数">4.5.5 修改check_bullet_alien_collisions()函数</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 增加了score参数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_bullet_alien_collisions</span><span class="params">(ai_settings, screen, ship, aliens, bullets, stats, score)</span>:</span></span><br><span class="line">    collisions = pygame.sprite.groupcollide(bullets, aliens, <span class="literal">True</span>, <span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> collisions:</span><br><span class="line">        <span class="keyword">for</span> aliens <span class="keyword">in</span> collisions.values():</span><br><span class="line">            stats.score += ai_settings.alien_points * len(aliens)</span><br><span class="line">            <span class="comment"># 其实这里可以将其放到for循环之外，应为并不能立刻就呈现分数变化</span></span><br><span class="line">            <span class="comment"># 要等到主程序中的update_screen()中才能呈现</span></span><br><span class="line">            score.prep_score()</span><br><span class="line">        <span class="comment"># 该函数是新增的</span></span><br><span class="line">        check_high_score(stats, score)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> len(aliens) == <span class="number">0</span>:</span><br><span class="line">        <span class="comment"># 删除现有的子弹并创建新的舰队</span></span><br><span class="line">        bullets.empty()</span><br><span class="line">        ai_settings.increase_speed()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 提高等级</span></span><br><span class="line">        stats.level += <span class="number">1</span></span><br><span class="line">        score.prep_level()</span><br><span class="line"></span><br><span class="line">        create_fleet(ai_settings, screen, ship, aliens)</span><br></pre></td></tr></table></figure>
+<p>首先我们增加了一个判断语句，用于根据消灭的外星人来增加分数，由于有可能一颗子弹打到多个外星人但只算了一个外星人的分数，所有用循环来确保消灭掉的每一个外星人都得到了统计。<code>collisions</code>是一个字典，这里子弹是键，该子弹消灭的外星人对象为值（是个列表）。</p>
+<p>我们还新增了一个更新最高积分的函数<code>check_high_score()</code>，它的代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_high_score</span><span class="params">(stats, score)</span>:</span></span><br><span class="line">    <span class="string">"""检查是否诞生了新的最高得分"""</span></span><br><span class="line">    <span class="keyword">if</span> stats.score &gt; stats.high_score:</span><br><span class="line">        stats.high_score = stats.score</span><br><span class="line">        score.prep_high_score()</span><br></pre></td></tr></table></figure>
+<p>第二个if中，添加了增加等级的语句，紧跟着的是重新在计分板中绘制等级图像。</p>
+<h3 id="修改ship_hit和check_aliens_bottom函数">4.5.6 修改ship_hit()和check_aliens_bottom()函数</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 增加了score参数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ship_hit</span><span class="params">(ai_settings, stats, screen, ship, aliens, bullets, score)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> stats.ships_left &gt; <span class="number">0</span>:</span><br><span class="line">        stats.ships_left -= <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 更新记分牌</span></span><br><span class="line">        score.prep_ships()</span><br><span class="line">        <span class="comment"># 清空外星人列表和子弹列表</span></span><br><span class="line">        -- snip --</span><br></pre></td></tr></table></figure>
+<h2 id="最后运行效果">4.6 最后运行效果</h2>
+<p>至此所有的添加都已经结束，下图是游戏的最终效果：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828259/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/1523895161395.png" /></p>
+<h1 id="小结">5. 小结</h1>
+<p>Python小游戏告一段落，一共三篇文章。本文中讲述了：</p>
+<ul>
+<li>如何创建用于开始新游戏的<code>Play</code>按钮；</li>
+<li>如何检测鼠标点击事件；</li>
+<li>如何在游戏处于活动状态时隐藏光标；</li>
+<li>如何随游戏的进行调整节奏；</li>
+<li>如何实现记分系统；</li>
+<li>以及如何以文本和非文本方式显示信息。</li>
+</ul>
+<p>后三篇文章将是使用Python来进行数据统计分析、绘图等内容。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/" title="Python学习之路13-记分">http://yoursite.com/2018/04/16/Python学习之路13-记分/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E5%9F%BA%E7%A1%80/" rel="tag"># Python基础</a>
+              <a href="/tags/Pygame/" rel="tag"># Pygame</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/" rel="prev" title="Python学习之路12-外星人">
+      <i class="fa fa-chevron-left"></i> Python学习之路12-外星人
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/04/17/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/" rel="next" title="Python学习之路14-生成数据">
+      Python学习之路14-生成数据 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#添加play按钮"><span class="nav-text">2. 添加Play按钮</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#button类"><span class="nav-text">2.1 Button类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改alien_invasion.py"><span class="nav-text">2.2 修改alien_invasion.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改game_functions.py"><span class="nav-text">2.3 修改game_functions.py</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#游戏提速"><span class="nav-text">3. 游戏提速</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#修改settings.py"><span class="nav-text">3.1 修改settings.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改game_functions.py-1"><span class="nav-text">3.2 修改game_functions.py</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#记分板"><span class="nav-text">4. 记分板</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#新增scoreboard.py"><span class="nav-text">4.1 新增scoreboard.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改settings.py-1"><span class="nav-text">4.2 修改settings.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改game_stats.py"><span class="nav-text">4.3 修改game_stats.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改主程序alien_invasion.py"><span class="nav-text">4.4 修改主程序alien_invasion.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改game_functions.py-2"><span class="nav-text">4.5 修改game_functions.py</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改参数"><span class="nav-text">4.5.1 修改参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改check_play_button函数"><span class="nav-text">4.5.2 修改check_play_button()函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改update_screen函数"><span class="nav-text">4.5.3 修改update_screen()函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改update_bullets和update_aliens函数"><span class="nav-text">4.5.4 修改update_bullets()和update_aliens()函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改check_bullet_alien_collisions函数"><span class="nav-text">4.5.5 修改check_bullet_alien_collisions()函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改ship_hit和check_aliens_bottom函数"><span class="nav-text">4.5.6 修改ship_hit()和check_aliens_bottom()函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后运行效果"><span class="nav-text">4.6 最后运行效果</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-text">5. 小结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/";
+    this.page.identifier = "2018/04/16/Python学习之路13-记分/";
+    this.page.title = "Python学习之路13-记分";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

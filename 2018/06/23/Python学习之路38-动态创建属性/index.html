@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《流畅的Python》笔记。 本篇主要讨论元编程中的动态创建属性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路38-动态创建属性">
+<meta property="og:url" content="http://yoursite.com/2018/06/23/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF38-%E5%8A%A8%E6%80%81%E5%88%9B%E5%BB%BA%E5%B1%9E%E6%80%A7/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《流畅的Python》笔记。 本篇主要讨论元编程中的动态创建属性。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-06-23T06:00:00.000Z">
+<meta property="article:modified_time" content="2018-06-23T06:00:00.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python进阶">
+<meta property="article:tag" content="元编程">
+<meta property="article:tag" content="动态属性">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2018/06/23/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF38-%E5%8A%A8%E6%80%81%E5%88%9B%E5%BB%BA%E5%B1%9E%E6%80%A7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路38-动态创建属性 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/23/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF38-%E5%8A%A8%E6%80%81%E5%88%9B%E5%BB%BA%E5%B1%9E%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路38-动态创建属性
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-06-23 14:00:00" itemprop="dateCreated datePublished" datetime="2018-06-23T14:00:00+08:00">2018-06-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index"><span itemprop="name">Python进阶</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/06/23/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF38-%E5%8A%A8%E6%80%81%E5%88%9B%E5%BB%BA%E5%B1%9E%E6%80%A7/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/23/Python学习之路38-动态创建属性/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《流畅的Python》笔记。</p>
+<p>本篇主要讨论元编程中的动态创建属性。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="前言">1. 前言</h1>
+<p>平时我们一般把类中存储数据的变量称为属性，把类中的函数称为方法。但这两个概念其实是统一的，它们都称为属性(Attrubute)，方法只是可调用的属性，并且属性还是可以动态创建的。如果我们事先不知道数据的结构，或者在运行时需要再添加一些属性，此时就需要动态创建属性。</p>
+<p>本文将讲述如果通过动态创建属性来读取JSON中的数据。第一个例子我们将实现一个<code>FrozenJSON</code>类，使用<code>__getattr__</code>方法，根据JSON文件中的数据项动态创建<code>FrozenJSON</code>实例的属性。第二个例子，更进一步，实现数据的关联查找，其中，会用到实例的<code>__dict__</code>属性来动态创建属性。</p>
+<p>不过在这两部分内容之前，先来看一个简单粗暴地使用JSON数据的例子。</p>
+<h1 id="json数据">2. JSON数据</h1>
+<p>首先是一个现实世界中的JSON数据：OSCON大会的JSON数据。为了节省篇幅，只保留了它的数据格式中的一部分，数据内容也有所改变，原始数据会在用到的时候下载：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="attr">"Schedule"</span>: &#123;</span><br><span class="line">    <span class="attr">"conferences"</span>: [&#123;<span class="attr">"serial"</span>: <span class="number">115</span>&#125;],</span><br><span class="line">    <span class="attr">"events"</span>: [&#123;</span><br><span class="line">        <span class="attr">"serial"</span>: <span class="number">33451</span>,</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"This is a test"</span>,</span><br><span class="line">        <span class="attr">"venue_serial"</span>: <span class="number">1449</span>,</span><br><span class="line">        <span class="attr">"speakers"</span>: [<span class="number">149868</span>]</span><br><span class="line">    &#125;],</span><br><span class="line">    <span class="attr">"speakers"</span>: [&#123;</span><br><span class="line">        <span class="attr">"serial"</span>: <span class="number">149868</span>,</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"Speaker1"</span>,</span><br><span class="line">    &#125;],</span><br><span class="line">    <span class="attr">"venues"</span>: [&#123;</span><br><span class="line">        <span class="attr">"serial"</span>: <span class="number">1448</span>,</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"F151"</span>,</span><br><span class="line">    &#125;]</span><br><span class="line">&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>整个数据集是一个JSON对象，也是一个映射(map)，(最外层)只有一个键<code>"Schedule"</code>，它表示整个大会；<code>"Schedule"</code>的值也是一个map，这个map有4个键，分别是：</p>
+<ul>
+<li><code>"conferences"</code>，它只记录这场大会的编号；</li>
+<li><code>"events"</code>，它表示大会中的每场演讲；</li>
+<li><code>"speakers"</code>，它记录每个演讲者；</li>
+<li><code>"venues"</code>，它表示演讲的地点，比如哪个会议室，哪个场所等。</li>
+</ul>
+<p>这4个键的值都是列表，而列表的元素又都是map，其中某些键的值又是列表。是不是很绕 :) ？</p>
+<p>还需要注意一点：每条数据都有一个<code>"serial"</code>，相当于一个标识，后面会用到</p>
+<h2 id="读取json数据">2.1 读取JSON数据</h2>
+<p>读取JSON文件很简单，用Python自带的<code>json</code>模块就可以读取。以下是用于读取<code>json</code>的<code>load()</code>函数，如果数据不存在，它会自动从远端下载数据：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.1 osconfeed.py 注意这个模块名，后面还会用到</span></span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line"><span class="keyword">from</span> urllib.request <span class="keyword">import</span> urlopen</span><br><span class="line"></span><br><span class="line">URL = <span class="string">"http://www.oreilly.com/pub/sc/osconfeed"</span></span><br><span class="line">JSON = <span class="string">"data/osconfeed.json"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">load</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(JSON):  <span class="comment"># 如果本地没有数据，则从远端下载</span></span><br><span class="line">        <span class="keyword">with</span> urlopen(URL) <span class="keyword">as</span> remote, open(JSON, <span class="string">"wb"</span>) <span class="keyword">as</span> local: <span class="comment"># 这里打开了两个上下文管理器</span></span><br><span class="line">            local.write(remote.read())</span><br><span class="line">    <span class="keyword">with</span> open(JSON) <span class="keyword">as</span> fp:</span><br><span class="line">        <span class="keyword">return</span> json.load(fp)</span><br></pre></td></tr></table></figure>
+<h2 id="使用json数据">2.2 使用JSON数据</h2>
+<p>现在我们来读取并使用上述JSON数据：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> osconfeed <span class="keyword">import</span> load</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>feed = load()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>feed[<span class="string">'Schedule'</span>][<span class="string">'events'</span>][<span class="number">40</span>][<span class="string">'speakers'</span>]</span><br><span class="line">[<span class="number">3471</span>, <span class="number">5199</span>]</span><br></pre></td></tr></table></figure>
+<p>从这个例子可以看出，要访问一个数据，得输入多少中括号和引号，为了跳出这些中括号和引号，又得浪费多少操作？如果再嵌套几个map......</p>
+<p>在JavaScript中，可以通过<code>feed.Schedule.events[40].speakers</code>来访问数据，Python中也可以很容易实现这样的访问。这种方式，<code>"Schedule"</code>，<code>"events"</code>和<code>"speakers"</code>等数据项则表现的并不像map的键，而更像类的属性，因此，这种访问方式也叫做<strong>属性表示法</strong>。这在Java中有点像链式调用，但链式调用调用的是函数，而这里是数据属性。但为了方面，后面都同一叫做<strong>链式访问</strong>。</p>
+<p>下面正式进入本篇的第一个主题：动态创建属性以读取JSON数据。</p>
+<h1 id="frozenjson">3. FrozenJSON</h1>
+<p>我们通过创建一个<code>FrozenJSON</code>类来实现动态创建属性，其中创建属性的工作交给了<code>__getattr__</code>特殊方法。这个类可以实现链式访问。</p>
+<h2 id="初版frozenjson类">3.1 初版FrozenJSON类</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.1 explore0.py</span></span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> abc</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FrozenJSON</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, mapping)</span>:</span></span><br><span class="line">        self.__data = &#123;&#125;  <span class="comment"># 为了安全，创建副本</span></span><br><span class="line">        <span class="keyword">for</span> key, value <span class="keyword">in</span> mapping.items(): <span class="comment"># 确保传入的数据能转换成字典；</span></span><br><span class="line">            <span class="keyword">if</span> keyword.iskeyword(key): <span class="comment"># 如果某些属性是Python的关键字，不适合做属性，</span></span><br><span class="line">                key += <span class="string">"_"</span>             <span class="comment"># 则在前面加一个下划线</span></span><br><span class="line">            self.__data[key] = value</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getattr__</span><span class="params">(self, name)</span>:</span> <span class="comment"># 当没有指定名称的属性时，才调用此法；name是str类型</span></span><br><span class="line">        <span class="keyword">if</span> hasattr(self.__data, name): <span class="comment"># 如果self.__data有这个属性，则返回这个属性</span></span><br><span class="line">            <span class="keyword">return</span> getattr(self.__data, name)</span><br><span class="line">        <span class="keyword">else</span>:   <span class="comment"># 如果self.__data没有指定的属性，创建FronzenJSON对象</span></span><br><span class="line">            <span class="keyword">return</span> FrozenJSON.build(self.__data[name]) <span class="comment"># 递归转换嵌套的映射和列表</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">build</span><span class="params">(cls, obj)</span>:</span>  </span><br><span class="line">        <span class="comment"># 必须要定义这个方法，因为JSON数据中有列表！如果数据中只有映射，或者在__init__中进行了</span></span><br><span class="line">        <span class="comment"># 类型判断，则可以不定义这个方法。</span></span><br><span class="line">        <span class="keyword">if</span> isinstance(obj, abc.Mapping): <span class="comment"># 如果obj是映射，则直接构造</span></span><br><span class="line">            <span class="keyword">return</span> cls(obj)</span><br><span class="line">        <span class="keyword">elif</span> isinstance(obj, abc.MutableSequence):</span><br><span class="line">            <span class="comment"># 如果obj是MutableSequence，则在本例中，obj则必定是列表，而列表的元素又必定是映射</span></span><br><span class="line">            <span class="keyword">return</span> [cls.build(item) <span class="keyword">for</span> item <span class="keyword">in</span> obj]</span><br><span class="line">        <span class="keyword">else</span>: <span class="comment"># 如果两者都不是，则原样返回</span></span><br><span class="line">            <span class="keyword">return</span> obj</span><br></pre></td></tr></table></figure>
+<p>这个类非常的简单。由于没有定义任何数据属性，所以，在访问数据时，每次都会调用<code>__getattr__</code>特殊方法，并在这个方法中递归创建新实例，即，<strong>通过<code>__getattr__</code>特殊方法实现动态创建属性，通过递归构造新实例实现链式访问</strong>。</p>
+<h2 id="使用frozenjson">3.2 使用FrozenJSON</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> osconfeed <span class="keyword">import</span> load</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> explore0 <span class="keyword">import</span> FrozenJSON</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>raw_feed = load()  <span class="comment"># 读取原始JSON数据</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>feed = FrozenJSON(raw_feed)   <span class="comment"># 使用原始数据生成FrozenJSON实例</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>len(feed.Schedule.speakers)   <span class="comment"># 对应于FronzenJSON.__getattr__中if为False的情况</span></span><br><span class="line"><span class="number">357</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sorted(feed.Schedule.keys())  <span class="comment"># 对应于FrozenJSON.__getattr__中if为True的情况</span></span><br><span class="line">[<span class="string">'conferences'</span>, <span class="string">'events'</span>, <span class="string">'speakers'</span>, <span class="string">'venues'</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>feed.Schedule.speakers[<span class="number">-1</span>].name</span><br><span class="line"><span class="string">'Carina C. Zona'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>talk = feed.Schedule.events[<span class="number">40</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>type(talk)</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> '<span class="title">explore0</span>.<span class="title">FrozenJSON</span>'&gt;</span></span><br><span class="line"><span class="class">&gt;&gt;&gt; <span class="title">talk</span>.<span class="title">name</span></span></span><br><span class="line"><span class="class">'<span class="title">There</span> *<span class="title">Will</span>* <span class="title">Be</span> <span class="title">Bugs</span>'</span></span><br><span class="line"><span class="class">&gt;&gt;&gt; <span class="title">talk</span>.<span class="title">speakers</span></span></span><br><span class="line">[3471, 5199]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>talk.flavor   <span class="comment"># !!!</span></span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">KeyError: <span class="string">'flavor'</span></span><br></pre></td></tr></table></figure>
+<p>上述代码中，通过不断从<code>FrozenJSON</code>对象中创建<code>FrozenJSON</code>对象，实现了属性表示法。为了更好的理解上述代码，我们需要分析其中实例的创建过程：</p>
+<p><code>feed</code>是一个<code>FrozenJSON</code>实例，当访问<code>Schedule</code>属性时，由于<code>feed</code>没有这个属性，于是调用<code>__getattr__</code>方法。由于<code>Schedule</code>也不是<code>feed.__data</code>的属性，所以需要再创建一个<code>FrozenJSON</code>对象。<code>Schedule</code>在JSON数据中是最外层映射的键，它的值<code>feed.__data["Schedule"]</code>又是一个映射，所以在<code>build</code>方法中，继续将<code>feed.__data["Schedule"]</code>包装成一个<code>FrozenJSON</code>对象。如果继续链接下去，还会创建<code>FrozenJSON</code>对象。这里之所以指出这一点，是想提醒大家<strong>注意每个<code>FrozenJSON</code>实例中的<code>__data</code>具体指的是JSON数据中的哪一部分数据</strong>(我在模拟这个递归过程的时候，多次都把<code>__data</code>搞混)。</p>
+<p>上述代码中还有一处调用：<code>feed.Schedule.keys()</code>。<code>feed.Schedule</code>是一个<code>FrozenJSON</code>对象，它并没有<code>keys</code>方法，于是调用<code>__getattr__</code>，但由于<code>feed.Schedule.__data</code>是个<code>dict</code>，它有<code>keys</code>方法，所以这里并没有继续创建新的<code>FrozenJSON</code>对象。</p>
+<p>注意最后一处调用：<code>talk.flavor</code>。JSON中<code>events</code>里并没有<code>flavor</code>数据项，因此这里抛出了异常。但这个异常是<code>KeyError</code>，而更合理的做法应该是：只要没有这个属性，都应该抛出<code>AttributeError</code>。如果要抛出<code>AttributeError</code>，<code>__getattr__</code>的代码长度将增加一倍，但这并不是本文的重点，所以没有处理。</p>
+<h2 id="特殊方法__new__">3.3 特殊方法__new__</h2>
+<p>在初版<code>FrozenJSON</code>中，我们定义了一个类方法<code>build</code>来创建新实例，但更方便也更符合Python风格的做法是定义<code>__new__</code>方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.3 frozenjson.py  新增__new__，去掉build，修改__getattr__</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FrozenJSON</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getattr__</span><span class="params">(self, name)</span>:</span></span><br><span class="line">        -- snip --</span><br><span class="line">        <span class="keyword">else</span>:  <span class="comment"># 直接创建FrozenJSON对象</span></span><br><span class="line">            <span class="keyword">return</span> FrozenJSON(self.__data[name])</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__new__</span><span class="params">(cls, arg)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> isinstance(arg, abc.Mapping):</span><br><span class="line">            <span class="keyword">return</span> super().__new__(cls)</span><br><span class="line">        <span class="keyword">elif</span> isinstance(arg, abc.MutableSequence):</span><br><span class="line">            <span class="keyword">return</span> [cls(item) <span class="keyword">for</span> item <span class="keyword">in</span> arg]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> arg</span><br></pre></td></tr></table></figure>
+<p>不知道大家第一次看到“构造方法<code>__init__</code>”这个说法时有没有疑惑：这明明是初始化Initialize这个单词的缩写，将其称为“构造(create, build)”似乎不太准确呀？其实这个称呼是从其他语言借鉴过来的，它更应该叫做“初始化方法”，因为它确实执行的是初始化的工作，真正执行“构造”的是<code>__new__</code>方法。</p>
+<p>一般情况下，当创建类的实例时，首先调用的是<code>__new__</code>方法，它必须创建并返回一个实例，然后将这个实例作为第一个参数(即<code>self</code>)传入<code>__init__</code>方法，再由<code>__init__</code>执行初始化操作。但也有不常见的情况：<code>__new__</code>也可以返回其他类的实例，此时，解释器不会继续调用<code>__init__</code>方法。</p>
+<p><strong><code>__new__</code>方法是一个类方法</strong>，由于使用了特殊方法方式处理，所以它不用加<code>@classmethod</code>装饰器。</p>
+<p>我们几乎不需要自行编写<code>__new__</code>方法，因为从<code>object</code>类继承的这个方法已经足够了。</p>
+<p>使用<code>FrozenJSON</code>读取JSON数据的例子到此结束。</p>
+<h1 id="record">4. Record</h1>
+<p>上述<code>FrozenJSON</code>有个明显的缺点：查找有关联的数据很麻烦，必须从头遍历<code>Schedule</code>的相关数据项。比如<code>feed.Schedule.events[40].speakers</code>是一个含有两个元素的列表，它是这场演讲的演讲者们的编号。如果想访问演讲者的具体信息，比如姓名，我们不能直接调用<code>feed.Schedule.events[40].speakers[0].name</code>，这样会报<code>AttributeError</code>，只能根据<code>feed.Schedule.events[40].serial</code>在<code>feed.Schedule.speakers</code>中挨个查找。</p>
+<p>为了实现这种关联访问，需要在读取数据时调整数据的结构：不再像之前<code>FrozenJSON</code>中那样，将整个JSON原始数据存到内部的<code>__data</code>中，而是<strong>将每条数据单独存到一个<code>Record</code>对象中</strong>(这里的“每条数据”指每个<code>event</code>，每个<code>speaker</code>，每个<code>venue</code>以及<code>conferences</code>中的唯一一条数据)。并且，还需要在每条数据的<code>serial</code>字段的值前面加上数据类型，比如某个<code>event</code>的<code>serial</code>为<code>123</code>，则将其变为<code>event.123</code>。</p>
+<h2 id="要实现的功能">4.1 要实现的功能</h2>
+<p>不过在给出实现方法之前，先来看看它应该具有的功能：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码4.1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> schedule <span class="keyword">import</span> Record, Event, load_db</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>db = &#123;&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>load_db(db)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>Record.set_db(db)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>event = Record.fetch(<span class="string">"event.33950"</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>event</span><br><span class="line">&lt;schedule.Event object at <span class="number">0x000001DBC71E9CF8</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>event.venue</span><br><span class="line">&lt;schedule.Record object at <span class="number">0x000001DBC7714198</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>event.venue.name</span><br><span class="line"><span class="string">'Portland 251'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> spkr <span class="keyword">in</span> event.speakers:</span><br><span class="line"><span class="meta">... </span>    print(<span class="string">"&#123;0.serial&#125;: &#123;0.name&#125;"</span>.format(spkr))</span><br><span class="line"><span class="meta">... </span>   </span><br><span class="line">speaker<span class="number">.3471</span>: Anna Martelli Ravenscroft</span><br><span class="line">speaker<span class="number">.5199</span>: Alex Martelli</span><br></pre></td></tr></table></figure>
+<p>这其中包含了两个类，<code>Record</code>和继承自<code>Record</code>的<code>Event</code>，并将这些数据放到名为<code>db</code>的映射中。<code>Event</code>专门用于存JSON数据中<code>events</code>里的数据，其余数据全部存为<code>Record</code>对象。之所以这么安排，是因为原始数据中，<code>event</code>包含了<code>speaker</code>和<code>venue</code>的<code>serial</code>(相当于外键约束)。现在，我们可以通过<code>event</code>查找到与之关联的<code>speaker</code>和<code>venue</code>，而并不仅仅只是查找到这两个的<code>serial</code>。如果想根据<code>speaker</code>或<code>venue</code>查找<code>event</code>，大家可以根据后面的方法自行实现(但这么做得遍历整个<code>db</code>)。</p>
+<h2 id="record-event">4.2 Record &amp; Event</h2>
+<p>下面是这两个类以及调整数据结构的<code>load_db</code>函数的实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码4.2 schedule.py</span></span><br><span class="line"><span class="keyword">import</span> inspect</span><br><span class="line"><span class="keyword">import</span> osconfeed</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Record</span>:</span></span><br><span class="line">    __db = <span class="literal">None</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, **kwargs)</span>:</span></span><br><span class="line">        self.__dict__.update(**kwargs)  <span class="comment"># 在这里动态创建属性！</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_db</span><span class="params">(db)</span>:</span></span><br><span class="line">        Record.__db = db</span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_db</span><span class="params">()</span>:</span></span><br><span class="line">        <span class="keyword">return</span> Record.__db</span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fetch</span><span class="params">(cls, ident)</span>:</span>  <span class="comment"># 获取数据</span></span><br><span class="line">        db = cls.get_db()</span><br><span class="line">        <span class="keyword">return</span> db[ident]</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Event</span><span class="params">(Record)</span>:</span></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">venue</span><span class="params">(self)</span>:</span></span><br><span class="line">        key = <span class="string">"venue.&#123;&#125;"</span>.format(self.venue_serial)</span><br><span class="line">        <span class="keyword">return</span> self.__class__.fetch(key)  <span class="comment"># 并不是self.fetch(key)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">speakers</span><span class="params">(self)</span>:</span>  <span class="comment"># event对应的speaker的数据项保存在_speaker_objs属性中</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> hasattr(self, <span class="string">"_speaker_objs"</span>): <span class="comment"># 如果没有speakers数据，则从数据集中获取</span></span><br><span class="line">            spkr_serials = self.__dict__[<span class="string">"speakers"</span>]  <span class="comment"># 首先获取speaker的serial</span></span><br><span class="line">            fetch = self.__class__.fetch</span><br><span class="line">            self._speaker_objs = [fetch(<span class="string">"speaker.&#123;&#125;"</span>.format(key)) <span class="keyword">for</span> key <span class="keyword">in</span> spkr_serials]</span><br><span class="line">        <span class="keyword">return</span> self._speaker_objs</span><br></pre></td></tr></table></figure>
+<p>可以看到，<code>Record</code>类中一个数据属性都没有，真正实现动态创建属性的是<code>__init__</code>方法中的<code>self.__dict__.update(**kwargs)</code>，其中<code>kwargs</code>是一个映射，在本例中，它就是每一个条JSON数据。</p>
+<p>如果类中没有声明<code>__slots__</code>，实例的属性都会存到实例的<code>__dict__</code>中，<code>Record.__init__</code>方法展示的是一个流行的Python技巧，这种方法能快速地为实例添加大量属性。</p>
+<p>在<code>Record</code>中还有一个类属性<code>__db</code>，它是数据集的引用，并不是数据集的副本。本例中，我们将数据放到了一个<code>dict</code>中，<code>__db</code>指向这个<code>dict</code>。其实也可以放到数据库中，然后<code>__db</code>存放数据库的引用。静态方法<code>get_db</code>和<code>set_db</code>则是设置和获取<code>__db</code>的方法。<code>fetch</code>方法是一个类方法，它用于从<code>__db</code>中获取数据。</p>
+<p><code>Event</code>继承自<code>Record</code>，并添加了两个特性<code>venue</code>和<code>speakers</code>，也正是这两个特性实现了关联查找以及属性表示法。<code>venue</code>的实现很简单，因为一个<code>event</code>只对于一个<code>venue</code>，给<code>event</code>中的<code>venue_serial</code>添加一个前缀，然后查找数据集即可。</p>
+<p><code>Event.speakers</code>的实现则稍微有点复杂：首先得清楚，这里查找的不是<code>speaker</code>的标识<code>serial</code>，而是查找<code>speaker</code>的具体数据项。查找到的数据项保存在<code>Event</code>实例的<code>_speaker_objs</code>中。一般在第一访问<code>event.speakers</code>时会进入到<code>if</code>中。还有情况就是<code>event._speakers_objs</code>被删除了。</p>
+<p><code>Event</code>中还有一个值得注意的地方：调用<code>fetch</code>方法时，并不是直接<code>self.fetch</code>，而是<code>self.__class__.fetch</code>。这样做是为了避免一些很隐秘的错误：如果数据中有名为<code>fetch</code>的字段，这就会和<code>fetch</code>方法冲突，此时获取的就不是<code>fetch</code>方法，而是一个数据项。这种错误不易发觉，尤其是在动态创建属性的时候，如果数据不完全规则，几百几千条数据中突然有一条数据的某个属性名和实例的方法重名了，这个时候调试起来简直是噩梦。所以，除非能确保数据中一定不会有重名字段，否则建议按照本例中的写法。</p>
+<h2 id="load_db">4.3 load_db()</h2>
+<p>下面是加载和调整数据的<code>load_db()</code>函数的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码4.3，依然在schedule.py文件中</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">load_db</span><span class="params">(db)</span>:</span></span><br><span class="line">    raw_data = a.load()  <span class="comment"># 首先加载原始JSON数据</span></span><br><span class="line">    <span class="keyword">for</span> collection, rec_list <span class="keyword">in</span> raw_data[<span class="string">"Schedule"</span>].items(): <span class="comment"># 遍历Schedule中的数据</span></span><br><span class="line">        record_type = collection[:<span class="number">-1</span>]  <span class="comment"># 将Schedule中4个键名作为类型标识，去掉键名后面的's'</span></span><br><span class="line">        cls_name = record_type.capitalize()  <span class="comment"># 将类型名首字母大写作为可能的类名</span></span><br><span class="line">        <span class="comment"># 从全局作用域中获取对象；如果找不到所要的对象，则用Record代替</span></span><br><span class="line">        cls = globals().get(cls_name, Record) </span><br><span class="line">        <span class="comment"># 如果获取的对象是个类，且是Record的子类，则稍后用其创建实例；否则用Record创建实例</span></span><br><span class="line">        <span class="keyword">if</span> inspect.isclass(cls) <span class="keyword">and</span> issubclass(cls, Record):  </span><br><span class="line">            factory = cls</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            factory = Record</span><br><span class="line">        <span class="keyword">for</span> record <span class="keyword">in</span> rec_list:  <span class="comment"># 遍历Schedule中每个键对应的数据列表</span></span><br><span class="line">            key = <span class="string">"&#123;&#125;.&#123;&#125;"</span>.format(record_type, record[<span class="string">"serial"</span>])  <span class="comment"># 生成新的serial</span></span><br><span class="line">            record[<span class="string">"serial"</span>] = key  <span class="comment"># 这里是替换原有数据，而不是添加新数据！</span></span><br><span class="line">            db[key] = factory(**record)  <span class="comment"># 生成实例，并存入数据集中</span></span><br></pre></td></tr></table></figure>
+<p>该函数是一个嵌套循环，最外层循环只迭代4次。每条数据都被包装为一个<code>Record</code>，且<code>serial</code>字段的值中添加了数据类型，这个新的<code>serial</code>也作为键和<code>Record</code>实例组成键值对存入<code>db</code>中。</p>
+<h2 id="shelve">4.4 shelve</h2>
+<p>前面说过，<code>db</code>可以从<code>dict</code>换成数据库的引用。Python标准库中则提供了一个现成的数据库类型<code>shelve.Shelf</code>。它是一个简单的键值对数据库，背后由<code>dbm</code>模块支持，具有如下特点：</p>
+<ul>
+<li><code>shelve.Shelf</code>是<code>abc.MutableMapping</code>的子类，提供了处理映射类型的重要方法；</li>
+<li>他还提供了几个管理I/O的方法，比如<code>sync</code>和<code>close</code>；它也是一个上下文管理器；</li>
+<li>键必须是字符串，值必须是<code>pickle</code>模块能处理的对象。</li>
+</ul>
+<p>本例中，它的用法和<code>dict</code>没有太大区别，以下是它的用法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码4.4</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> shelve</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>db = shelve.open(<span class="string">"data/schedule_db"</span>)  <span class="comment"># shelve.open方法返回一个shelve.Shelf对象</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">if</span> <span class="string">"conference.115"</span> <span class="keyword">not</span> <span class="keyword">in</span> db:  <span class="comment"># 这是一个简单的检测数据库是否加载的技巧，仅限本例</span></span><br><span class="line"><span class="meta">... </span>    load_db(db)  <span class="comment"># 如果是个空数据库，则向数据库中填充数据</span></span><br><span class="line"><span class="meta">... </span><span class="comment"># 中间的用法就和之前的dict没有区别了，不过最后需要记住调用close()关闭数据库连接</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>db.close() <span class="comment"># 建议在with块中访问db</span></span><br></pre></td></tr></table></figure>
+<h1 id="record-vs-frozenjson">5. Record vs FrozenJSON</h1>
+<p>如果不需要关联查询，那么<code>Record</code>只需要一个<code>__init__</code>方法，而且也不用定义<code>Event</code>类。这样的话，<code>Record</code>的代码将比<code>FrozenJSON</code>简单很多，那为什么之前<code>FrozenJSON</code>不这么定义呢？原因有两点:</p>
+<ul>
+<li><code>FrozenJSON</code>要递归转换嵌套的映射和列表，而<code>Record</code>类不需要这么做，因为所有的映射都被转换成了对应的<code>Record</code>，转换好的数据集中没有嵌套的映射和列表。</li>
+<li>在<code>FrozenJSON</code>中，没有改动JSON数据的数据结构，因此，为了实现链式访问，需要将整个JSON数据存到内嵌的<code>__data</code>属性中。而在<code>Record</code>中，每条数据都被包装成了单个的<code>Record</code>，且对数据结构进行了重构。</li>
+</ul>
+<p>还有一点，本例中，使用映射来实现<code>Record</code>类或许更符合Python风格，但这样就无法展示动态属性编程的技巧和陷阱。</p>
+<h1 id="总结">6. 总结</h1>
+<p>我们通过两个例子说明了如何动态创建属性：第一个例子是在<code>FrozenJSON</code>中通过实现<code>__getattr__</code>方法动态创建属性，这个类还可以实现链式访问；第二个例子是通过创建<code>Record</code>和它的子类<code>Event</code>来实现关联查找，其中我们在<code>__init__</code>方法中通过<code>self.__dict__.update(**kw)</code>这个技巧实现批量动态创建属性。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/06/23/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF38-%E5%8A%A8%E6%80%81%E5%88%9B%E5%BB%BA%E5%B1%9E%E6%80%A7/" title="Python学习之路38-动态创建属性">http://yoursite.com/2018/06/23/Python学习之路38-动态创建属性/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E8%BF%9B%E9%98%B6/" rel="tag"># Python进阶</a>
+              <a href="/tags/%E5%85%83%E7%BC%96%E7%A8%8B/" rel="tag"># 元编程</a>
+              <a href="/tags/%E5%8A%A8%E6%80%81%E5%B1%9E%E6%80%A7/" rel="tag"># 动态属性</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/06/18/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF37-%E4%BD%BF%E7%94%A8asyncio%E5%8C%85%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/" rel="prev" title="Python学习之路37-使用asyncio包处理并发">
+      <i class="fa fa-chevron-left"></i> Python学习之路37-使用asyncio包处理并发
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/06/23/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF39-%E7%89%B9%E6%80%A7property/" rel="next" title="Python学习之路39-特性property">
+      Python学习之路39-特性property <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#json数据"><span class="nav-text">2. JSON数据</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#读取json数据"><span class="nav-text">2.1 读取JSON数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用json数据"><span class="nav-text">2.2 使用JSON数据</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#frozenjson"><span class="nav-text">3. FrozenJSON</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#初版frozenjson类"><span class="nav-text">3.1 初版FrozenJSON类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用frozenjson"><span class="nav-text">3.2 使用FrozenJSON</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特殊方法__new__"><span class="nav-text">3.3 特殊方法__new__</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#record"><span class="nav-text">4. Record</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#要实现的功能"><span class="nav-text">4.1 要实现的功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#record-event"><span class="nav-text">4.2 Record &amp; Event</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#load_db"><span class="nav-text">4.3 load_db()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shelve"><span class="nav-text">4.4 shelve</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#record-vs-frozenjson"><span class="nav-text">5. Record vs FrozenJSON</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text">6. 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/06/23/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF38-%E5%8A%A8%E6%80%81%E5%88%9B%E5%BB%BA%E5%B1%9E%E6%80%A7/";
+    this.page.identifier = "2018/06/23/Python学习之路38-动态创建属性/";
+    this.page.title = "Python学习之路38-动态创建属性";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

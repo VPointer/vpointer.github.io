@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《流畅的Python》笔记。 本章将说明Python中迭代器和生成器的运行原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路34-迭代器和生成器">
+<meta property="og:url" content="http://yoursite.com/2018/06/08/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF34-%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%92%8C%E7%94%9F%E6%88%90%E5%99%A8/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《流畅的Python》笔记。 本章将说明Python中迭代器和生成器的运行原理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1528360661/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF33-%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%92%8C%E7%94%9F%E6%88%90%E5%99%A8/Iterable_Iterator.png">
+<meta property="article:published_time" content="2018-06-08T12:00:00.000Z">
+<meta property="article:modified_time" content="2018-06-08T12:00:00.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python进阶">
+<meta property="article:tag" content="迭代器">
+<meta property="article:tag" content="生成器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1528360661/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF33-%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%92%8C%E7%94%9F%E6%88%90%E5%99%A8/Iterable_Iterator.png">
+
+<link rel="canonical" href="http://yoursite.com/2018/06/08/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF34-%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%92%8C%E7%94%9F%E6%88%90%E5%99%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路34-迭代器和生成器 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/08/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF34-%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%92%8C%E7%94%9F%E6%88%90%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路34-迭代器和生成器
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-06-08 20:00:00" itemprop="dateCreated datePublished" datetime="2018-06-08T20:00:00+08:00">2018-06-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index"><span itemprop="name">Python进阶</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/06/08/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF34-%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%92%8C%E7%94%9F%E6%88%90%E5%99%A8/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/08/Python学习之路34-迭代器和生成器/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《流畅的Python》笔记。</p>
+<p>本章将说明Python中迭代器和生成器的运行原理。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="前言">1. 前言</h1>
+<p>如果做严格区分，迭代器(iterator)和生成器(generator)是两个概念。迭代器是用于从集合中挨个获取元素，要求数据已存在；而生成器则是“凭空”生成元素，最典型的就是斐波那契数列。但是在Python中，大多数时候迭代器和生成器被视作同一概念。从Python2.2开始，可以使用<code>yield</code>关键字构建生成器，其作用和迭代器一样。在Python3中，生成器有了更广泛的用途，比如<code>range()</code>函数返回的就是一个类似生成器的对象，而在以前，它返回的是完整的列表。</p>
+<p>本篇将有如下内容：</p>
+<ul>
+<li><code>iter()</code>内置函数处理可迭代对象的方式</li>
+<li>如何使用Python实现经典的迭代器模式</li>
+<li>详细说明生成器函数的工作原理</li>
+<li>如何使用生成器函数或生成器表达式代替经典的迭代器</li>
+<li>如何使用<code>yield from</code>语句合成生成器</li>
+</ul>
+<h1 id="可迭代对象与迭代器">2. 可迭代对象与迭代器</h1>
+<h2 id="iter函数">2.1 iter()函数</h2>
+<p>当Python解释器需要迭代对象<code>x</code>时，会自动调用<code>iter(x)</code>。内置的<code>iter()</code>函数的运行过程如下：</p>
+<ul>
+<li>检查对象是否实现了<code>__iter__</code>方法，如果实现了就调用它来获取一个迭代器；</li>
+<li>如果没有实现<code>__iter__</code>方法，但实现了<code>__getitem__</code>方法，Python会创建一个迭代器，尝试从索引0开始获取元素；</li>
+<li>如果上述操作都失败了，Python抛出<code>TypeError</code>异常，通常会提示<code>“T object is not iterable”</code>，其中<code>T</code>是目标对象所属的类。</li>
+</ul>
+<p>而从上述解释可以看出，任何Python序列都可迭代的原因是，它们都实现了<code>__getitem__</code>方法。但<code>iter()</code>函数之所以要检查<code>__getitem__</code>方法，除了能让更多对象可迭代之外，其实还为了向下兼容。至于<code>iter()</code>以后还检不检查<code>__getitem__</code>方法就很难说了（不过目测未来很长一段时间内应该不会改变这种策略），而标准的序列类型都实现了<code>__iter__</code>方法，所以，如果自定义类要实现可迭代，请实现<code>__iter__</code>方法。</p>
+<p>由此，我们还可得出<strong>可迭代的对象</strong>的定义：</p>
+<p><strong>实现了<code>__iter__</code>方法，能获取迭代器；或者实现了<code>__getitem__</code>方法，能从零开始索引的对象都是可迭代的对象。</strong></p>
+<p><strong><em>补充</em></strong>：</p>
+<ul>
+<li><p>从Python3.4开始，检查对象<code>x</code><strong>能否迭代</strong>，最准确的方法是：调用<code>iter(x)</code>，如果不可迭代，再处理<code>TypeError</code>异常。这比使用<code>isinstance(x, abc.Iterable)</code>更准确，因为<code>abc.Iterable</code>不会考虑<code>__getitem__</code>方法。</p></li>
+<li><p><code>iter()</code>函数还有一个鲜为人知的用法，即：传入两个参数，使用常规的函数或任何可调用对象创建迭代器。此时，第一个参数必须是可调用对象，第二个参数是“哨兵”。当可调用对象返回的值与“哨兵”相等时，抛弃该值，结束迭代并抛出<code>StopIteration</code>异常。这种用法的一个实际情况就是读取文件，当读取到空行或文件末尾时，停止读取：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.1</span></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">"test.txt"</span>) <span class="keyword">as</span> fp:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> iter(fp.readline, <span class="string">"\n"</span>):</span><br><span class="line">        process_line(line)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="迭代器">2.2 迭代器</h2>
+<p>首先需要明确可迭代对象和迭代器之间的关系：<strong>Python从可迭代对象中获取迭代器</strong>。当对象实现了<code>__iter__</code>方法时，Python从它获取迭代器；当对象只实现了<code>__getitem__</code>方法时，Python为这个对象创建迭代器。所以，<strong>Python在迭代时始终用的是迭代器！</strong></p>
+<p>标准迭代器的UML继承关系图如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1528360661/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF33-%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%92%8C%E7%94%9F%E6%88%90%E5%99%A8/Iterable_Iterator.png" /></p>
+<p>从上图以及之前的描述，我们可以总结出以下几点：</p>
+<ul>
+<li><strong>具体的可迭代对象</strong>的<code>__iter__</code>方法应该返回一个<strong>具体的迭代器</strong>；</li>
+<li><strong>具体的迭代器</strong>必须实现<code>__next__</code>和<code>__iter__</code>方法。<code>__iter__</code>方法返回迭代器本身(<code>return self</code>)；真正的迭代操作由<code>__next__</code>完成，当没有可迭代元素时，它还要抛出<code>StopIteration</code>异常；</li>
+<li>由于迭代器也是从<code>Iterable</code>派生出来的，所以，<strong>迭代器是可迭代对象！</strong></li>
+</ul>
+<p>从上述内容可以猜出，应该有一个<code>next()</code>函数与<code>iter()</code>函数配对。没错，对可迭代对象的具体迭代操作就是由<code>next()</code>函数完成。以下是两个迭代过程：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.2</span></span><br><span class="line">s = <span class="string">"ABC"</span></span><br><span class="line"><span class="comment"># 方法1，Python会隐式创建迭代器，并捕获StopIteration异常</span></span><br><span class="line"><span class="keyword">for</span> char <span class="keyword">in</span> s:</span><br><span class="line">    print(char)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法2，显式创建迭代器并显式迭代，此时需要手动捕获StopIteration异常</span></span><br><span class="line">it = iter(s)</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        print(next(it))</span><br><span class="line">    <span class="keyword">except</span> StopIteration:</span><br><span class="line">        <span class="keyword">del</span> it</span><br><span class="line">        <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+<p>如果我们要实现<strong>具体的迭代器</strong>，并不一定需要从<code>collections.abc.Iterator</code>继承，只需要实现<code>__next__</code>和<code>__iter__</code>方法即可。在Python的<code>Lib/types.py</code>源文件有如下注释：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Iterators in Python aren't a matter of type but of protocol.  A large</span></span><br><span class="line"><span class="comment"># and changing number of builtin types implement *some* flavor of</span></span><br><span class="line"><span class="comment"># iterator.  Don't check the type!  Use hasattr to check for both</span></span><br><span class="line"><span class="comment"># "__iter__" and "__next__" attributes instead.</span></span><br></pre></td></tr></table></figure>
+<p>所以，这里可以给迭代器下个定义：<strong>实现了<code>__next__</code>和<code>__iter__</code>方法的对象就是迭代器</strong>。如果再去查看<code>abc.Iterator</code>的源码，可以发现如下代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.3</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Iterator</span><span class="params">(Iterable)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__subclasshook__</span><span class="params">(cls, C)</span>:</span></span><br><span class="line">        <span class="comment"># 做了更改，实际是调用 _check_methods(C, '__iter__', '__next__')</span></span><br><span class="line">        <span class="keyword">if</span> cls <span class="keyword">is</span> Iterator:  </span><br><span class="line">            <span class="keyword">if</span> (any(<span class="string">"__next__"</span> <span class="keyword">in</span> B.__dict__ <span class="keyword">for</span> B <span class="keyword">in</span> C.__mro__) <span class="keyword">and</span></span><br><span class="line">                any(<span class="string">"__iter__"</span> <span class="keyword">in</span> B.__dict__ <span class="keyword">for</span> B <span class="keyword">in</span> C.__mro__)):</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="comment"># 希望大家看到NotImplemented能想到Python解释器后面会有什么操作</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">NotImplemented</span>  <span class="comment"># 如果猜不到，可以查看《Python学习之路32》</span></span><br></pre></td></tr></table></figure>
+<p>综上，<code>Iterator</code>采用的是白鹅类型技术：它实现了<code>__subclasshook__</code>方法，通过判断对象<code>x</code>是否实现了<code>__next__</code>和<code>__iter__</code>来判断<code>x</code>是否是迭代器。所以，<strong>判断对象<code>x</code>是否为迭代器的最好方法是调用<code>isinstance(x, abc.Iterator)</code></strong>。</p>
+<p><strong><em>友情提示：</em></strong>通过迭代器不能判断是否还有剩余的元素，迭代器也不能重置。当然，你可以为迭代器添加其他方法来实现这两种功能，但并不推荐这种做法，除非这代码只有你自己欣赏。如果想要重新迭代，请再次调用<code>iter()</code>函数，并传入之前的可迭代对象，传入迭代器是没有用。</p>
+<h2 id="典型的迭代器">2.3 典型的迭代器</h2>
+<p>下面通过实现一个<code>Sentence</code>类和与之配对的<code>SentenceIterator</code>来演示传统迭代器的实现过程：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.4</span></span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> reprlib</span><br><span class="line"></span><br><span class="line">RE_WORD = re.compile(<span class="string">"\w+"</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sentence</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, text)</span>:</span></span><br><span class="line">        self.text = text</span><br><span class="line">        self.words = RE_WORD.findall(text)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__iter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> SentenceIterator(self.words)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SentenceIterator</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, words)</span>:</span></span><br><span class="line">        self.words = words</span><br><span class="line">        self.index = <span class="number">0</span>  <span class="comment"># 保存索引</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__next__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            word = self.words[self.index]</span><br><span class="line">        <span class="keyword">except</span> IndexError:   <span class="comment"># 超出索引范围时抛出异常</span></span><br><span class="line">            <span class="keyword">raise</span> StopIteration()</span><br><span class="line">        self.index += <span class="number">1</span>  <span class="comment"># 递增索引</span></span><br><span class="line">        <span class="keyword">return</span> word</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__iter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self   <span class="comment"># 返回迭代器本身</span></span><br></pre></td></tr></table></figure>
+<p>这里需要指出一个典型的<strong>错误</strong>思想：把<code>Sentence</code>变为迭代器。迭代器是可迭代对象，但可迭代对象<strong>不能</strong>是迭代器！请<strong>不要</strong>在可迭代对象的<code>__iter__</code>中返回可迭代对象自身，也<strong>不要</strong>为可迭代对象添加<code>__next__</code>方法！这是一种常见的反模式行为。</p>
+<p>从设计模式来讲，我们对可迭代对象并不只有逐个迭代这种方式，有可能跳跃式迭代，也有可能反向迭代。如果把一个对象设计成既是可迭代对象也是迭代器，那这个对象内部将会有成吨的<code>if-else</code>语句，这非常不利于维护和扩展。</p>
+<h1 id="生成器">3. 生成器</h1>
+<p>上述版本中的<code>Sentence</code>需要配备一个迭代器。而更符合Python风格的方式是用生成器函数代替<code>SentenceIterator</code>。</p>
+<h2 id="生成器函数">3.1 生成器函数</h2>
+<p>使用生成器函数改写传统的迭代器（实际上不再定义迭代器）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.1 Sentence中其余代码不变，且不用再定义SentenceIterator</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sentence</span>:</span></span><br><span class="line">    -- snip -- </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__iter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">for</span> word <span class="keyword">in</span> self.words:</span><br><span class="line">            <span class="keyword">yield</span> word</span><br></pre></td></tr></table></figure>
+<p><strong><em>解释：</em></strong>这里的<code>__iter__</code>是<strong>生成器函数</strong>，调用它时会创建<strong>生成器对象</strong>，然后用这个生成器对象充当迭代器。</p>
+<h2 id="生成器函数工作原理">3.2 生成器函数工作原理</h2>
+<p><strong>只要Python函数的定义体中有<code>yield</code>关键字，该函数就是生成器函数</strong>（这也是和普通函数的唯一区别）。“生成器”一词指代生成器函数，以及生成器函数构建的生成器对象，比较笼统，所以请具体语境具体分析。</p>
+<p>生成器函数是一个生成器工厂，调用生成器函数时创建一个生成器对象，<strong>包装生成器函数的定义体</strong>。</p>
+<p><strong>生成器对象实现了迭代器接口</strong>，通常Python会自动创建这个对象。当对生成器对象调用<code>next()</code>函数时，<strong>生成器函数</strong>会<strong>执行到</strong>定义体中的下一个<code>yield</code>语句的末尾，<strong>生成</strong><code>yield</code>关键字后面的表达式的值，然后停止在此处，等待下一次调用。当定义体中<strong>所有语句</strong>都执行完后，生成器函数返回，外层的生成器对象抛出<code>StopIteration</code>异常。</p>
+<p><strong><em>友情提醒</em></strong>：生成器函数并不是<strong>只执行</strong>其中的<code>yield</code>语句；也不是<strong>只执行到</strong>最后一个<code>yield</code>语句，如果最后一个<code>yield</code>语句后面还有代码，依然会执行。</p>
+<p>下面是关于生成器的一个简单例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">gen_AB</span><span class="params">()</span>:</span></span><br><span class="line"><span class="meta">... </span>    print(<span class="string">"Start"</span>)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> <span class="string">"A"</span></span><br><span class="line"><span class="meta">... </span>    print(<span class="string">"Continue"</span>)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> <span class="string">"B"</span></span><br><span class="line"><span class="meta">... </span>    print(<span class="string">"End."</span>)</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_AB</span><br><span class="line">&lt;function gen_AB at <span class="number">0</span>x...&gt;   <span class="comment"># 返回值和普通函数没区别</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_AB()</span><br><span class="line">&lt;generator object gen_AB at <span class="number">0</span>x...&gt;   <span class="comment"># 返回了一个生成器对象</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>g = gen_AB()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>next(g)</span><br><span class="line">Start      <span class="comment"># print("Start")</span></span><br><span class="line"><span class="string">'A'</span>  <span class="comment"># 这个是生成的值</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>temp = next(g)  <span class="comment"># 获取生成器生成的第二个值</span></span><br><span class="line">Continue   <span class="comment"># print("Continue")</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>temp   <span class="comment"># 输出生成器生成的第二个值</span></span><br><span class="line"><span class="string">'B'</span>  <span class="comment"># 此时还并没有抛出异常，因为生成器函数还没执行完</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>next(g)</span><br><span class="line">End.  <span class="comment"># 生成器函数执行完毕，生成器抛出异常。</span></span><br><span class="line">Traceback (most recent call last):    <span class="comment"># 显式调用next()需要自行捕获异常</span></span><br><span class="line">  File <span class="string">"&lt;input&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">StopIteration</span><br></pre></td></tr></table></figure>
+<h2 id="惰性实现与生成器表达式">3.3 惰性实现与生成器表达式</h2>
+<p>上述的两个版本中，我们都用了<code>self.words</code>属性来保存文本中的单词，即在创建<code>Sentence</code>对象时就获得了所有的单词。这种方式叫做<strong>及早求值</strong>(Eager Evaluation)。而与之相反的则是<strong>惰性求值</strong>(Lazy Evaluation)，通俗讲就是“等用到的时候再来求值”。及早求值可能会消耗大量内存，而惰性求值则是为了减少内存的使用。</p>
+<p><strong>生成器表达式</strong>以前提到过，它是用<strong>圆括号</strong>括起来的推导式(并不是生成元组)。<strong>生成器表达式</strong>可以理解为<strong>列表推导</strong>的<strong>惰性</strong>版本：不会一次性构造整个列表，而是返回一个生成器，按需惰性生成元素。以下是它的一个简单示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.3</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">gen_AB</span><span class="params">()</span>:</span></span><br><span class="line"><span class="meta">... </span>    print(<span class="string">"Start"</span>)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> <span class="string">"A"</span></span><br><span class="line"><span class="meta">... </span>    print(<span class="string">"Continue"</span>)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> <span class="string">"B"</span></span><br><span class="line"><span class="meta">... </span>    print(<span class="string">"End."</span>)</span><br><span class="line"><span class="meta">... </span>   </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>res1 = [x * <span class="number">3</span> <span class="keyword">for</span> x <span class="keyword">in</span> gen_AB()]  <span class="comment"># 这里有一个生成器，但被列表推导式全部迭代完</span></span><br><span class="line">Start</span><br><span class="line">Continue</span><br><span class="line">End.</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>res1 <span class="comment"># 一次性生成了完整的列表</span></span><br><span class="line">[<span class="string">'AAA'</span>, <span class="string">'BBB'</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>res2 = (x * <span class="number">3</span> <span class="keyword">for</span> x <span class="keyword">in</span> gen_AB())  <span class="comment"># 这里其实有连个生成器</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>res2   <span class="comment"># 返回了一个生成器对象，并没有一次性生成所有数据，惰性</span></span><br><span class="line">&lt;generator object &lt;genexpr&gt; at <span class="number">0x000001D6D34D4408</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i <span class="keyword">in</span> res2:</span><br><span class="line"><span class="meta">... </span>    print(i)</span><br><span class="line"><span class="meta">... </span>   </span><br><span class="line">Start</span><br><span class="line">AAA</span><br><span class="line">Continue</span><br><span class="line">BBB</span><br><span class="line">End.</span><br></pre></td></tr></table></figure>
+<p><strong><em>解释：</em></strong>由于<code>gen_AB()</code>是个生成器函数，所以<code>(x * 3 for x in gen_AB())</code>包含了两个生成器对象，其中一个是由<code>gen_AB()</code>创建的，是不是有点嵌套生成器的意思？</p>
+<p>现在我们使用<code>re.finditer</code>将第2版的<code>Sentence</code>改为惰性版本，并使用生成器表达式进一步简化代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.4</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sentence</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, text)</span>:</span></span><br><span class="line">        self.text = text  <span class="comment"># 去掉了self.words</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__iter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> (match.group() <span class="keyword">for</span> match <span class="keyword">in</span> RE_WORD.finditer(self.text))</span><br><span class="line">        <span class="comment"># 不适用生成器表达式的版本如下：</span></span><br><span class="line">        <span class="comment"># for match in RE_WORD.finditer(self.text):</span></span><br><span class="line">        <span class="comment">#     yield match.group()</span></span><br></pre></td></tr></table></figure>
+<p><strong><em>友情提醒：</em></strong>在Python3中，如果想把某种实现变成惰性版本，一般都是可以的......</p>
+<p><strong>生成器表达式</strong>是创建生成器的简洁语法，这样就无需定义生成器函数，一般在情况简单时使用。不过，<strong>生成器函数</strong>灵活得多，可以使用多个语句实现更复杂的逻辑，也可以作为<strong>协程</strong>使用，还可以重用代码。</p>
+<h2 id="itertools模块">3.4 itertools模块</h2>
+<p>该模块包含了很多有用的生成器函数，这里介绍两个生成器函数<code>itertools.count</code>和<code>itertools.takewhile</code>。</p>
+<p>前面介绍的生成器中的数据都是有穷集合，而<code>itertools.count</code>则生成无穷集合。它有两个参数起始数值<code>start</code>和步长<code>step</code>，<code>start</code>默认是<code>0</code>，<code>step</code>默认是<code>1</code>。这两个参数都支持多种数字类型，比如<code>int</code>，<code>float</code>，<code>decimal.Decimal</code>和<code>fractions.Fraction</code>。以下是它的一个示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.5</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> itertools</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen = itertools.count(<span class="number">1</span>, <span class="number">0.5</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>next(gen)</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>next(gen)</span><br><span class="line"><span class="number">1.5</span></span><br></pre></td></tr></table></figure>
+<p>由于<code>itertools.count</code>不停止生成数据，所以如果调用<code>list(count())</code>，你的电脑会疯狂运转，直到超出内存限制。</p>
+<p><code>itertools.takewhile</code>函数则不同，它会生成一个使用另一个生成器的生成器，在指定的函数返回<code>False</code>时停止。因此，这两个迭代器可以结合使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.6</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen = itertools.takewhile(<span class="keyword">lambda</span> n: n &lt; <span class="number">3</span>, itertools.count(<span class="number">1</span>, <span class="number">0.5</span>))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>list(gen)</span><br><span class="line">[<span class="number">1</span>, <span class="number">1.5</span>, <span class="number">2.0</span>, <span class="number">2.5</span>]</span><br></pre></td></tr></table></figure>
+<p>标准库中还有很多非常有用的生成器函数，这里就不一一列出了。</p>
+<h2 id="yield-from">3.5 yield from</h2>
+<p>如果生成器函数需要产出另一个生成器生成的值，传统的解决方法是使用嵌套<code>for</code>循环，比如如下函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.7</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">chain</span><span class="params">(*iterables)</span>:</span>  <span class="comment"># iterables中的元素是可迭代对象</span></span><br><span class="line">    <span class="keyword">for</span> it <span class="keyword">in</span> iterables:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> it:</span><br><span class="line">            <span class="keyword">yield</span> i</span><br></pre></td></tr></table></figure>
+<p>而如果使用<code>yield from</code>句法则可以使代码更简洁：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.8</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">chain</span><span class="params">(*iterables)</span>:</span></span><br><span class="line">    <span class="keyword">for</span> it <span class="keyword">in</span> iterables:</span><br><span class="line">        <span class="keyword">yield</span> <span class="keyword">from</span> it</span><br></pre></td></tr></table></figure>
+<p><code>yield from</code>语法不仅仅是语法糖，除了代替循环之外，<code>yield from</code>还会创建通道，把生成器当做协程使用。</p>
+<h2 id="把生成器当做协程">3.6 把生成器当做协程</h2>
+<p>从Python2.5起，生成器加入了一个名为<code>.send()</code>的方法，与<code>.__next__</code>方法一样，<code>.send</code>方法致使生成器推进到下一个<code>yield</code>语句。但<code>.send</code>方法还允许生成器的调用者向生成器传入参数，把这个参数作为对应的<code>yield</code>语句的返回值。这个方法让调用者和生成器之间能双向交换数据，而<code>.__next__</code>方法只允许调用者从生成器获取值。下面是这个方法的一个简单示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.9 省略了最后抛出的StopIteration异常</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">test_send</span><span class="params">()</span>:</span></span><br><span class="line"><span class="meta">... </span>    a = <span class="keyword">yield</span> <span class="number">1</span></span><br><span class="line"><span class="meta">... </span>    print(<span class="string">"At the end of function, a = "</span>, a)</span><br><span class="line"><span class="meta">... </span>   </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>g = test_send()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>next(g)</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>next(g)</span><br><span class="line">At the end of function, a =  <span class="literal">None</span>   <span class="comment"># 可以看出，yield表达式是有返回值的，默认返回None</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>g = test_send()  <span class="comment"># 新建一个生成器</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>next(g)   <span class="comment"># 在调用send()之前，必须先至少调用过一次next()</span></span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>g.send(<span class="string">"msg"</span>)</span><br><span class="line">At the end of function, a =  msg   <span class="comment"># 把我们传入的参数作为了yield表达式的返回值</span></span><br></pre></td></tr></table></figure>
+<p>这一项重要改进甚至改变了生成器的本性：像这样用的话，生成器就变为了协程。</p>
+<p>这里是想提醒大家，请慎重使用这个方法！生成器用于生产供迭代的数据，协程是数据的消费者。为了避免不必要的麻烦，请严格区分协程和迭代，虽然协程也用到到了<code>yield</code>，但协程和迭代没有关系！</p>
+<p>关于协程的内容将会在后面的文章中介绍。</p>
+<h1 id="总结">4. 总结</h1>
+<p>本篇首先介绍了可迭代对象与迭代器，内容包括迭代的原理以及<code>iter()</code>和<code>next()</code>函数所做的工作，然后实现了一个经典的迭代器。随后，为了让这个经典的迭代器更符合Python风格，我们讨论了生成器。这期间讲到了生成器和迭代器的关系，生成器函数及其工作原理，惰性实现和生成器表达式。根据这些内容，我们将之前传统的迭代器进行了简化。随后补充了三个内容：<code>itertools</code>模块中的生成器函数，<code>yield from</code>语法和生成器的<code>.send()</code>。</p>
+<p>最后，建议大家一定要多了解标准库中的生成器函数，尤其是<code>itertools</code>模块。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/06/08/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF34-%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%92%8C%E7%94%9F%E6%88%90%E5%99%A8/" title="Python学习之路34-迭代器和生成器">http://yoursite.com/2018/06/08/Python学习之路34-迭代器和生成器/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E8%BF%9B%E9%98%B6/" rel="tag"># Python进阶</a>
+              <a href="/tags/%E8%BF%AD%E4%BB%A3%E5%99%A8/" rel="tag"># 迭代器</a>
+              <a href="/tags/%E7%94%9F%E6%88%90%E5%99%A8/" rel="tag"># 生成器</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/06/07/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF33-%E4%B8%8A%E4%B8%8B%E6%96%87%E7%AE%A1%E7%90%86%E5%99%A8%E5%92%8Celse%E5%9D%97/" rel="prev" title="Python学习之路33-上下文管理器和else块">
+      <i class="fa fa-chevron-left"></i> Python学习之路33-上下文管理器和else块
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/06/12/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF35-%E5%8D%8F%E7%A8%8B/" rel="next" title="Python学习之路35-协程">
+      Python学习之路35-协程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#可迭代对象与迭代器"><span class="nav-text">2. 可迭代对象与迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#iter函数"><span class="nav-text">2.1 iter()函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#迭代器"><span class="nav-text">2.2 迭代器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#典型的迭代器"><span class="nav-text">2.3 典型的迭代器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成器"><span class="nav-text">3. 生成器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#生成器函数"><span class="nav-text">3.1 生成器函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成器函数工作原理"><span class="nav-text">3.2 生成器函数工作原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#惰性实现与生成器表达式"><span class="nav-text">3.3 惰性实现与生成器表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#itertools模块"><span class="nav-text">3.4 itertools模块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#yield-from"><span class="nav-text">3.5 yield from</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#把生成器当做协程"><span class="nav-text">3.6 把生成器当做协程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text">4. 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/06/08/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF34-%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%92%8C%E7%94%9F%E6%88%90%E5%99%A8/";
+    this.page.identifier = "2018/06/08/Python学习之路34-迭代器和生成器/";
+    this.page.title = "Python学习之路34-迭代器和生成器";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

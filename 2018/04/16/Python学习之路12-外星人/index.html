@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《Python编程：从入门到实践》笔记。 本章主要是对上一篇的继续，添加“外星人”，“外星人”与飞船的交互。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路12-外星人">
+<meta property="og:url" content="http://yoursite.com/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《Python编程：从入门到实践》笔记。 本章主要是对上一篇的继续，添加“外星人”，“外星人”与飞船的交互。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828239/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/1523796668050.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828239/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/1523801761348.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828239/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/1523803740363.png">
+<meta property="article:published_time" content="2018-04-15T16:00:02.000Z">
+<meta property="article:modified_time" content="2018-04-15T16:00:02.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python基础">
+<meta property="article:tag" content="Python游戏">
+<meta property="article:tag" content="pygame">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828239/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/1523796668050.png">
+
+<link rel="canonical" href="http://yoursite.com/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路12-外星人 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路12-外星人
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-04-16 00:00:02" itemprop="dateCreated datePublished" datetime="2018-04-16T00:00:02+08:00">2018-04-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">Python基础</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/04/16/Python学习之路12-外星人/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《Python编程：从入门到实践》笔记。 本章主要是对上一篇的继续，添加“外星人”，“外星人”与飞船的交互。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="回顾项目">1. 回顾项目</h1>
+<p>开发较大的项目时，进入每个开发阶段前回顾一下开发计划，搞清楚接下来要通过代码实现哪些功能至关重要。本篇将设计一下内容：</p>
+<ul>
+<li>研究即有代码，确定实现新功能前是否需要重构代码</li>
+<li>在屏幕左上角添加一个外星人，并指定合适的边距</li>
+<li>根据第一个外星人的边距和屏幕尺寸计算屏幕上可容纳多少个外星人。编写一个循环来填满屏幕的上半部分</li>
+<li>让外星舰队向两边和下方移动，直到外星人被全部击落，或有外星人撞到飞船，或有外星人抵达屏幕底部。如果所有外星人都被击落，再创建一批外星人。如果有外星人撞到飞船或到达屏幕底部，则销毁飞船并再创建一群外星人。</li>
+<li>限制玩家可用的飞机数，消耗完则游戏结束</li>
+</ul>
+<p>希望各位上一篇的代码没有删掉。在开始新的代码前，我们先在前面的<code>check_keydown_events()</code>函数中添加“通过快捷键Q结束游戏”的代码:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_keydown_event</span><span class="params">(event, ship, ai_settings, screen, bullets)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="keyword">elif</span> event.key == pygame.K_q:</span><br><span class="line">        sys.exit()</span><br></pre></td></tr></table></figure>
+<h1 id="创建外星人">2. 创建外星人</h1>
+<p>首先我们需要编写一个外星人<code>Alien</code>类。新建<code>alien.py</code>模块，在其中加入如下代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pygame</span><br><span class="line"><span class="keyword">from</span> pygame.sprite <span class="keyword">import</span> Sprite</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Alien</span><span class="params">(Sprite)</span>:</span></span><br><span class="line">    <span class="string">"""表示单个外星人的类"""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, ai_settings, screen)</span>:</span></span><br><span class="line">        <span class="string">"""初始化外星人并设置其起始位置"""</span></span><br><span class="line">        super(Alien, self).__init__()</span><br><span class="line">        self.screen = screen</span><br><span class="line">        self.ai_settings = ai_settings</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 加载外星人图像，并设置其rect属性</span></span><br><span class="line">        self.image = pygame.image.load(<span class="string">"images/alien.bmp"</span>)</span><br><span class="line">        self.rect = self.image.get_rect()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 每个外星人最初都在屏幕左上角附近</span></span><br><span class="line">        self.rect.x = self.rect.width</span><br><span class="line">        self.rect.y = self.rect.height</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 存储外星人的准确位置</span></span><br><span class="line">        self.x = float(self.rect.x)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">blitme</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""在指定位置绘制外星人"""</span></span><br><span class="line">        self.screen.blit(self.image, self.rect)</span><br></pre></td></tr></table></figure>
+<p>它和<code>Bullet</code>类一样继承自<code>Sprite</code>类。现在开始创建多行外星人。</p>
+<h2 id="修改game_functions.py模块">2.1 修改game_functions.py模块</h2>
+<p>首先在<code>game_functions.py</code>模块中添加<code>create_fleet()</code>函数用于创建外星舰队：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_fleet</span><span class="params">(ai_settings, screen, ship, aliens)</span>:</span></span><br><span class="line">    <span class="string">"""创建外星舰队"""</span></span><br><span class="line">    alien = Alien(ai_settings, screen)</span><br><span class="line">    <span class="comment"># 计算每行能放多少个</span></span><br><span class="line">    number_aliens_x = get_number_aliens_x(ai_settings, alien.rect.width)</span><br><span class="line">    <span class="comment"># 计算能放多少行</span></span><br><span class="line">    number_rows = get_number_rows(ai_settings, ship.rect.height,</span><br><span class="line">                                  alien.rect.height)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 嵌套循环创建外星舰队</span></span><br><span class="line">    <span class="keyword">for</span> row_number <span class="keyword">in</span> range(number_rows):</span><br><span class="line">        <span class="keyword">for</span> alien_number <span class="keyword">in</span> range(number_aliens_x):</span><br><span class="line">            <span class="comment"># 创建外星人并将其加入舰队</span></span><br><span class="line">            create_alien(ai_settings, screen, aliens, alien_number, row_number)</span><br></pre></td></tr></table></figure>
+<p>然后我们依次补充下面三个函数（注意各个函数的参数），这三个函数也位于<code>game_functions.py</code>中：</p>
+<p><strong><code>get_number_aliens_x()</code>: 计算一行能放多少个外星人</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_number_aliens_x</span><span class="params">(ai_settings, alien_width)</span>:</span></span><br><span class="line">    <span class="string">"""计算每行可容纳多少个外星人"""</span></span><br><span class="line">    <span class="comment"># 左右两侧留出一个外星人的宽度</span></span><br><span class="line">    available_space_x = ai_settings.screen_width - <span class="number">2</span> * alien_width</span><br><span class="line">    <span class="comment"># 列间距为一个外星人宽度</span></span><br><span class="line">    number_aliens_x = int(available_space_x / (<span class="number">2</span> * alien_width))</span><br><span class="line">    <span class="keyword">return</span> number_aliens_x</span><br></pre></td></tr></table></figure>
+<p><strong><code>get_number_rows()</code>: 计算能放多少行外星人</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_number_rows</span><span class="params">(ai_settings, ship_height, alien_height)</span>:</span></span><br><span class="line">    <span class="string">"""计算屏幕可容纳多少行外星人"""</span></span><br><span class="line">    <span class="comment"># 可用高度 = 窗口高度 - 上方一个外星人高度 - 下方一个飞船高度 - 两个外星人高度作为缓冲空间</span></span><br><span class="line">    available_space_y = (ai_settings.screen_height - <span class="number">3</span> * alien_height - ship_height)</span><br><span class="line">    <span class="comment"># 行距为一个外星人高度</span></span><br><span class="line">    number_rows = int(available_space_y / (<span class="number">2</span> * alien_height))</span><br><span class="line">    <span class="keyword">return</span> number_rows</span><br></pre></td></tr></table></figure>
+<p><strong><code>create_alien()</code>: 创建外星人</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_alien</span><span class="params">(ai_settings, screen, aliens, alien_number, row_number)</span>:</span></span><br><span class="line">    <span class="string">"""创建一个外星人并将其放在当前行"""</span></span><br><span class="line">    alien = Alien(ai_settings, screen)</span><br><span class="line">    <span class="comment"># 下面就是根据上面的公式计算每一个外星人在窗口中的位置（这是左上角的坐标）</span></span><br><span class="line">    alien.x = alien.rect.width * (<span class="number">1</span> + <span class="number">2</span> * alien_number)</span><br><span class="line">    alien.rect.x = alien.x</span><br><span class="line">    alien.rect.y = alien.rect.height * (<span class="number">1</span> + <span class="number">2</span> * row_number)</span><br><span class="line">    aliens.add(alien)</span><br></pre></td></tr></table></figure>
+<p>现在我们还需要<strong>修改<code>update_screen()</code>函数：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_screen</span><span class="params">(ai_settings, screen, ship, bullets, aliens)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="comment"># 绘制外星人，放在绘制子弹的代码后面，让外星人的图像覆盖掉子弹的图像</span></span><br><span class="line">    aliens.draw(screen)</span><br><span class="line">    -- snip --</span><br></pre></td></tr></table></figure>
+<p>注意，该函数增加了一个参数<code>aliens</code>，这是个<code>Group</code>对象，所以代码中的<code>draw()</code>方法也跟前一篇中的<code>bullets.update()</code>方法一样，一行代码更新所有对象。</p>
+<h2 id="修改alien_invasion.py模块">2.2 修改alien_invasion.py模块</h2>
+<p>在主程序中添加创建外星人的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_game</span><span class="params">()</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    gf.create_fleet(ai_settings, screen, ship, aliens)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        -- snip --</span><br><span class="line">        <span class="comment"># 比之前代码多传入了一个aliens参数</span></span><br><span class="line">        gf.update_screen(ai_settings, screen, ship, bullets, aliens)</span><br><span class="line">        </span><br><span class="line">-- snip --</span><br></pre></td></tr></table></figure>
+<p>现在我们执行程序将会得到如下结果：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828239/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/1523796668050.png" /></p>
+<h1 id="让外星舰队动起来">3. 让外星舰队动起来</h1>
+<p>我们将让外星舰队在窗体中向右移动，撞到屏幕边缘后下以一定距离下降，再沿反方向移动，直到外星人被消灭，或外星人撞上飞船，或有外星人到达窗体底部。</p>
+<h2 id="补充settings.py模块">3.1 补充settings.py模块</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Settings</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        -- snip --</span><br><span class="line">        self.fleet_drop_speed = <span class="number">10</span></span><br><span class="line">        <span class="comment"># 外星舰队方向标志：1向右，-1向左</span></span><br><span class="line">        <span class="comment"># 也可以用如left, right之类的标志，但这样会很麻烦</span></span><br><span class="line">        self.fleet_direction = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<h2 id="修改alien.py模块">3.2 修改alien.py模块</h2>
+<p>我们需要在<code>Alien</code>类中添加两个方法，一个用于检测窗体边缘，一个用于更新<code>Alien</code>对象：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Alien</span><span class="params">(Sprite)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">check_edges</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""如果外星人位于屏幕边缘则返回True"""</span></span><br><span class="line">        screen_rect = self.screen.get_rect()</span><br><span class="line">        <span class="keyword">return</span> self.rect.right &gt;= screen_rect.right <span class="keyword">or</span> self.rect.left &lt;= <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">update</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""向右移动外星人"""</span></span><br><span class="line">        <span class="comment"># 以后这样的方式会用的很多</span></span><br><span class="line">        self.x += self.ai_settings.alien_speed_factor * self.ai_settings.fleet_direction</span><br><span class="line">        self.rect.x = self.x</span><br></pre></td></tr></table></figure>
+<p>如果使用文本值来控制方向，那就需要添加<code>if-else</code>语句来检测舰队移动方向。鉴于只有两个可能的方向，这里使用<code>-1</code>和<code>1</code>来表示，这样更容易改变外星人对象的坐标。</p>
+<h2 id="修改game_functions.py模块-1">3.3 修改game_functions.py模块</h2>
+<p>首先，我们在该模块中添加一个更新外星舰队的函数<code>update_aliens()</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_aliens</span><span class="params">(ai_settings, aliens)</span>:</span></span><br><span class="line">    <span class="string">"""检查是否有外星人位于屏幕边缘，并更新外星舰队中所有外星人的位置"""</span></span><br><span class="line">    check_fleet_edges(ai_settings, aliens)</span><br><span class="line">    aliens.update()  <span class="comment"># “一键更新”</span></span><br></pre></td></tr></table></figure>
+<p><code>check_fleet_edges()</code>函数用于检测舰队是否碰到了窗体边缘，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_fleet_edges</span><span class="params">(ai_settings, aliens)</span>:</span></span><br><span class="line">    <span class="string">"""有外星人到达边缘时采取相应的措施"""</span></span><br><span class="line">    <span class="comment"># 检测舰队中每一个外星人是否碰到了窗体边缘</span></span><br><span class="line">    <span class="keyword">for</span> alien <span class="keyword">in</span> aliens.sprites():</span><br><span class="line">        <span class="keyword">if</span> alien.check_edges():</span><br><span class="line">            change_fleet_direction(ai_settings, aliens)</span><br><span class="line">            <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+<p><code>change_fleet_direction()</code>函数用于改变舰队的移动方向，以及让舰队向下移动，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">change_fleet_direction</span><span class="params">(ai_settings, aliens)</span>:</span></span><br><span class="line">    <span class="string">"""将外星舰队下移，并改变它们的方向"""</span></span><br><span class="line">    <span class="keyword">for</span> alien <span class="keyword">in</span> aliens.sprites():</span><br><span class="line">        alien.rect.y += ai_settings.fleet_drop_speed</span><br><span class="line">    ai_settings.fleet_direction *= <span class="number">-1</span></span><br></pre></td></tr></table></figure>
+<p>上面三个函数就是在<code>game_functions.py</code>中的所有变动。</p>
+<h2 id="修改alien_invasion.py模块-1">3.4 修改alien_invasion.py模块</h2>
+<p>在该模块中我们只需要在<code>while</code>循环中添加一行代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开始游戏的主循环</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        gf.check_events(ai_settings, screen, ship, bullets)</span><br><span class="line">        ship.update()</span><br><span class="line">        gf.update_bullets(bullets)</span><br><span class="line">        <span class="comment"># 添加对外星舰队的修改</span></span><br><span class="line">        gf.update_aliens(ai_settings, aliens)</span><br><span class="line">        gf.update_screen(ai_settings, screen, ship, bullets, aliens)</span><br></pre></td></tr></table></figure>
+<p>最后运行主程序，得到如下效果：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828239/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/1523801761348.png" /></p>
+<p>截了一张静态图，实际是动态的。</p>
+<h1 id="击杀外星人">4. 击杀外星人</h1>
+<p>对于当前的程序，如果发射子弹，子弹将穿过外星人，而不是击杀，下面我们继续完善该项目，使其能击杀外星人。而要实现这一点，关键就是要检测到子弹图像与外星人图像是否重叠，重叠了则表示击中。</p>
+<h2 id="修改game_functions.py">4.1 修改game_functions.py</h2>
+<p>为何检测子弹与卫星人的碰撞，我们需要修改<code>update_bullets()</code>函数，这里我们增加了<code>update_bullets()</code>的参数，还调用了一个新函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_bullets</span><span class="params">(bullets, aliens, ship, screen, ai_settings)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets)</span><br></pre></td></tr></table></figure>
+<p>函数<code>check_bullet_alien_collisions()</code>用于检测子弹与外星人的碰撞，当外星人被消灭光时，清空现有子弹，并生成新的外星舰队，它的代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_bullet_alien_collisions</span><span class="params">(ai_settings, screen, ship, aliens, bullets)</span>:</span></span><br><span class="line">    <span class="string">"""检测是否有子弹击中了外星人，如果有，就删除相应的子弹和外星人"""</span></span><br><span class="line">    <span class="comment"># 下一篇中我们将用该变量实现分数统计</span></span><br><span class="line">    collisions = pygame.sprite.groupcollide(bullets, aliens, <span class="literal">True</span>, <span class="literal">True</span>)</span><br><span class="line">	</span><br><span class="line">    <span class="comment">#如果外星人被消灭光，则生成新的外星人舰队</span></span><br><span class="line">    <span class="keyword">if</span> len(aliens) == <span class="number">0</span>:</span><br><span class="line">        <span class="comment"># 删除现有的子弹并创建新的舰队</span></span><br><span class="line">        bullets.empty()</span><br><span class="line">        create_fleet(ai_settings, screen, ship, aliens)</span><br></pre></td></tr></table></figure>
+<p><code>sprite.groupcollide()</code>方法用于检测对象之间的碰撞，它将<code>bullets</code>中的每个子弹的<code>rect</code>与<code>aliens</code>中的每个外星人的<code>rect</code>进行比较，并返回一个字典。该字典以第一个参数中的对象为键，以第二个参数中的键为值，在这里，以<code>bullets</code>中发生了碰撞的<code>bullet</code>为键，它的值为与之碰撞的<code>alien</code>（不是<code>aliens</code>）！第三个参数表示是否删除第一个参数中发生了碰撞的对象，而四个参数表示是否删除第二个参数中发生了碰撞的对象。</p>
+<h2 id="修改alien_invasion.py">4.2 修改alien_invasion.py</h2>
+<p>只需要修改调用<code>update_bullets()</code>函数的那行代码即可，增加几个参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gf.update_bullets(bullets, aliens, ship, screen, ai_settings)</span><br></pre></td></tr></table></figure>
+<p>基础功能基本完成。</p>
+<h2 id="测试技巧补充">4.3 测试技巧补充</h2>
+<p>对于上述代码，我们可能需要测试当消灭完外星人后，新的舰队是否能被正确创建等，如果我们以现在游戏的设定，即子弹速度为1，子弹宽度为3，那测试起来将会很痛苦。此时，我们可以修改修改游戏的参数，比如将子弹宽度修改为300，子弹速度修改为3，这样就相当于对游戏进行了快进，此时代码的运行效果如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828239/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/1523803740363.png" /></p>
+<p>不过最后记得将参数修改回去。</p>
+<h1 id="结束游戏">5. 结束游戏</h1>
+<p>接下来我们实现外星人碰到飞船，外星人抵达窗体底部，飞船数用光导致游戏结束的代码。</p>
+<h2 id="创建gamestats类">5.1 创建GameStats类</h2>
+<p>首先我们创建一个用于存储游戏信息的<code>GameStats</code>类，存放在<code>game_stats.py</code>文件中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameStats</span>:</span></span><br><span class="line">    <span class="string">"""跟踪游戏的统计信息"""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, ai_settings)</span>:</span></span><br><span class="line">        <span class="string">"""初始化统计信息"""</span></span><br><span class="line">        <span class="comment"># 用于控制游戏启动与否</span></span><br><span class="line">        self.game_active = <span class="literal">True</span></span><br><span class="line">        self.ai_settings = ai_settings</span><br><span class="line">        self.reset_stats()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">reset_stats</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""初始化在游戏运行期间可能变化的统计信息"""</span></span><br><span class="line">        <span class="comment"># 重置飞船数</span></span><br><span class="line">        self.ships_left = self.ai_settings.ship_limit</span><br></pre></td></tr></table></figure>
+<h2 id="修改settings.py">5.2 修改settings.py</h2>
+<p>从上述代码可以看出，我们需要在<code>settings.py</code>中添加一项表示“飞船数”的信息：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Settings</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""初始化游戏的设置"""</span></span><br><span class="line">        <span class="comment"># 屏幕设置</span></span><br><span class="line">        -- snip --</span><br><span class="line">        <span class="comment"># 设置飞船数量限制</span></span><br><span class="line">        self.ship_limit = <span class="number">3</span></span><br><span class="line">        -- snip --</span><br></pre></td></tr></table></figure>
+<h2 id="响应飞船与外星人的碰撞修改game_functions.py">5.3 响应飞船与外星人的碰撞，修改game_functions.py</h2>
+<p>我们在更新每个外星人的位置后立即检测外星人和飞船之间的碰撞，随后再检查外星人是否到达了窗体底部。修改<code>update_aliens()</code>函数，使用<code>sprite</code>中的<code>spritecollideany()</code>方法来检测碰撞：将第二参数中的每一个元素与第一个参数比较，检测是否碰撞，返回第二个参数中第一个发生碰撞的对象，如果没有发生碰撞则返回<code>None</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 增加了参数和碰撞检测</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_aliens</span><span class="params">(ai_settings, aliens, ship, screen, bullets, stats)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="comment"># 检测外星人和飞船之间的碰撞</span></span><br><span class="line">    <span class="keyword">if</span> pygame.sprite.spritecollideany(ship, aliens):</span><br><span class="line">        ship_hit(ai_settings, stats, screen, ship, aliens, bullets)</span><br><span class="line"></span><br><span class="line">    check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets)</span><br></pre></td></tr></table></figure>
+<p>为此我们需要增加两个函数：</p>
+<p><strong><code>ship_hit()</code></strong>:当外星人与飞船发生碰撞时，调用次函数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">-- snip --</span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> sleep</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ship_hit</span><span class="params">(ai_settings, stats, screen, ship, aliens, bullets)</span>:</span></span><br><span class="line">    <span class="string">"""响应被外星人撞到的飞船"""</span></span><br><span class="line">    <span class="comment"># 将ship_left减1</span></span><br><span class="line">    <span class="keyword">if</span> stats.ships_left &gt; <span class="number">0</span>:</span><br><span class="line">        stats.ships_left -= <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 清空外星人列表和子弹列表</span></span><br><span class="line">        aliens.empty()</span><br><span class="line">        bullets.empty()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 创建一群新的外星人，并将飞船恢复到初始位置</span></span><br><span class="line">        create_fleet(ai_settings, screen, ship, aliens)</span><br><span class="line">        ship.center_ship()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 暂停</span></span><br><span class="line">        sleep(<span class="number">0.5</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        stats.game_active = <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+<p>从上面的代码还可以看出，我们还需要在<code>Ship</code>类中添加一个<code>center_ship()</code>方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">center_ship</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""让飞船在屏幕上居中"""</span></span><br><span class="line">    self.center = self.screen_rect.centerx</span><br></pre></td></tr></table></figure>
+<p><strong><code>check_aliens_bottom()</code></strong>: 当飞船到达窗体底部时调用次函数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_aliens_bottom</span><span class="params">(ai_settings, stats, screen, ship, aliens, bullets)</span>:</span></span><br><span class="line">    <span class="string">"""检测是否有外星人到达了屏幕底部"""</span></span><br><span class="line">    screen_rect = screen.get_rect()</span><br><span class="line">    <span class="keyword">for</span> alien <span class="keyword">in</span> aliens.sprites():</span><br><span class="line">        <span class="keyword">if</span> alien.rect.bottom &gt;= screen_rect.bottom:</span><br><span class="line">            <span class="comment"># 和飞船被碰撞是的代码没啥区别，故调用同一个函数</span></span><br><span class="line">            ship_hit(ai_settings, stats, screen, ship, aliens, bullets)</span><br><span class="line">            <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+<h2 id="修改主程序alien_invasion.py">5.4 修改主程序alien_invasion.py</h2>
+<p>修改游戏的循环部分：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开始游戏的主循环</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    gf.check_events(ai_settings, screen, ship, bullets)</span><br><span class="line">	</span><br><span class="line">    <span class="comment"># 决定程序运行时该执行的部分</span></span><br><span class="line">    <span class="keyword">if</span> stats.game_active:</span><br><span class="line">        ship.update()</span><br><span class="line">        gf.update_bullets(bullets, aliens, ship, screen, ai_settings)</span><br><span class="line">        gf.update_aliens(ai_settings, aliens, ship, screen, bullets, stats)</span><br><span class="line"></span><br><span class="line">    gf.update_screen(ai_settings, screen, ship, bullets, aliens)</span><br></pre></td></tr></table></figure>
+<p>在主循环中，任何情况下都需要调用<code>check_events()</code>，即使游戏处于非活动状态；还需要不断更新屏幕，以便在等待玩家是否选择重新开始游戏时能够修改屏幕；其他函数仅在游戏处于活动状态时太需要调用。</p>
+<h1 id="小结">6. 小结</h1>
+<p>本篇讲述了：</p>
+<ul>
+<li>如何在游戏中添加大量相同的元素；</li>
+<li>如何用嵌套循环来创建元素网格；</li>
+<li>如何控制对象在屏幕上移动的方向以及响应事件；</li>
+<li>如何检测和响应元素碰撞；</li>
+<li>如何在游戏中跟踪统计信息；</li>
+<li>如何使用标志<code>game_active</code>来判断游戏是否结束。</li>
+</ul>
+<p>下一篇中，同时也是本项目的最后一篇，我们将：</p>
+<ul>
+<li>添加一个Play按钮让玩家能够开始游戏，以及游戏结束后再开始；</li>
+<li>每当玩家消灭一群外星人后，加快游戏节奏；</li>
+<li>添加一个分数系统。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/" title="Python学习之路12-外星人">http://yoursite.com/2018/04/16/Python学习之路12-外星人/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E5%9F%BA%E7%A1%80/" rel="tag"># Python基础</a>
+              <a href="/tags/Pygame/" rel="tag"># Pygame</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/04/15/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF11-%E6%AD%A6%E8%A3%85%E9%A3%9E%E8%88%B9/" rel="prev" title="Python学习之路11-武装飞船">
+      <i class="fa fa-chevron-left"></i> Python学习之路11-武装飞船
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/" rel="next" title="Python学习之路13-记分">
+      Python学习之路13-记分 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#回顾项目"><span class="nav-text">1. 回顾项目</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建外星人"><span class="nav-text">2. 创建外星人</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#修改game_functions.py模块"><span class="nav-text">2.1 修改game_functions.py模块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改alien_invasion.py模块"><span class="nav-text">2.2 修改alien_invasion.py模块</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#让外星舰队动起来"><span class="nav-text">3. 让外星舰队动起来</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#补充settings.py模块"><span class="nav-text">3.1 补充settings.py模块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改alien.py模块"><span class="nav-text">3.2 修改alien.py模块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改game_functions.py模块-1"><span class="nav-text">3.3 修改game_functions.py模块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改alien_invasion.py模块-1"><span class="nav-text">3.4 修改alien_invasion.py模块</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#击杀外星人"><span class="nav-text">4. 击杀外星人</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#修改game_functions.py"><span class="nav-text">4.1 修改game_functions.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改alien_invasion.py"><span class="nav-text">4.2 修改alien_invasion.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试技巧补充"><span class="nav-text">4.3 测试技巧补充</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结束游戏"><span class="nav-text">5. 结束游戏</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建gamestats类"><span class="nav-text">5.1 创建GameStats类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改settings.py"><span class="nav-text">5.2 修改settings.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#响应飞船与外星人的碰撞修改game_functions.py"><span class="nav-text">5.3 响应飞船与外星人的碰撞，修改game_functions.py</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改主程序alien_invasion.py"><span class="nav-text">5.4 修改主程序alien_invasion.py</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-text">6. 小结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF12-%E5%A4%96%E6%98%9F%E4%BA%BA/";
+    this.page.identifier = "2018/04/16/Python学习之路12-外星人/";
+    this.page.title = "Python学习之路12-外星人";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

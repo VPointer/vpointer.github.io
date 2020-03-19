@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《流畅的Python》笔记 本篇是“面向对象惯用方法”的第五篇，我们将继续讨论继承，重点说明两个方面：继承内置类型时的问题以及多重继承。概念比较多，较为枯燥。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路31-继承的利弊">
+<meta property="og:url" content="http://yoursite.com/2018/06/06/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF31-%E7%BB%A7%E6%89%BF%E7%9A%84%E5%88%A9%E5%BC%8A/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《流畅的Python》笔记 本篇是“面向对象惯用方法”的第五篇，我们将继续讨论继承，重点说明两个方面：继承内置类型时的问题以及多重继承。概念比较多，较为枯燥。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1528263252/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF31-%E7%BB%A7%E6%89%BF%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/multiple_inheritance.png">
+<meta property="article:published_time" content="2018-06-06T08:00:00.000Z">
+<meta property="article:modified_time" content="2018-06-06T08:00:00.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python进阶">
+<meta property="article:tag" content="面向对象">
+<meta property="article:tag" content="继承">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1528263252/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF31-%E7%BB%A7%E6%89%BF%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/multiple_inheritance.png">
+
+<link rel="canonical" href="http://yoursite.com/2018/06/06/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF31-%E7%BB%A7%E6%89%BF%E7%9A%84%E5%88%A9%E5%BC%8A/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路31-继承的利弊 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/06/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF31-%E7%BB%A7%E6%89%BF%E7%9A%84%E5%88%A9%E5%BC%8A/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路31-继承的利弊
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-06-06 16:00:00" itemprop="dateCreated datePublished" datetime="2018-06-06T16:00:00+08:00">2018-06-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index"><span itemprop="name">Python进阶</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/06/06/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF31-%E7%BB%A7%E6%89%BF%E7%9A%84%E5%88%A9%E5%BC%8A/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/06/Python学习之路31-继承的利弊/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《流畅的Python》笔记</p>
+<p>本篇是“面向对象惯用方法”的第五篇，我们将继续讨论继承，重点说明两个方面：继承内置类型时的问题以及多重继承。概念比较多，较为枯燥。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="继承内置类型">1. 继承内置类型</h1>
+<p><strong>内置类型（C语言编写）的方法通常会忽略用户重写的方法</strong>，这种行为体现在两方面：</p>
+<ul>
+<li>内置类型<code>A</code>的子类<code>ChildA</code>即使重写了<code>A</code>中的方法，当<code>ChildA</code>调用这些方法时，也不一定调用的就是重写的版本，而依然可能调用<code>A</code>中的版本；</li>
+<li>内置类型<code>B</code>调用<code>ChildA</code>的方法时，调用的也不一定是被<code>ChildA</code>重写的方法，可能依然会调用<code>A</code>的版本。</li>
+</ul>
+<p>以<code>dict</code>的<code>__getitem__</code>方法为例，即使这个方法被子类重写了，内置类型的<code>get()</code>方法也不一定调用重写的版本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码1.1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="class"><span class="keyword">class</span> <span class="title">MyDict</span><span class="params">(dict)</span>:</span></span><br><span class="line"><span class="meta">... </span>    <span class="function"><span class="keyword">def</span> <span class="title">__getitem__</span><span class="params">(self, key)</span>:</span></span><br><span class="line"><span class="meta">... </span>        <span class="keyword">return</span> <span class="string">"Test"</span>   <span class="comment"># 不管要获取谁，都返回"Test"</span></span><br><span class="line"><span class="meta">... </span>   </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>child = MyDict(&#123;<span class="string">"one"</span>:<span class="number">1</span>, <span class="string">"two"</span>:<span class="number">2</span>&#125;)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>child</span><br><span class="line">&#123;<span class="string">'one'</span>: <span class="number">1</span>, <span class="string">'two'</span>: <span class="number">2</span>&#125;    <span class="comment"># 正常</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>child[<span class="string">"one"</span>]</span><br><span class="line"><span class="string">'Test'</span>    <span class="comment"># 此时也是正常的</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>child.get(<span class="string">"one"</span>)</span><br><span class="line"><span class="number">1</span>   <span class="comment"># 这里就不正常了，按理说应该返回"Test"</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b = &#123;&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b.update(child)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b  <span class="comment"># 并没有调用child的__getitem__方法</span></span><br><span class="line">&#123;<span class="string">'one'</span>: <span class="number">1</span>, <span class="string">'two'</span>: <span class="number">2</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>这是在CPython中的情况，这些行为其实违背了面向对象编程的一个基本原则，即应该始终从实例所属的类开始搜索方法，即使在超类实现的类中调用也应该如此。但实际是可能直接调用基类的方法，而不先搜索子类。这种设定并不能说是错误的，这只是一种取舍，毕竟这也是CPython中的内置类型运行得快的原因之一，但这种方式就给我们出了难题。这种问题的解决方法有两个：</p>
+<ul>
+<li>重写从内置类型继承来的所有方法（要真这样，那我还继承干啥？），或者查看源码，把相关的方法都给重写了（谁的记性能这么好？）；</li>
+<li>第二种方法才是<strong>推荐</strong>的方法：<strong>如果要继承内置类型，请从<code>collections</code>模块中继承</strong>，比如继承自<code>UserList</code>、<code>UserDict</code>，<code>UserString</code>。这些类不是用C语言写的，而是用纯Python写的，并且严格遵循了上述面向对象的原则。如果上述代码中的<code>MyDict</code>继承自<code>UserDict</code>，行为则会合乎预期。</li>
+</ul>
+<p><strong><em>强调</em></strong>：本节所述问题只发生在C语言实现的内置类型内部的方法委托上，而且只影响直接继承内置类型的自定义类。如果子类继承自纯Python编写的类，则不会有此问题。</p>
+<h1 id="多重继承">2.多重继承</h1>
+<p>任何实现多重继承的语言都要处理潜在的命名冲突，这种冲突由不相关的超类实现同名方法引起。这种冲突称为”菱形冲突“。</p>
+<h2 id="多重继承的示例">2.1 多重继承的示例</h2>
+<p>下面是我们要实现的类的UML图：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1528263252/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF31-%E7%BB%A7%E6%89%BF%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/multiple_inheritance.png" /></p>
+<p>红线表示超类的调用顺序，以下是它的实现：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.1</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">"ping in A:"</span>, self)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span><span class="params">(A)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pong</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">"pong in B:"</span>, self)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(A)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pong</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">"PONG in C:"</span>, self)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">D</span><span class="params">(B, C)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(self)</span>:</span></span><br><span class="line">        super().ping()</span><br><span class="line">        print(<span class="string">"ping in D:"</span>, self)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pingpong</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.ping()</span><br><span class="line">        super().ping()</span><br><span class="line">        self.pong()</span><br><span class="line">        super().pong()</span><br><span class="line">        C.pong(self)   <span class="comment"># 在定义时调用特定父类的写法，显示传入self参数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 下面是它在控制台中的调用情况</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> diamond <span class="keyword">import</span> *</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d = D()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d.pong()</span><br><span class="line">pong <span class="keyword">in</span> B: &lt;mytest.D object at <span class="number">0x0000013E66313048</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d.pingpong()</span><br><span class="line">ping <span class="keyword">in</span> A: &lt;mytest.D object at <span class="number">0x0000013E66313048</span>&gt;   <span class="comment"># self.ping()</span></span><br><span class="line">ping <span class="keyword">in</span> D: &lt;mytest.D object at <span class="number">0x0000013E66313048</span>&gt;</span><br><span class="line">ping <span class="keyword">in</span> A: &lt;mytest.D object at <span class="number">0x0000013E66313048</span>&gt;   <span class="comment"># super().ping()</span></span><br><span class="line">pong <span class="keyword">in</span> B: &lt;mytest.D object at <span class="number">0x0000013E66313048</span>&gt;   <span class="comment"># self.pong()</span></span><br><span class="line">pong <span class="keyword">in</span> B: &lt;mytest.D object at <span class="number">0x0000013E66313048</span>&gt;   <span class="comment"># super().pong()</span></span><br><span class="line">PONG <span class="keyword">in</span> C: &lt;mytest.D object at <span class="number">0x0000013E66313048</span>&gt;   <span class="comment"># C.pong(self)</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>C.pong(d)    <span class="comment"># 在运行时调用特定父类的写法，显示传入实例参数</span></span><br><span class="line">PONG <span class="keyword">in</span> C: &lt;mytest.D object at <span class="number">0x0000013E66313048</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>D.__mro__   <span class="comment"># Method Resolutino Order，方法解析顺序，上一篇文章中有所提及</span></span><br><span class="line">(&lt;class 'mytest.D'&gt;, &lt;class 'mytest.B'&gt;, &lt;class 'mytest.C'&gt;, </span><br><span class="line"> &lt;class 'mytest.A'&gt;, &lt;class 'object'&gt;)</span><br></pre></td></tr></table></figure>
+<p>类都有一个名为<code>__mro__</code> 的属性，它的值是一个元组，按一定顺序列举超类，这个顺序由<a href="https://www.python.org/download/releases/2.3/mro/" target="_blank" rel="noopener">C3算法</a>计算。</p>
+<p>方法解析顺序不仅考虑继承图，还考虑子类声明中列出超类的顺序。例如，如果<code>D</code>类的声明改为<code>class D(C, B)</code>，那么<code>D</code>则会先搜索<code>C</code>，再搜索<code>B</code>。</p>
+<p>若想把方法调用委托给超类，推荐的做法是使用内置的<code>super()</code>函数；同时，还请注意上述调用特定超类的语法。然而，使用<code>super()</code>是最安全的，也不易过时。调用框架或不受自己控制的类层次结构中的方法时，尤其应该使用<code>super()</code>。</p>
+<h2 id="处理多重继承的建议">2.2 处理多重继承的建议</h2>
+<p>继承有很多用途，而多重继承增加了可选方案和复杂度。使用多重继承容易得出令人费解和脆弱的设计。以下是8条避免产生混乱类图的建议：</p>
+<ol type="1">
+<li><p><strong>把接口继承和实现继承区分开</strong></p>
+<p>在使用多重继承时，一定要明白自己为什么要创建子类：</p>
+<ul>
+<li>继承接口，创建子类，实现“是什么（”is-a”）”关系；</li>
+<li>继承实现，通过重用避免代码重复</li>
+</ul>
+<p>其实这俩经常同时出现，不过只要有可能，一定要明确这么做的意图。通过继承重用代码是实现细节，通常可以换成用组合和委托的模式，而接口继承则是框架的支柱。</p></li>
+<li><p><strong>使用抽象基类显示表示接口</strong></p>
+<p>如果类的作用是定义接口，应该将其明确定义为抽象基类。</p></li>
+<li><p><strong>通过“混入类”实现代码重用</strong></p>
+<p>如果一个类的作用是为多个不相关的子类提供方法实现，从而实现重用，但不体现“is-a”关系，则应该把那个类明确定义为<strong>混入类</strong>(mixin class)。从概念上讲，混入不定义新类型，只是打包方法，便于重用。混入类绝对不能实例化，而且具体类不能只继承混入类。混入类应该提供某方面的特定行为，只实现少量关系非常紧密的方法。</p></li>
+<li><p><strong>在名称中明确指明混入</strong></p>
+<p>由于Python没有把类明确声明为混入的正式方式，实际的做法是在类名后面加入<code>Mixin</code>后缀。Python的GUI库Tkinter没有采用这种方法，这也是它的类图十分混乱的原因之一，而Django则采用了这种方式。</p></li>
+<li><p><strong>抽象基类可以作为混入类，但混入类不能作为抽象基类</strong></p>
+<p>抽象基类可以实现具体方法，因此可以作为混入类使用。但抽象基类能定义数据类型，混入类则做不到。此外，抽象基类可以作为其他类的唯一基类，混入类则决不能作为唯一的基类，除非这个混入类继承了另一个更具体的混入（这种做法非常少见）。</p>
+<p>但值得注意的是，抽象基类中的具体方法只是一种便利措施，因为它只能调用抽象基类及其超类中定义了的方法，那么用户自行调用这些方法也可以实现同样的功能，所以，抽象基类也并不常作为混入类。</p></li>
+<li><p><strong>不要从多个具体类继承</strong></p>
+<p>应该尽量保证具体类没有或者最多只有一个具体超类。也就是说，具体类的超类中除了这一个具体超类外，其余的都应该是抽象基类或混入类。</p></li>
+<li><p><strong>为用户提供聚合类</strong></p>
+<p><strong>如果抽象基类或混入类的组合对客户代码非常有用</strong>，那就提供一个类，使用易于理解的方式把它们结合起来，这种类被称为聚合类。比如<code>tkinter.Widget</code>类，它的定义如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.2</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span><span class="params">(BaseWidget, Pack, Place, Grid)</span>:</span>  <span class="comment"># 省略掉了文档注释</span></span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<p>它的定义体是空的，但通过这一个类，提供了四个超类的全部方法。</p></li>
+<li><p><strong>优先使用对象组合，而不是类继承</strong></p>
+<p>优先使用组合能让设计更灵活。即便是单继承，这个原则也能提升灵活性，因为继承是一种紧耦合，而且较高的继承树容易倒。组合和委托还可以代替混入类，把行为提供给不同的类，但它不能取代接口继承，因为接口继承定义的是类层次结构。</p></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/06/06/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF31-%E7%BB%A7%E6%89%BF%E7%9A%84%E5%88%A9%E5%BC%8A/" title="Python学习之路31-继承的利弊">http://yoursite.com/2018/06/06/Python学习之路31-继承的利弊/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E8%BF%9B%E9%98%B6/" rel="tag"># Python进阶</a>
+              <a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" rel="tag"># 面向对象</a>
+              <a href="/tags/%E7%BB%A7%E6%89%BF/" rel="tag"># 继承</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/06/05/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF30-%E6%8E%A5%E5%8F%A3%EF%BC%9A%E4%BB%8E%E5%8D%8F%E8%AE%AE%E5%88%B0%E6%8A%BD%E8%B1%A1%E5%9F%BA%E7%B1%BB/" rel="prev" title="Python学习之路30-接口：从协议到抽象基类">
+      <i class="fa fa-chevron-left"></i> Python学习之路30-接口：从协议到抽象基类
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/06/06/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF32-%E6%AD%A3%E7%A1%AE%E9%87%8D%E8%BD%BD%E8%BF%90%E7%AE%97%E7%AC%A6/" rel="next" title="Python学习之路32-运算符重载">
+      Python学习之路32-运算符重载 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#继承内置类型"><span class="nav-text">1. 继承内置类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#多重继承"><span class="nav-text">2.多重继承</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#多重继承的示例"><span class="nav-text">2.1 多重继承的示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理多重继承的建议"><span class="nav-text">2.2 处理多重继承的建议</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/06/06/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF31-%E7%BB%A7%E6%89%BF%E7%9A%84%E5%88%A9%E5%BC%8A/";
+    this.page.identifier = "2018/06/06/Python学习之路31-继承的利弊/";
+    this.page.title = "Python学习之路31-继承的利弊";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

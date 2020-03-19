@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《Python编程：从入门到实践》笔记。 本章主要是学习Python的文件操作，主要是从文件中读取数据以及将数据存储到文件中，还有错误处理，异常类，json模块等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路9-文件和异常">
+<meta property="og:url" content="http://yoursite.com/2018/04/12/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF9-%E6%96%87%E4%BB%B6%E5%92%8C%E5%BC%82%E5%B8%B8/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《Python编程：从入门到实践》笔记。 本章主要是学习Python的文件操作，主要是从文件中读取数据以及将数据存储到文件中，还有错误处理，异常类，json模块等。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-04-12T15:06:00.000Z">
+<meta property="article:modified_time" content="2018-04-12T15:06:00.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python基础">
+<meta property="article:tag" content="Python文件">
+<meta property="article:tag" content="Python异常">
+<meta property="article:tag" content="json">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2018/04/12/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF9-%E6%96%87%E4%BB%B6%E5%92%8C%E5%BC%82%E5%B8%B8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路9-文件和异常 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/12/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF9-%E6%96%87%E4%BB%B6%E5%92%8C%E5%BC%82%E5%B8%B8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路9-文件和异常
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-04-12 23:06:00" itemprop="dateCreated datePublished" datetime="2018-04-12T23:06:00+08:00">2018-04-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">Python基础</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/04/12/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF9-%E6%96%87%E4%BB%B6%E5%92%8C%E5%BC%82%E5%B8%B8/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/04/12/Python学习之路9-文件和异常/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《Python编程：从入门到实践》笔记。 本章主要是学习Python的文件操作，主要是从文件中读取数据以及将数据存储到文件中，还有错误处理，异常类，json模块等。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="从文件中读数据">1. 从文件中读数据</h1>
+<h2 id="读取整个文件">1.1 读取整个文件</h2>
+<p>以下文件<code>pi_digits.txt</code>包含了精确到小数点后30位的圆周率数据</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pi_digits.txt文件</span></span><br><span class="line"><span class="number">3.1415926535</span></span><br><span class="line">  <span class="number">8979323846</span></span><br><span class="line">  <span class="number">2643383279</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 代码：</span></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">"pi_digits.txt"</span>, <span class="string">"r"</span>) <span class="keyword">as</span> file_object:</span><br><span class="line">    contents = file_object.read()   <span class="comment"># 一次性读取整个文件</span></span><br><span class="line">    print(contents)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果：和上述文件内容一样</span></span><br></pre></td></tr></table></figure>
+<p>从上述代码可以看出，我们打开文件使用<code>open()</code>函数，该函数至少接收一个参数，即文件路径。读取文件时需要向<code>open()</code>函数指明是用什么方式读取文件，是只读(<code>"r"</code>)，只写(<code>"w"</code>)，末尾添加(<code>"a"</code>)还是读写均可(<code>"r+"</code>)，<code>open()</code>函数默认以“只读”方式读取文件。这只是4中常用的文件读取方式，此外还有至少8种读写方式。<code>open()</code>函数返回一个文件对象，<code>file_object</code>用于接收该对象。通过文件对象的<code>read()</code>方法读取文件内容，且该方法返回整个文件的内容。</p>
+<p>上述代码中的文件和源代码在同一目录中。注意文件路径的问题，绝对路径（不提倡）和相对路径（相对于源文件的路径）以及Windows和Linux下路径的写法。</p>
+<p>注意代码中的<code>with</code>关键字。其实读写文件不需要该关键字，打开文件使用<code>open()</code>函数，文件读取完后关闭文件使用<code>close()</code>函数，读取内容可以调用<code>read()</code>方法。而之所以使用<code>with</code>关键字，主要是因为①你最后忘记关闭文件，就想忘了关灯一样；②也可能是在关闭前程序出错，导致<code>close()</code>语句未执行。这些让文件没有关闭的情况都有可能导致数据丢失或损坏。<code>with</code>关键字则被用来应对这些情况，它保证在结束<code>with</code>块时，文件一定会被关闭。</p>
+<h2 id="逐行读取">1.2 逐行读取</h2>
+<p>上述代码一次性读取整个文件，这在文件较小或者内存充裕的时候没有问题，但如果文件特别大，内存容量又很羞涩，则只能逐行读取：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码：</span></span><br><span class="line">file_name = <span class="string">"pi_digits.txt"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(file_name) <span class="keyword">as</span> file_pi:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> file_pi:  <span class="comment"># 也可以通过while循环配合readline()方法逐行读取文件</span></span><br><span class="line">        print(line)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果：</span></span><br><span class="line"><span class="number">3.1415926535</span></span><br><span class="line"></span><br><span class="line">  <span class="number">8979323846</span></span><br><span class="line"></span><br><span class="line">  <span class="number">2643383279</span></span><br></pre></td></tr></table></figure>
+<p>这里需要注意一个问题，就是对行以及文件末尾空字符的读取问题，<code>read()</code>和<code>readline()</code>方法会读取末尾的空字符（这里是换行符）。我们可以通过之前讲的<code>rstrip()</code>方法去掉末尾的空字符。</p>
+<h2 id="将文件每一行放入列表中">1.3 将文件每一行放入列表中</h2>
+<p><code>readlines()</code>方法将文件中每一行存入列表并返回，以下代码进一步处理文件中的内容：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码：</span></span><br><span class="line">file_name = <span class="string">"pi_digits.txt"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(file_name) <span class="keyword">as</span> file_pi:</span><br><span class="line">    lines = file_pi.readlines()</span><br><span class="line"></span><br><span class="line">pi_string = <span class="string">""</span></span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> lines:</span><br><span class="line">    pi_string += line.strip()</span><br><span class="line"></span><br><span class="line">print(pi_string)</span><br><span class="line">print(len(pi_string))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果：</span></span><br><span class="line"><span class="number">3.141592653589793238462643383279</span></span><br><span class="line"><span class="number">32</span></span><br></pre></td></tr></table></figure>
+<p>注意，Python从文件中读取出的所有内容都是字符串，如果你想要的是数字，请记得转换。</p>
+<h1 id="写入文件">2. 写入文件</h1>
+<p>以下是一个简单的文件写入程序：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">filename = <span class="string">"python.txt"</span></span><br><span class="line"><span class="keyword">with</span> open(filename, <span class="string">"w"</span>) <span class="keyword">as</span> file_obj:</span><br><span class="line">    file_obj.write(<span class="string">"I love python!"</span>)</span><br></pre></td></tr></table></figure>
+<p>执行改代码后你会看到在同一目录下会生成一个名为“python.txt"的文件。需要注意的是，以<code>"w"</code>方式打开文件，如果要写入的文件不存在，则会自动创建该文件；如果该文件存在，该文件的内容会被清空，然后再写入。如果不想文件被清空，请使用<code>"a"</code>（文件指针放在文件末尾）或<code>"r+"</code>（文件指针指向文件开头）方式打开文件。还有一点，<code>write()</code>函数不会在文件末尾添加换行符，如果需要换行符，请自行添加。</p>
+<h1 id="异常">3. 异常</h1>
+<p>Python中使用被称为异常的特殊对象来管理程序执行期间发生的错误。每当代码运行时如果遇到了不能处理的错误，Python都会创建一个异常对象，如果程序中没有处理该对象的相关代码，程序将会停止，并显示一个<code>traceback</code>，其中包含异常的相关报告。如果不想程序因为某些异常而终止运行，则需要我们使用<code>try-except</code>代码块自行处理异常。以下是一个处理除零错误<code>ZeroDivisionError</code>的例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码：</span></span><br><span class="line"><span class="comment"># 捕捉异常</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    resule = <span class="number">5</span> / <span class="number">0</span></span><br><span class="line"><span class="keyword">except</span> ZeroDivisionError:</span><br><span class="line">    print(<span class="string">"You can't divide by zero!\n"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 不捕捉异常</span></span><br><span class="line">print(<span class="number">5</span> / <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果：</span></span><br><span class="line">You can<span class="string">'t divide by zero!</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Traceback (most recent call last):</span></span><br><span class="line"><span class="string">  File "division.py", line 29, in &lt;module&gt;</span></span><br><span class="line"><span class="string">    print(5 / 0)</span></span><br><span class="line"><span class="string">ZeroDivisionError: division by zero</span></span><br></pre></td></tr></table></figure>
+<p>如果你打算编写一个计算器应用，那么这段代码必不可少。第一个例子表明，即使发生了异常，只要异常被我们捕捉，那么程序便不会终止。如果只想捕捉异常，但暂时又不想处理，可以将上述的<code>print("You can't divide by zero!\n")</code>替换为<code>pass</code>语句。如果想捕获所有的异常，则<code>except</code>后面不指定异常类型。</p>
+<h2 id="else代码块">3.1 else代码块</h2>
+<p><code>try-except</code>代码块还可以和else语句组合形成<code>try-except-else</code>代码块，该结构表示，如果捕获了异常，这执行<code>except</code>中的程序，没有发生异常则执行<code>else</code>中的程序。以下程序是一个循环统计文件中单词数的例子，文件读取的部分被放到了函数中，该函数检测有没有发生<code>FileNotFoundError</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码：</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">count_words</span><span class="params">(filename)</span>:</span></span><br><span class="line">    <span class="string">"""计算一个文件大致包含多少个单词"""</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> open(filename) <span class="keyword">as</span> f_obj:</span><br><span class="line">            contents = f_obj.read()</span><br><span class="line">    <span class="keyword">except</span> FileNotFoundError:</span><br><span class="line">        msg = <span class="string">"Sorry, the file"</span> + filename + <span class="string">" does not exist."</span></span><br><span class="line">        print(msg)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># 计算文件大只包含多少个单词</span></span><br><span class="line">        words = contents.split()</span><br><span class="line">        num_words = len(words)</span><br><span class="line">        print(<span class="string">"The file "</span> + filename + <span class="string">" has about "</span> + str(num_words) + <span class="string">"words."</span>)</span><br><span class="line"></span><br><span class="line">filenames = [<span class="string">"alice.txt"</span>, <span class="string">"siddhartha.txt"</span>, <span class="string">"moby_dick.txt"</span>, <span class="string">"little_women.txt"</span>]</span><br><span class="line"><span class="keyword">for</span> filename <span class="keyword">in</span> filenames:</span><br><span class="line">    count_words(filename)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果：</span></span><br><span class="line">The file alice.txt has about <span class="number">29461</span> words.</span><br><span class="line">Sorry, the file siddhartha.txt does <span class="keyword">not</span> exist.</span><br><span class="line">The file moby_dick.txt has about <span class="number">215136</span> words.</span><br><span class="line">The file little_women.txt has about <span class="number">189097</span> words.</span><br></pre></td></tr></table></figure>
+<p><strong>对<code>else</code>的补充：</strong>其实<code>else</code>不光可以和<code>if</code>，<code>try-except</code>结合，还可以和<code>for</code>循环和<code>while</code>循环结合，比如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">i = <span class="number">0</span></span><br><span class="line"><span class="keyword">while</span> i &lt; <span class="number">10</span>:</span><br><span class="line">    i++</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<p>这里的<code>else</code>表示当循环结束后执行一些语句，比如提示之类的。</p>
+<h2 id="决定报告哪些错误">3.2 决定报告哪些错误</h2>
+<p>编写得很好且经过详尽测试的代码不容易出现内部错误，如语法或逻辑错误，但只要程序依赖于外部因素，如用户输入、存在指定的文件、有网络连接等，就有可能出现异常。凭经验可判断改在程序的什么地方包含异常处理块，以及出现错误时该向用户提供多少相关的信息。</p>
+<h1 id="存储数据">4. 存储数据</h1>
+<p>很多程序要求用户输入某种信息，也有可能程序中某些变量的数据在程序结束后不能丢失（比如机器学习最后训练出来的模型参数），这是就需要将这些信息以文件的形式存下来。存储数据的方式有很多，现在比较简单且通用的是使用<code>json</code>来存储信息。<code>json</code>(JavaScript Object Notation)格式最初是为JavaScript 开发的，但随后成了一种常见格式，并被包括Python在内的众多语言采用。以下是一个经过了重构的存储用户信息的例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_stored_username</span><span class="params">(filename)</span>:</span></span><br><span class="line">    <span class="string">"""如果存储了用户名，就获取它"""</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> open(filename) <span class="keyword">as</span> f_obj:</span><br><span class="line">            username = json.load(f_obj)</span><br><span class="line">    <span class="keyword">except</span> FileNotFoundError:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> username</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_new_username</span><span class="params">(filename)</span>:</span></span><br><span class="line">    <span class="string">"""提示用户输入用户名，并存入文件"""</span></span><br><span class="line">    username = input(<span class="string">"What's your name?"</span>)</span><br><span class="line">    <span class="keyword">with</span> open(filename, <span class="string">"w"</span>) <span class="keyword">as</span> f_obj:</span><br><span class="line">        json.dump(username, f_obj)</span><br><span class="line">    <span class="keyword">return</span> username</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">greet_user</span><span class="params">(filename)</span>:</span></span><br><span class="line">    <span class="string">"""向用户打招呼"""</span></span><br><span class="line">    username = get_stored_username(filename)</span><br><span class="line">    <span class="keyword">if</span> username:</span><br><span class="line">        print(<span class="string">"Welcome back, "</span> + username + <span class="string">"!"</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        username = get_new_username(filename)</span><br><span class="line">        print(<span class="string">"We'll remember you when you come back, "</span> + username + <span class="string">"!"</span>)</span><br><span class="line"></span><br><span class="line">filename = <span class="string">"username.json"</span></span><br><span class="line">greet_user(filename)</span><br></pre></td></tr></table></figure>
+<p>代码就不运行了，请各位自行推导程序的结果。最后在<code>username.json</code>文件中会存有用户的信息。但要注意一点，<code>json</code>根据数据类型来存储数据，虽然最后都是字符串，但这个过程不需要我们干预，比如要存一个列表，并不需要我们先将其转换为字符串，再存入<code>json</code>，读取数据时也不需要我们先读取为字符串，再转换成列表，我们只需直接存取即可，转换工作由<code>json</code>模块自动完成。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/04/12/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF9-%E6%96%87%E4%BB%B6%E5%92%8C%E5%BC%82%E5%B8%B8/" title="Python学习之路9-文件和异常">http://yoursite.com/2018/04/12/Python学习之路9-文件和异常/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E5%9F%BA%E7%A1%80/" rel="tag"># Python基础</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/04/11/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF8.2-%E5%AF%B9Python%E7%B1%BB%E7%9A%84%E8%A1%A5%E5%85%85/" rel="prev" title="Python学习之路8.2-对Python类的补充">
+      <i class="fa fa-chevron-left"></i> Python学习之路8.2-对Python类的补充
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/04/14/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF10-%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81/" rel="next" title="Python学习之路10-测试代码">
+      Python学习之路10-测试代码 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#从文件中读数据"><span class="nav-text">1. 从文件中读数据</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#读取整个文件"><span class="nav-text">1.1 读取整个文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#逐行读取"><span class="nav-text">1.2 逐行读取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#将文件每一行放入列表中"><span class="nav-text">1.3 将文件每一行放入列表中</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#写入文件"><span class="nav-text">2. 写入文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异常"><span class="nav-text">3. 异常</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#else代码块"><span class="nav-text">3.1 else代码块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#决定报告哪些错误"><span class="nav-text">3.2 决定报告哪些错误</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储数据"><span class="nav-text">4. 存储数据</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/04/12/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF9-%E6%96%87%E4%BB%B6%E5%92%8C%E5%BC%82%E5%B8%B8/";
+    this.page.identifier = "2018/04/12/Python学习之路9-文件和异常/";
+    this.page.title = "Python学习之路9-文件和异常";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

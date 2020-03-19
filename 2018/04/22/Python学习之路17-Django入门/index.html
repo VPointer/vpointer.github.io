@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《Python编程：从入门到实践》笔记。 从本篇开始将是该书的最后一个项目，将用3篇文章来介绍Django的基础。完成一个“学习笔记”的小网站。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路17-Django入门">
+<meta property="og:url" content="http://yoursite.com/2018/04/22/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《Python编程：从入门到实践》笔记。 从本篇开始将是该书的最后一个项目，将用3篇文章来介绍Django的基础。完成一个“学习笔记”的小网站。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828383/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524317369448.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828384/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524316623415.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828383/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524317551180.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828383/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524362041305.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828383/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524362685285.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828384/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524380898860.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828386/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/QQ20150408-2_2x.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828384/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524381462830.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828384/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524385446481.png">
+<meta property="article:published_time" content="2018-04-22T09:00:00.000Z">
+<meta property="article:modified_time" content="2018-04-22T09:00:00.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python基础">
+<meta property="article:tag" content="Django">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828383/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524317369448.png">
+
+<link rel="canonical" href="http://yoursite.com/2018/04/22/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路17-Django入门 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/22/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路17-Django入门
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-04-22 17:00:00" itemprop="dateCreated datePublished" datetime="2018-04-22T17:00:00+08:00">2018-04-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">Python基础</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/04/22/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/04/22/Python学习之路17-Django入门/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《Python编程：从入门到实践》笔记。 从本篇开始将是该书的最后一个项目，将用3篇文章来介绍Django的基础。完成一个“学习笔记”的小网站。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="前言">1. 前言</h1>
+<p>在本篇中，我们将：</p>
+<ul>
+<li>用Django来开发一个名为“学习笔记”(Learning Log)的项目；</li>
+<li>为这个项目制定规范，然后为应用程序使用的数据定义模型；</li>
+<li>使用Django的管理系统来输入一些初试数据，再学习编写视图和模板，让Django能够为我们的网站创建网页。</li>
+</ul>
+<p>不过在开始之前，请先新建一个<strong>虚拟环境</strong>并安装Django。如果没有虚拟环境，通过<code>pip</code>安装的所有库都会保存到python的<code>site-packages</code>目录下。开发多个项目时，都会用同一个python，而某些项目并不需要其中的所有第三方库，但如果将这些不需要库的删除，又会影响到其他项目。而且，如果A项目需要Django2.0.4，B项目需要Django2.0.0，这该怎么办？此时就需要虚拟环境。它其实就相当于一个新的文件夹，将新项目与其他项目隔离，本项目的库不与其他项目的库相关联，类似于操作系统的多用户概念。</p>
+<p>如果使用的是Python 3，可以使用命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m venv ll_env</span><br></pre></td></tr></table></figure>
+<p>如果该命令不成功，可能是没有安装<code>virtualenv</code>模块：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install virtualenv</span><br></pre></td></tr></table></figure>
+<p>然后创建并激活虚拟环境：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">virtualenv ll_env</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> linux:</span></span><br><span class="line">source ll_env/bin/activate</span><br><span class="line"><span class="meta">#</span><span class="bash"> windows:</span></span><br><span class="line">ll_env\Scripts\activate</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 停用：</span></span><br><span class="line">deactivate</span><br></pre></td></tr></table></figure>
+<p>管理虚拟环境的库还有很多，有兴趣的话可以到网上搜一搜。</p>
+<p>如果你使用的是新版的PyCharm，那么它在新建项目的时候默认就会创建新的虚拟环境。</p>
+<p>激活虚拟环境后就可以安装Django了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install django</span><br></pre></td></tr></table></figure>
+<h1 id="建立项目">2. 建立项目</h1>
+<h2 id="在django中创建项目">2.1 在Django中创建项目</h2>
+<h3 id="生成项目">2.1.1 生成项目</h3>
+<p>在虚拟环境中执行如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 主要最后有个实心句号！</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 这个句点让新项目使用合适的目录结构，这样开发完成后可以轻松地将应用程序部署到服务器</span></span><br><span class="line">django-admin startproject learning_log .</span><br></pre></td></tr></table></figure>
+<p>执行上述命令后，将多出一个<code>manage.py</code>文件和一个<code>learning_log</code>文件夹，当然还有本身的一个<code>ll_env</code>文件夹。</p>
+<p>而在<code>learning_log</code>文件夹中，又有四个文件：<code>__init__.py</code>，<code>settings.py</code>，<code>urls.py</code>，<code>wsgi.py</code>。</p>
+<ul>
+<li><code>manage.py</code>是一个简单的程序，它接收命令并将其交给Django的相关部分去运行；</li>
+<li><code>settings.py</code>指定Django如何与你的系统交互以及如何管理项目，其实就是配置文件；</li>
+<li><code>urls.py</code>告诉Django应创建哪些网页来响应浏览器请求；</li>
+<li><code>wsgi.py</code>是web server gateway interface(Web服务器网关接口)的缩写，帮助Django提供它创建的文件。</li>
+</ul>
+<p>至于<code>__init__.py</code>，它是个空文件，Python的每个模块下必须要有这个文件。</p>
+<h3 id="创建数据库">2.1.2 创建数据库</h3>
+<p>Django将大部分与项目相关的信息都存储在数据库中，所有还需要创建一个供Django使用的数据库。依然是在虚拟环境下执行如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py migrate</span><br></pre></td></tr></table></figure>
+<p>在PyCharm中的话，可以通过点击工具栏Tools中的Run manage.py Task（Ctrl+Alt+R），在弹出的命令行中直接输入原命令中<code>manage.py</code>后面的部分，后面的命令也可以这样执行（<code>[appname]</code>是自动提示）。</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828383/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524317369448.png" /></p>
+<p>"migrate"这个单词其实是迁移的意思，并不是“创建(create)”。之所以使用这个词，是因为一般将修改数据库的过程称为迁移数据库（笔者数据库学得渣，这段解释直接从书里照搬的，希望哪位大神在留言区解释一波）。如果是刚创建的项目，并且第一次执行，将会得到如下输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Operations to perform:</span><br><span class="line">  Apply all migrations: admin, auth, contenttypes, sessions</span><br><span class="line">Running migrations:</span><br><span class="line">  Applying contenttypes.0001_initial... OK</span><br><span class="line">  -- snip --</span><br><span class="line">  Applying sessions.0001_initial... OK</span><br></pre></td></tr></table></figure>
+<p>从第2行结果可以看出，Django将创建和修改数据库看做是对数据库的迁移，Apply all migrations确保数据库结构与当前代码匹配（比如你修改了类的结构，添加了属性，这就相当于修改了数据表）。</p>
+<p>执行命令后，项目的根目录下会多出一个名为<code>db.sqlite3</code>的数据库文件。SQLite是一种使用单个文件的轻量级数据库，常用于开发简单应用程序，它让你不用太关注数据库管理的问题。</p>
+<h3 id="运行项目">2.1.3 运行项目</h3>
+<p>依然在项目的虚拟环境下输入如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py runserver</span><br></pre></td></tr></table></figure>
+<p>得到如下输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Performing system checks...</span><br><span class="line"></span><br><span class="line">System check identified no issues (0 silenced).</span><br><span class="line">April 21, 2018 - 20:46:48</span><br><span class="line">Django version 2.0.4, using settings 'learning_log.settings'</span><br><span class="line">Starting development server at http://127.0.0.1:8000/</span><br><span class="line">Quit the server with CTRL-BREAK.</span><br></pre></td></tr></table></figure>
+<p>现在在浏览器中地址栏输入<code>localhost:8000</code> (或者<code>127.0.0.1:8000</code>)，将得到如下页面：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828384/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524316623415.png" /></p>
+<p>这是最新版的Django的默认启动界面。</p>
+<h2 id="创建应用程序app">2.2 创建应用程序（APP）</h2>
+<h3 id="创建模型">2.2.1 创建模型</h3>
+<p>Django项目由一系列应用程序组成，它们协同工作，让项目成为一个整体。我们在项目根目录下执行如下命令，创建一个名为learning_logs的应用程序：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py startapp learning_logs</span><br></pre></td></tr></table></figure>
+<p>执行命令后，根目录下会多出一个名为<code>learning_logs</code>的文件夹（笔者第一次接触Django的时候发现这玩意儿居然叫做APP，和平时用的手机上的各种APP相差也太大了，很不适应），它的结构如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828383/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524317551180.png" /></p>
+<p>重要的是其中的<code>models.py</code>、<code>admin.py</code>和<code>views.py</code>文件，我们将使用<code>models.py</code>来定义我们要在应用程序中管理的数据。另外两个文件稍后再介绍。</p>
+<p>打开<code>models.py</code>文件，发现其中自带两行代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create your models here.</span></span><br></pre></td></tr></table></figure>
+<p>在代码层面，模型就是一个类，和之前的文章中的类一样，包含属性和方法。下面创建一个“主题”类：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Topic</span><span class="params">(models.Model)</span>:</span></span><br><span class="line">    <span class="string">"""用户学习的主题"""</span></span><br><span class="line">    text = models.CharField(max_length=<span class="number">200</span>)</span><br><span class="line">    date_added = models.DateTimeField(auto_now_add=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__str__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""返回模型的字符串表示"""</span></span><br><span class="line">        <span class="keyword">return</span> self.text</span><br></pre></td></tr></table></figure>
+<p><code>Model</code>类是Django中的一个定义了模型基本功能的类。<code>Topic</code>类只有两个属性<code>text</code>和<code>date_added</code>。模型中如<code>CharField</code>，<code>DateTimeField</code>这些字段还有很多，Django自动根据数据库的不同调用不同的SQL语句创建数据表，即屏蔽底层数据库的差异。</p>
+<p>同时还重写了<code>__str__()</code>方法，之所以说“重写”是因为每个类都有这个方法，当直接将一个类<code>A</code>放入<code>print()</code>之类的语句中时，就会调用<code>A</code>的<code>__str__()</code>方法。如果没有重写这个方法，一般会输出这个对象的内存地址之类的，大家可以苏随便写个类试一试。</p>
+<h3 id="激活模型">2.2.2 激活模型</h3>
+<p>使用模型前，必须将APP包含到项目中，打开<code>settings.py</code>文件，将APP添加到<code>INSTALLED_APPS</code>中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">INSTALLED_APPS = [</span><br><span class="line">    <span class="string">'django.contrib.admin'</span>,</span><br><span class="line">    <span class="string">'django.contrib.auth'</span>,</span><br><span class="line">    <span class="string">'django.contrib.contenttypes'</span>,</span><br><span class="line">    <span class="string">'django.contrib.sessions'</span>,</span><br><span class="line">    <span class="string">'django.contrib.messages'</span>,</span><br><span class="line">    <span class="string">'django.contrib.staticfiles'</span>,</span><br><span class="line">    <span class="comment"># 添加你的app，上面的都是自带的</span></span><br><span class="line">    <span class="string">"learning_logs.apps.LearningLogsConfig"</span>,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>这里有个需要注意的地方，由于这本书的2016年出版的，当时Django还没有到达2.0版本，所以在书中，注册APP是这样写的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">INSTALLED_APPS = [</span><br><span class="line">    -- snip --</span><br><span class="line">    <span class="comment"># 添加你的app，上面的都是自带的</span></span><br><span class="line">    <span class="string">"learning_logs"</span>,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>现在官方文档中是按照第一种方式注册APP，并且，最新版的Django在新建APP后，在APP的目录下还多了一个<code>apps.py</code>文件，该文件默认有一个根据APP名称创建的类，此处为<code>LearningLogsConfig</code>，内容如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.apps <span class="keyword">import</span> AppConfig</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LearningLogsConfig</span><span class="params">(AppConfig)</span>:</span></span><br><span class="line">    name = <span class="string">'learning_logs'</span></span><br></pre></td></tr></table></figure>
+<p>回到主线，在终端中输入：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">python manage.py makemigrations learning_logs</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 输出</span></span><br><span class="line">Migrations for 'learning_logs':</span><br><span class="line">  learning_logs\migrations\0001_initial.py</span><br><span class="line">    - Create model Topic</span><br></pre></td></tr></table></figure>
+<p><code>makemigrations</code>让<code>Django</code>确定该如何修改数据库，使其能够存储与我们定义的新模型相关联的数据。从输出可以看出，在APP目录下的<code>migrations</code>文件夹中创建了一个名为<code>0001_initial.py</code>的迁移文件，该文件将在数据库中为模型<code>Topic</code>创建一个表。</p>
+<p>最后，在命令行中输入:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">python manage.py migrate</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 输出：</span></span><br><span class="line">Running migrations:</span><br><span class="line">  Applying learning_logs.0001_initial... OK</span><br></pre></td></tr></table></figure>
+<p>总结：<strong>每当需要修改模型时，都采取如下三个步骤：修改<code>models.py</code>，对你的APP调用<code>makemigrations</code>，让Django迁移项目<code>migrate</code>。</strong></p>
+<h3 id="django管理网站">2.2.3 Django管理网站</h3>
+<p>Django自带管理后台。首先为网站创建一个<strong>超级用户</strong>。在中断输入：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python manage.py createsuperuser</span><br></pre></td></tr></table></figure>
+<p>随后按提示输入用户名和密码即可，邮箱地址可以留空（直接回车）。</p>
+<p>Django自动在管理网站中添加一些模型，如<code>User</code>和<code>Group</code>，但对于我们创建的模型，必须手工注册。</p>
+<p>注意前面提到的和<code>models.py</code>在同一目录的<code>admin.py</code>文件，这就是注册自行编写的模型的地方，在该文件中加入后两行代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第一行代码是自带的</span></span><br><span class="line"><span class="keyword">from</span> django.contrib <span class="keyword">import</span> admin</span><br><span class="line"><span class="keyword">from</span> learning_logs.models <span class="keyword">import</span> Topic</span><br><span class="line"></span><br><span class="line">admin.site.register(Topic)</span><br></pre></td></tr></table></figure>
+<p>现在登录Django自带的网站管理页面 http://localhost:8000/admin/ 登录刚才创建的超级用户和密码后将出现如下界面：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828383/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524362041305.png" /></p>
+<p>在这里你可以管理用户和组，以及和模型Topic相关的数据。</p>
+<p>现在先手动添加两个主题：点击<code>Add</code>创建<code>Chess</code>和<code>Rock Climbing</code>。</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828383/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524362685285.png" /></p>
+<h3 id="定义模型entry">2.2.4 定义模型Entry</h3>
+<p>为使能在每个主题下添加条目，需要定义<code>Entry</code>模型，<code>Entry</code>与<code>Topic</code>的关系是多对一。同样是在<code>models.py</code>中添加模型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Topic</span><span class="params">(models.Model)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line">    </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Entry</span><span class="params">(models.Model)</span>:</span></span><br><span class="line">    <span class="string">"""学到的有关某个主题的具体知识"""</span></span><br><span class="line">    <span class="comment"># 由于和“主题”是多对一的关系，所以“主题”是“条目”的外键</span></span><br><span class="line">    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)</span><br><span class="line">    text = models.TextField()</span><br><span class="line">    date_added = models.DateTimeField(auto_now_add=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Meta</span>:</span></span><br><span class="line">        verbose_name_plural = <span class="string">"entries"</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__str__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""返回模型的字符串表示"""</span></span><br><span class="line">        <span class="comment"># 由于条目包含的文本可能很长，只显示前50个字符</span></span><br><span class="line">        <span class="keyword">return</span> self.text[:<span class="number">50</span>] + <span class="string">"..."</span></span><br></pre></td></tr></table></figure>
+<p>注意其中嵌套了一个<code>Meta</code>类，它用于管理模型的额外信息。它让我们能够设置一个特殊属性，让Django在需要时使用<code>Entries</code>来表示多个条目。如果没有这个类，Django将使用<code>Entrys</code>来表示多个条目(保证英语语法正确......不得不说，本书作者还是很细心的)。</p>
+<p>添加了新模型，所以需要再次迁移数据库，过程就是前面讲的三个步骤中的后两步。然后在<code>admin.py</code>中注册<code>Entry</code>。</p>
+<p>为了让这个网站有一些初试数据，添加三个条目：两个<code>Chess</code>的，一个<code>Rock Climbing</code>的。在管理页面中点击<code>Entries</code>的<code>Add</code>按钮，你将看到一个下拉列表，用于选择<code>Topic</code>，还有个文本框，用于输入内容。随便输入一点内容就可以，具体内容不再详细列出。</p>
+<h3 id="django-shell">2.2.5 Django shell</h3>
+<p>输入一些数据后，可通过交互式终端会话以编程方式查看这些数据。这种交互式环境称为Django shell，常用语测试项目和排除故障。以下是在shell中的一些操作：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">(ll_env)learning_log$</span><span class="bash"> python manage.py shell   <span class="comment"># 启动shell</span></span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; from learning_logs.models import Topic</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Topic.objects.all()   <span class="comment"># 获得模型Topic的所有实例</span></span></span><br><span class="line">&lt;QuerySet [&lt;Topic: Chess&gt;, &lt;Topic: Rock Climbing&gt;]&gt;  # 返回了一个查询集QuerySet</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; topics = Topic.objects.all()  <span class="comment"># 查询每个Topic对象</span></span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; <span class="keyword">for</span> topic <span class="keyword">in</span> topics:</span></span><br><span class="line">...     print(topic.id, topic)</span><br><span class="line">...</span><br><span class="line">1 Chess</span><br><span class="line">2 Rock Climbing</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; t = Topic.objects.get(id=1) <span class="comment"># 根据id查看Chess模型的具体内容</span></span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; t.text</span></span><br><span class="line">'Chess'</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; t.date_added</span></span><br><span class="line">datetime.datetime(2018, 4, 22, 2, 4, 3, 723045, tzinfo=&lt;UTC&gt;)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; t.entry_set.all()  <span class="comment"># 查看该主题下的所有条目，通过外键查询，进行了人为换行</span></span></span><br><span class="line">&lt;QuerySet [&lt;Entry: The opening is the first part of the game, roughly...&gt;,</span><br><span class="line">&lt;Entry: In the opening phase of the game, it's important t...&gt;]&gt;</span><br></pre></td></tr></table></figure>
+<p>为了通过外键获取数据，注意查询时的语法：<code>模型小写名称+下划线+set</code>，如第19行代码。编写用户可请求的网页时将使用这样的语法。如果代码在shell中的行为符合预期，那么它们在项目文件中也能正确工作。</p>
+<h1 id="创建网页学习笔记主页">3. 创建网页：学习笔记主页</h1>
+<p>这一部分，书中内容和新版的Django出入比较多。</p>
+<h2 id="映射url">3.1 映射URL</h2>
+<p>Django创建网页的过程通常分三个阶段：<strong>定义URL、编写视图和编写模板</strong>。</p>
+<p>URL模式描述了URL是如何设计的，让Django知道如何将浏览器请求与网站URL匹配，以确定返回哪个网页。每个URL都被映射到特定的视图——视图函数获取并处理网页所需的数据。视图函数通常调用一个模板，后者生成浏览器能够理解的网页。</p>
+<p>目前，基础URL(http://localhost:8000/ )返回默认的Django页面，现在修改这个映射，将其映射到我们自己编写的主页。</p>
+<p>打开<code>learning_log</code>文件夹中的<code>urls.py</code>，将看到如下内容：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.contrib <span class="keyword">import</span> admin</span><br><span class="line"><span class="keyword">from</span> django.urls <span class="keyword">import</span> path</span><br><span class="line"></span><br><span class="line">urlpatterns = [</span><br><span class="line">    path(<span class="string">'admin/'</span>, admin.site.urls),</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 书中的内容和实际的内容有些出入，以下是书中内容：</span></span><br><span class="line"><span class="comment"># 新版Django简化了URL路由写法</span></span><br><span class="line"><span class="comment"># from django.conf.urls import include, url</span></span><br><span class="line"><span class="comment"># from django.contrib import admin</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment"># from django.conf.urls import include, url</span></span><br><span class="line"><span class="comment"># from django.contrib import admin</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># urlpatterns = [</span></span><br><span class="line"><span class="comment">#    url(r'^admin/', include(admin.site.urls)),</span></span><br><span class="line"><span class="comment"># ]</span></span><br></pre></td></tr></table></figure>
+<p>变量<code>urlpatterns</code>包含项目中的APP的URL，<code>admin.site.urls</code>模块定义了可在管理网站中请求的所有URL。现在添加代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.contrib <span class="keyword">import</span> admin</span><br><span class="line"><span class="keyword">from</span> django.urls <span class="keyword">import</span> path, include</span><br><span class="line"></span><br><span class="line">urlpatterns = [</span><br><span class="line">    path(<span class="string">'admin/'</span>, admin.site.urls),</span><br><span class="line">    path(<span class="string">""</span>, include(<span class="string">"learning_logs.urls"</span>)),</span><br><span class="line">    <span class="comment"># 书中代码：</span></span><br><span class="line">    <span class="comment"># url(r"", include("learning_logs.urls", namespace="learning_logs")),</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>注意：书中在此处的<code>include()</code>函数中传入了关键字参数<code>namespace="learning_logs"</code>，但在新版中，<strong>命名空间(namespace)</strong>是在APP的<code>urls.py</code>中设置的：在<code>urlpatterns</code>变量前新建一个值为<code>"learning_logs"</code>的<code>app_name</code>变量。</p>
+<p><code>namespace</code>让<code>learning_logs</code>的URL同项目中的其他URL区分开，对项目进行扩展时，这样做十分有用。</p>
+<p>还需要在<code>learning_logs</code>中创建另一个<code>urls.py</code>文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"""定义learning_logs的URL模式"""</span></span><br><span class="line"><span class="keyword">from</span> django.urls <span class="keyword">import</span> path</span><br><span class="line"><span class="comment"># 从当前的urls.py模块所在的文件夹中导入视图</span></span><br><span class="line"><span class="keyword">from</span> . <span class="keyword">import</span> views</span><br><span class="line"></span><br><span class="line"><span class="comment"># 该变量包含该APP中可请求的网页</span></span><br><span class="line">urlpatterns = [</span><br><span class="line">    <span class="comment"># 主页</span></span><br><span class="line">    path(<span class="string">""</span>, views.index, name=<span class="string">"index"</span>),</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p><code>path()</code>的第一个参数是正则表达式，第二个参数是要调用的视图函数（当请求的URL和第一个参数匹配时调用），第三个参数为这个URL模式指定一个名字，相当于将这个模式保存在变量<code>index</code>中，以后每当需要提供这个主页的连接时都使用这个名字，而不用再编写URL。</p>
+<h2 id="编写视图">3.2 编写视图</h2>
+<p>视图函数接收请求中的信息，准备好生成网页所需的数据，再将这些数据发送给浏览器，在发送之前，还套用了网页的模板（如果有模板的话）。</p>
+<p>当我们在创建APP时，它的文件夹中有一个<code>views.py</code>文件，该文件默认只有一个导入语句，导入了函数<code>render()</code>，现在编写这个文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.shortcuts <span class="keyword">import</span> render</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">(request)</span>:</span></span><br><span class="line">    <span class="string">"""学习笔记主页"""</span></span><br><span class="line">    <span class="comment"># 将请求的数据套用到模板中，然后返回给浏览器</span></span><br><span class="line">    <span class="comment"># 第一个参数是原始请求对象，第二是可用于创建网页的模板</span></span><br><span class="line">    <span class="keyword">return</span> render(request, <span class="string">"learning_logs/index.html"</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="编写模板">3.3 编写模板</h2>
+<p>模板定义了网页的结构，指定了网页时什么样的。每当网页被请求时，Django将填入相关的数据。模板中能访问视图提供的任何数据。</p>
+<p>现在创建上面代码中的<code>index.html</code>模板：在<code>learning_logs</code>文件夹中新建一个<code>templates</code>文件夹，再在这个文件夹中新建一个和APP同名的文件夹，即<code>learning_logs</code>文件夹，最后，在这个<code>learning_logs</code>文件夹中新建<code>index.html</code>文件。看起来好像有点多余，但这是Django能够解析的目录结构。<code>index.html</code>文件的内容如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Learning Log<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Learning Log helps you keep track of your learning, </span><br><span class="line">    for any topic your're learning about.<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>现在当你访问http://localhost:8000 时，将看到如下主页：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828384/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524380898860.png" /></p>
+<p>创建网页的过程看起来可能很复杂，实际上这就是一个简单的<code>MVC</code>（<code>Model</code>，<code>View</code>，<code>Controller</code>）模型，但在Django中被称为<code>MVT</code>（<code>Model</code>，<code>View</code>，<code>Template</code>）</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828386/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/QQ20150408-2_2x.png" /></p>
+<p>这种方式使代码结构清晰，修改方便，也让我们能各司其职，比如，数据库专家就专注于<code>Model</code>，程序员专注于<code>View</code>，<code>Web</code>设计人员专注于<code>Template</code>。</p>
+<h1 id="创建其他网页">4. 创建其他网页</h1>
+<p>我们继续扩展我们的项目。创建两个用于显示数据的网页，其中给一个列出所有的主题，另一个显示特定主题的所有条目。对于每个网页都指定URL模式，编写一个视图函数，并编写一个模板。但这么做之前，我们先创建一个父模板，项目中的其他模板都将继承它。</p>
+<h2 id="模板继承">4.1 模板继承</h2>
+<h3 id="父模板base.html">4.1.1 父模板base.html</h3>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'learning_logs:index' %&#125;"</span>&gt;</span>Learning Log<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>该文件存储在<code>index.html</code>所在的目录中。该文件包含所有页面都有的元素，其他模板继承自它。目前为止，所有页面共有的元素还只有顶端的标题。</p>
+<p>我们将这个标题设置为到主页的链接。为了创建这个链接，使用了<strong>模板标签</strong>(花括号加百分号的组合)，其中<code>learning_logs</code>是项目的<strong>命名空间</strong>，index就是这个项目主页的<strong>URL模式名</strong>（注意翻看前面小节的代码）。</p>
+<p>还创建了一个块标签(<code>block</code>)，这个块名为<code>content</code>，是一个占位符，其中包含的信息将由子模板指定。</p>
+<h3 id="子模板">4.1.2 子模板</h3>
+<p>从新编写<code>index.html</code>，使其继承<code>base.html</code></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "learning_logs/base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Learning Log helps you keep track of your learning, </span><br><span class="line">        for any topic you're learning about.<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>第1行代码导入父模板中的所有内容；<code>extends</code>后面跟父模板所在的路径，虽然这俩文件都在同一目录下，但不能省略掉前面的<code>learning_logs/</code>。</p>
+<p>3到6行代码插入了一个名为<code>content</code>的块标签，<strong>不是</strong>从父模板继承的内容都包含在<code>content</code>块中。第6行代码指出内容定义的结束位置。</p>
+<p><strong>注意</strong>：在大型项目中，通常有一个用于整个网站的父模板<code>base.html</code>，且网站的每个主要部分都有一个父模板。每个主要部分的父模板又都继承自<code>base.html</code>，而网站的每个网页都继承相应部分的父模板。</p>
+<h2 id="主题页面">4.2 主题页面</h2>
+<p>该页面显示用户创建的所有主题。他是第一个需要使用数据的页面。</p>
+<h3 id="定义url模式">4.2.1 定义URL模式</h3>
+<p>在APP的<code>urls.py</code>中添加能转到<code>topics.html</code>的URL模式</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">urlpatterns = [</span><br><span class="line">    <span class="comment"># 主页</span></span><br><span class="line">    path(<span class="string">""</span>, views.index, name=<span class="string">"index"</span>),</span><br><span class="line">    path(<span class="string">"topics/"</span>, views.topics, name=<span class="string">"topics"</span>)</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<h3 id="添加视图">4.2.2 添加视图</h3>
+<p>在<code>views.py</code>中添加相应的函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.shortcuts <span class="keyword">import</span> render</span><br><span class="line"><span class="keyword">from</span> .models <span class="keyword">import</span> Topic</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">(request)</span>:</span></span><br><span class="line">    -- snip --</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">topics</span><span class="params">(request)</span>:</span></span><br><span class="line">    <span class="string">"""显示所有的主题"""</span></span><br><span class="line">    topics = Topic.objects.order_by(<span class="string">"date_added"</span>)</span><br><span class="line">    <span class="comment"># 一个上下文字典，传递给模板</span></span><br><span class="line">    context = &#123;<span class="string">"topics"</span>: topics&#125;</span><br><span class="line">    <span class="keyword">return</span> render(request, <span class="string">"learning_logs/topics.html"</span>, context)</span><br></pre></td></tr></table></figure>
+<h3 id="创建模板">4.2.3 创建模板</h3>
+<p>创建一个模板，用于显示所有的主题：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "learning_logs/base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Topics<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">        &#123;% for topic in topics %&#125;</span><br><span class="line">            <span class="tag">&lt;<span class="name">li</span>&gt;</span>&#123;&#123; topic &#125;&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">        &#123;% empty %&#125;</span><br><span class="line">            <span class="tag">&lt;<span class="name">li</span>&gt;</span>No topics have been added yet.<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">        &#123;% endfor %&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个模板中，我们使用了一个相当于<code>for</code>循环的模板标签，它遍历字典<code>context</code>中的列表<code>topics</code>。并且注意，该模板中没有出现<code>context</code>字样，相当于模板自动从<code>context</code>取得<code>topics</code>的内容。</p>
+<p>模板中使用的代码与Python代码存在一些重要差别：Python使用缩进来指出哪些代码行是<code>for</code>循环的组成部分，而在模板中，每个<code>for</code>循环都必须明确的指出结束为止。</p>
+<p>要在模板中打印变量，需要将变量名用<strong>双花括号</strong>括起来，每次循环时，该代码都会被替换为<code>topic</code>的当前值。</p>
+<p>还使用了<strong>空模板标签(empty)</strong>，它告诉Django在列表<code>topics</code>为空时该怎么办。</p>
+<p>这些花括号都不会出现在网页中，它们只是用于告诉Django我们使用了一个模板变量。</p>
+<p>修改父模板<code>base.html</code>，使其包含能转到主题页面的连接（第3行为添加的代码，第2行最后添加了一个连字符）：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'learning_logs:index' %&#125;"</span>&gt;</span>Learning Log<span class="tag">&lt;/<span class="name">a</span>&gt;</span> -</span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'learning_logs:topics' %&#125;"</span>&gt;</span>Topics<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>现在再次输入http://localhost:8000 将看到我们添加的<code>Topics</code>链接，点击它，将跳转到如下页面：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828384/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524381462830.png" /></p>
+<h2 id="特定主题页面">4.3 特定主题页面</h2>
+<p>该页面用于显示该主题下的所有条目。和上面的步骤一样，定义URL模式，编写<code>views.py</code>中的处理函数，编写网页模板。</p>
+<h3 id="url模式">4.3.1 URL模式</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">urlpatterns = [</span><br><span class="line">    -- snip --</span><br><span class="line">    path(<span class="string">"topics/&lt;int:topic_id&gt;/"</span>, views.topic, name=<span class="string">"topic"</span>),</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<h3 id="添加视图-1">4.3.2 添加视图</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">topic</span><span class="params">(request, topic_id)</span>:</span></span><br><span class="line">    <span class="string">"""显示单个主题及其所有的条目"""</span></span><br><span class="line">    <span class="comment"># 通过Topic的id获得所有条目</span></span><br><span class="line">    topic = Topic.objects.get(id=topic_id)</span><br><span class="line">    <span class="comment"># 前面的减号表示降序排序</span></span><br><span class="line">    entries = topic.entry_set.order_by(<span class="string">"-date_added"</span>)</span><br><span class="line">    context = &#123;<span class="string">"topic"</span>: topic, <span class="string">"entries"</span>: entries&#125;</span><br><span class="line">    <span class="keyword">return</span> render(request, <span class="string">"learning_logs/topic.html"</span>, context)</span><br></pre></td></tr></table></figure>
+<p>第4,6行的代码叫做查询，如果你和笔者一样是个初学者，比起代码都写完了，最后发现查询语句有问题，再来修改，那么先在Django shell中运行下代码看看结果，这样更高效。</p>
+<h3 id="模板topic.html">4.3.3 模板topic.html</h3>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "learning_logs/base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Topic: &#123;&#123; topic &#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Entries:<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">    &#123;% for entry in entries %&#125;</span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123; entry.date_added|date:'M d, Y H:i' &#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123; entry.text|linebreaks &#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    &#123;% empty %&#125;</span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span></span><br><span class="line">        There are no entries for this topic yet.</span><br><span class="line">      <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    &#123;% endfor %&#125;</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"></span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>在Django模板中，<strong>竖线</strong>（|）表示模板过滤器（对模板变量的值进行修改的函数）。过滤器date: 'M d, Y H:i'以这样的格式显示时间戳：April 22, 2018 16:09。接下来的一行显示txt的完整值，而不仅仅是<code>entry</code>的前50个字符。过滤器<code>linebreaks</code>将包含换行符的长条目转换成浏览器能够理解的格式，以免显示一个不换行的文本块。</p>
+<h3 id="修改topics.html模板">4.3.4 修改topics.html模板</h3>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-- snip --</span><br><span class="line">&#123;% for topic in topics %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;% url 'learning_logs:topic' topic.id %&#125;"</span>&gt;</span>&#123;&#123; topic &#125;&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">&#123;% empty %&#125;</span><br><span class="line">-- snip --</span><br></pre></td></tr></table></figure>
+<h2 id="效果">4.4 效果</h2>
+<p>现在我们回到http://localhost:8000/topics/ 页面，随便点击一个主题，比如第一个，将得到以下界面：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828384/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/1524385446481.png" /></p>
+<h1 id="小结">5. 小结</h1>
+<p>上述内容主要有：</p>
+<ul>
+<li>在虚拟环境中安装Django，创建项目，并核实该项目已正确地创建；</li>
+<li>在项目中创建APP；</li>
+<li>创建表示APP数据的模型；</li>
+<li>创建数据库，以及在修改模型后，Django可以为迁移数据库提供什么样的帮助；</li>
+<li>创建超级用户，并使用管理网络输入初试数据；</li>
+<li>Django shell；</li>
+<li>定义URL、创建视图函数、网页模板（包括继承）。</li>
+</ul>
+<p>下一篇中，我们将：</p>
+<ul>
+<li>创建对用户友好而直观的网页，让用户无需通过管理网站就能添加新的主题和条目（个人感觉没必要这么做，Django自带的管理系统挺好用的），以及编辑既有的条目；</li>
+<li>添加一个用户注册系统，让用户能够创建账户。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/04/22/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/" title="Python学习之路17-Django入门">http://yoursite.com/2018/04/22/Python学习之路17-Django入门/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E5%9F%BA%E7%A1%80/" rel="tag"># Python基础</a>
+              <a href="/tags/Django/" rel="tag"># Django</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/04/21/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF16-%E4%BD%BF%E7%94%A8API/" rel="prev" title="Python学习之路16-使用API">
+      <i class="fa fa-chevron-left"></i> Python学习之路16-使用API
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/04/26/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF18-%E7%94%A8%E6%88%B7%E8%B4%A6%E6%88%B7/" rel="next" title="Python学习之路18-用户账户">
+      Python学习之路18-用户账户 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#建立项目"><span class="nav-text">2. 建立项目</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#在django中创建项目"><span class="nav-text">2.1 在Django中创建项目</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#生成项目"><span class="nav-text">2.1.1 生成项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建数据库"><span class="nav-text">2.1.2 创建数据库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行项目"><span class="nav-text">2.1.3 运行项目</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建应用程序app"><span class="nav-text">2.2 创建应用程序（APP）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建模型"><span class="nav-text">2.2.1 创建模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#激活模型"><span class="nav-text">2.2.2 激活模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#django管理网站"><span class="nav-text">2.2.3 Django管理网站</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#定义模型entry"><span class="nav-text">2.2.4 定义模型Entry</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#django-shell"><span class="nav-text">2.2.5 Django shell</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建网页学习笔记主页"><span class="nav-text">3. 创建网页：学习笔记主页</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#映射url"><span class="nav-text">3.1 映射URL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编写视图"><span class="nav-text">3.2 编写视图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编写模板"><span class="nav-text">3.3 编写模板</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建其他网页"><span class="nav-text">4. 创建其他网页</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#模板继承"><span class="nav-text">4.1 模板继承</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#父模板base.html"><span class="nav-text">4.1.1 父模板base.html</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#子模板"><span class="nav-text">4.1.2 子模板</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主题页面"><span class="nav-text">4.2 主题页面</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义url模式"><span class="nav-text">4.2.1 定义URL模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加视图"><span class="nav-text">4.2.2 添加视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建模板"><span class="nav-text">4.2.3 创建模板</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特定主题页面"><span class="nav-text">4.3 特定主题页面</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#url模式"><span class="nav-text">4.3.1 URL模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加视图-1"><span class="nav-text">4.3.2 添加视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模板topic.html"><span class="nav-text">4.3.3 模板topic.html</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改topics.html模板"><span class="nav-text">4.3.4 修改topics.html模板</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#效果"><span class="nav-text">4.4 效果</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-text">5. 小结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/04/22/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF17-Django%E5%85%A5%E9%97%A8/";
+    this.page.identifier = "2018/04/22/Python学习之路17-Django入门/";
+    this.page.title = "Python学习之路17-Django入门";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

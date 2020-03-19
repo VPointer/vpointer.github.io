@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《流畅的Python》笔记。 本篇主要讨论asyncio包，这个包使用事件循环驱动的协程实现并发。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路37-使用asyncio包处理并发">
+<meta property="og:url" content="http://yoursite.com/2018/06/18/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF37-%E4%BD%BF%E7%94%A8asyncio%E5%8C%85%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《流畅的Python》笔记。 本篇主要讨论asyncio包，这个包使用事件循环驱动的协程实现并发。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-06-18T09:00:00.000Z">
+<meta property="article:modified_time" content="2018-06-18T09:00:00.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python进阶">
+<meta property="article:tag" content="asyncio">
+<meta property="article:tag" content="并发">
+<meta property="article:tag" content="异步">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2018/06/18/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF37-%E4%BD%BF%E7%94%A8asyncio%E5%8C%85%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路37-使用asyncio包处理并发 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/18/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF37-%E4%BD%BF%E7%94%A8asyncio%E5%8C%85%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路37-使用asyncio包处理并发
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-06-18 17:00:00" itemprop="dateCreated datePublished" datetime="2018-06-18T17:00:00+08:00">2018-06-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index"><span itemprop="name">Python进阶</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/06/18/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF37-%E4%BD%BF%E7%94%A8asyncio%E5%8C%85%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/18/Python学习之路37-使用asyncio包处理并发/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《流畅的Python》笔记。</p>
+<p>本篇主要讨论asyncio包，这个包使用事件循环驱动的协程实现并发。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="前言">1. 前言</h1>
+<p>本篇主要介绍如果使用<code>asyncio</code>包将上一篇中线程版的“国旗下载”程序改为协程版本，通过异步非阻塞来实现并发。</p>
+<p>说实话，我在读这部分内容的时候是懵逼的，书中阻塞非阻塞、同步异步的概念和我之前的理解有很大差异。之前一直以为同步就意味着阻塞，异步就意味着非阻塞。但其实，阻塞非阻塞与同步异步并没有本质的联系。</p>
+<p><strong>同步(Synchronizing)异步(Asynchronizing)是对指令而言的</strong>，也就是程序(理解成“函数”会更好一些)。以含有I/O操作的函数为例(被调用方)，如果这个函数要等到I/O操作结束，获取了数据，才返回到调用方，这就叫同步(绝大部分函数都同步)；反之，不等I/O执行完毕就返回到调用方，获取的数据以其他方式转给调用方，这就叫异步。</p>
+<p><strong>阻塞(Blocking)非阻塞(Non-Blocking)是对进程线程而言</strong>(为了简洁，只以“线程”为例)。因为某些原因(比如I/O)，线程被挂起(被移出CPU)，这就叫阻塞；反之，即使因为这些原因，线程依然不被挂起(不被移出CPU)，这就叫非阻塞。</p>
+<p>可见，这两组概念一共可以组成四种不同情况：<strong>同步阻塞</strong>(常见)，<strong>同步非阻塞</strong>(不常见)，<strong>异步阻塞</strong>(不常见)，<strong>异步非阻塞</strong>(常见)。</p>
+<p>仍以上述I/O函数为例：</p>
+<ul>
+<li>如果这个函数的I/O请求已发出，只是单纯地在等服务器发回数据，线程也只是单纯地在等这个函数返回结果，CPU将会把这个线程挂起，这就叫做<strong>同步阻塞</strong>；</li>
+<li>如果这个函数中调用的是一个执行复杂计算的子函数，此时，函数依然在等结果没有返回，但线程并不是没有运行，不会被CPU挂起，这就叫做<strong>同步非阻塞</strong>(“CPU以轮询的方式查看I/O是否结束”更能说明这种情况，但这已是很古老的方式了)；</li>
+<li>如果这个函数在I/O请求没得到结果之前就返回了，但线程依然在等这个结果(在函数体之外等待使用这个数据)，这就叫<strong>异步阻塞</strong>；</li>
+<li>如果这个函数在没得到结果之前返回了，线程继续执行其他函数，这就叫做<strong>异步非阻塞</strong>。更具体一点，这种情况对应的是<strong>使用回调实现异步非阻塞</strong>的情况；而Python中还有一种情况，也是本篇要讲的，就是<strong>使用协程实现异步非阻塞</strong>：协程在得到结果前依然不返回，但线程并没有等待，而是去执行其他协程。协程看起来就像同步一样。</li>
+</ul>
+<p>由于之前并没有遇到代码世界中的<strong>同步非阻塞</strong>和<strong>异步阻塞</strong>这两种情况，所以我也不确定上述这两种情况的例子是否准确，欢迎大佬留言指导。但这四种情况在现实生活中就很常见了，下面举个在<a href="https://www.zhihu.com/question/19732473/answer/23434554" target="_blank" rel="noopener">某处</a>看到的例子：</p>
+<ul>
+<li>老张把一普通水壶接上水放火上，眼睛直勾勾盯着等水开，不干其他事，这叫<strong>同步阻塞</strong>；</li>
+<li>老张依然用一普通水壶烧水，但把水壶放火上后去客厅看电视，时不时回来看水烧好了没有，这叫<strong>同步非阻塞</strong>；</li>
+<li>老张用一能响的水壶烧水，没盯着看，但也没干其他事，只是在那儿发愣。水烧好后，壶可劲儿的响，老张一惊，取走水壶，这叫<strong>异步阻塞</strong>；</li>
+<li>老张用一能响的水壶烧水，把壶放火上后去客厅看电视，等壶响了再去拿壶，这叫<strong>异步非阻塞</strong>；</li>
+</ul>
+<p>从这四个例子可以看出，阻不阻塞是对老张而言的，在计算机中对应的就是进程线程；同步异步是对水壶而言的，在计算机中对应的就是函数。</p>
+<p>有了上述概念后，我们接下来将使用<code>asyncio</code>包，将之前下载国旗的程序改为协程版本。</p>
+<h1 id="异步">2. 异步</h1>
+<p><a href="http://www.vpointer.net/articles/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF36-%E4%BD%BF%E7%94%A8future%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/" target="_blank" rel="noopener">之前</a>我们使用线程实现了并发下载数据，它是同步阻塞的，因为一到I/O操作，线程就被阻塞，然后调入新的线程。现在，我们将实现一个异步非阻塞版本。但从上述介绍知道，<strong>异步有两种方式：回调和协程</strong>。本文并不会实现回调版本的“下载国旗”，提出回调只是为了和协程进行比较。</p>
+<h2 id="回调">2.1 回调</h2>
+<p>举个例子说明<strong>回调</strong>。在调用函数A时除了传入必要的参数外，还传入一个参数：函数B。A中有一些费时的操作，比如I/O，A在没得到结果之前就返回，而<strong>将等待结果以及进行后续处理的事情交给函数B</strong>。这个过程就是<strong>回调</strong>，函数B就称为<strong>回调函数</strong>。</p>
+<p>这种编程方式不太符合人的思维习惯，代码也不易于理解，情况一复杂，就很可能遇到<strong>“回调地狱”</strong>：多层嵌套回调。下面是一个JavaScript中使用回调的例子，它嵌套了3层：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 代码2.1</span></span><br><span class="line">api_call1(request1, <span class="function"><span class="keyword">function</span> (<span class="params">response1</span>)</span>&#123;  <span class="comment">// 多么痛的领悟</span></span><br><span class="line">    <span class="keyword">var</span> request2 = step1(response1);  <span class="comment">// 第一步</span></span><br><span class="line">    api_call2(request2, <span class="function"><span class="keyword">function</span> (<span class="params">response2</span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> request3 = step2(response2);  <span class="comment">// 第二步</span></span><br><span class="line">        api_call3(request3, <span class="function"><span class="keyword">function</span> (<span class="params">response3</span>)</span>&#123;</span><br><span class="line">            step(response3);  <span class="comment">// 第三步</span></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><code>api_call1</code>、<code>api_call2</code>和<code>api_call3</code>都是库函数，用于异步获取结果。JavaScript中常用匿名函数作为回调函数。下面我们使用Python来实现上述代码，上述三个匿名函数分别命名为<code>stage1</code>，<code>stage2</code>和<code>stage3</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.2</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">stage1</span><span class="params">(response1)</span>:</span></span><br><span class="line">    request2 = step1(response1)</span><br><span class="line">    api_call2(request2, stage2)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">stage2</span><span class="params">(response2)</span>:</span></span><br><span class="line">    request3 = step2(response2)</span><br><span class="line">    api_call3(request3, stage3)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">stage3</span><span class="params">(response3)</span>:</span></span><br><span class="line">    step3(response3)</span><br><span class="line"></span><br><span class="line">api_call1(request1, stage1)  <span class="comment"># 代码从这里开始执行</span></span><br></pre></td></tr></table></figure>
+<p>可见，即使用Python写，也不容易理解，这要是再多嵌套几层，不逼疯已经不错了。而且，如果要在<code>stage2</code>中使用<code>request2</code>，还得使用闭包，这就又变成了嵌套定义函数的情况。并且上述代码还没有考虑抛出异常的情况：在基于回调的API中，这个问题的解决办法是为每个异步调用注册两个回调，一个用于处理操作成功时返回的结果，一个用于处理错误。可以看出，一旦涉及错误处理，回调将更可怕。</p>
+<h2 id="协程">2.2 协程</h2>
+<p>现在我们用协程来改写上述代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.3</span></span><br><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"></span><br><span class="line"><span class="meta">@asyncio.coroutine</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">three_stages</span><span class="params">(request1)</span>:</span></span><br><span class="line">    response1 = <span class="keyword">yield</span> <span class="keyword">from</span> api_call1(request1)</span><br><span class="line">    request2 = step1(response1)</span><br><span class="line">    response2 = <span class="keyword">yield</span> <span class="keyword">from</span> api_call2(request2)</span><br><span class="line">    request3 = step2(response2)</span><br><span class="line">    response3 = <span class="keyword">yield</span> <span class="keyword">from</span> api_call3(request3)</span><br><span class="line">    step3(response3)</span><br><span class="line"></span><br><span class="line">loop = asyncio.get_event_loop()</span><br><span class="line">loop.create_task(three_stages(request1))</span><br></pre></td></tr></table></figure>
+<p>与前面两个版本的回调相比，这个版本的代码将3个步骤依次写在同一函数中，易于理解，这样看起来是不是也更像同步函数？如果要处理异常，只需要相应的<code>yield from</code>语句处添加<code>try/except</code>即可。</p>
+<p>但也别急着把这称为“协程天堂”，因为：</p>
+<ul>
+<li>不能使用常规函数，必须使用协程，而且要习惯<code>yield from</code>语句；</li>
+<li>不能直接调用协程。即，不能像直接调用<code>api_call1(request1)</code>那样直接调用<code>three_stages(request1)</code>，必须使用事件循环(上面的<code>loop</code>)来驱动协程。</li>
+</ul>
+<p>但不管怎样，代码读起来和写起来比回调简单多了，尤其是嵌套回调。</p>
+<p><strong><em>小技巧</em></strong>：读协程的代码时，为了便于理解代码的意思，可以直接将<code>yield from</code>关键字忽略掉。</p>
+<h2 id="下载国旗批量版">2.3 下载国旗批量版</h2>
+<p>下面我们开始实现协程版本的“下载国旗”。</p>
+<p>为了将其改为协程版本，我们不能使用之前的<code>requests</code>包，因为它会阻塞线程，改为使用<code>aiohttp</code>包。为了尽量保持代码的简洁，这里不处理异常。下方是完整的代码，代码中我们使用了新语法。以下代码的基本思路是：<strong>在一个单线程程序中使用主循环一次激活队列中的协程，各个协程向前执行几步，然后把控制权让给主循环，主循环再激活队列中的下一个协程</strong>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.4</span></span><br><span class="line"><span class="keyword">import</span> aiohttp, os, sys, time, asyncio   <span class="comment"># 代码中请勿这么写，这里只是为了减少行数</span></span><br><span class="line"></span><br><span class="line">POP20_CC = (<span class="string">"CN IN US ID BR PK NG BD RU JP MX PH VN ET EG DE IR TR CD FR"</span>).split()</span><br><span class="line">BASE_URL = <span class="string">"http://flupy.org/data/flags"</span></span><br><span class="line">DEST_DIR = <span class="string">"downloads/"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">save_flag</span><span class="params">(img, filename)</span>:</span></span><br><span class="line">    path = os.path.join(DEST_DIR, filename)</span><br><span class="line">    <span class="keyword">with</span> open(path, <span class="string">"wb"</span>) <span class="keyword">as</span> fp: </span><br><span class="line">        fp.write(img)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(text)</span>:</span></span><br><span class="line">    print(text, end=<span class="string">" "</span>)</span><br><span class="line">    sys.stdout.flush()</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">get_flag</span><span class="params">(cc)</span>:</span>   <span class="comment"># aiohttp只支持TCP和UDP请求</span></span><br><span class="line">    url = <span class="string">"&#123;&#125;/&#123;cc&#125;/&#123;cc&#125;.gif"</span>.format(BASE_URL, cc=cc.lower())</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> aiohttp.ClientSession() <span class="keyword">as</span> session: <span class="comment"># &lt;1&gt; 开启一个会话</span></span><br><span class="line">        <span class="keyword">async</span> <span class="keyword">with</span> session.get(url) <span class="keyword">as</span> resp:   <span class="comment"># 发送请求</span></span><br><span class="line">            image = <span class="keyword">await</span> resp.read()   <span class="comment"># 读取请求</span></span><br><span class="line">    <span class="keyword">return</span> image</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">download_one</span><span class="params">(cc)</span>:</span></span><br><span class="line">    image = <span class="keyword">await</span> get_flag(cc)</span><br><span class="line">    show(cc)</span><br><span class="line">    save_flag(image, cc.lower() + <span class="string">".gif"</span>)</span><br><span class="line">    <span class="keyword">return</span> cc</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">download_many</span><span class="params">(cc_list)</span>:</span></span><br><span class="line">    loop = asyncio.get_event_loop()   <span class="comment"># 获取事件循环</span></span><br><span class="line">    to_do = [download_one(cc) <span class="keyword">for</span> cc <span class="keyword">in</span> sorted(cc_list)]  <span class="comment"># 生成协程列表</span></span><br><span class="line">    wait_coro = asyncio.wait(to_do)   <span class="comment"># 将协程包装成Task类，wait_coro并不是运行结果！而是协程！</span></span><br><span class="line">    res, _ = loop.run_until_complete(wait_coro) <span class="comment"># 驱动每个协程运行</span></span><br><span class="line">    loop.close()   <span class="comment"># 循环结束</span></span><br><span class="line">    <span class="keyword">return</span> len(res)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">(download_many)</span>:</span></span><br><span class="line">    t0 = time.time()</span><br><span class="line">    count = download_many(POP20_CC)</span><br><span class="line">    elapsed = time.time() - t0</span><br><span class="line">    msg = <span class="string">"\n&#123;&#125; flags downloaded in &#123;:.2f&#125;s"</span></span><br><span class="line">    print(msg.format(count, elapsed))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    main(download_many)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果：</span></span><br><span class="line">VN TR FR DE IN ID RU NG CN EG BR MX PH CD IR PK ET JP BD US </span><br><span class="line"><span class="number">20</span> flags downloaded <span class="keyword">in</span> <span class="number">1.27</span>s</span><br></pre></td></tr></table></figure>
+<p><strong>解释：</strong></p>
+<p>①这里使用了新的语法<code>async/await</code>。再Python3.5之前，如果想定义一个协程只能延用函数的定义方式<code>def</code>，然后在定义体里面使用<code>yield</code>或<code>yield from</code>。如果想把一个函数更明确地声明为协程(或者说异步函数)，还可以使用<code>asyncio</code>中的<code>coroutine</code>装饰器，但这么做是不是挺麻烦的？从Python3.5起，可以明确<strong>使用<code>async</code>来定义协程(异步函数)</strong>和异步生成器。使用<code>async</code>则可以省略掉<code>@asyncio.coroutine</code>装饰器；在用<code>async</code>修饰的协程的定义体中可以使用<code>yield</code>关键字，但不能使用<code>yield from</code>，它必须被替换为<code>await</code>，即使<code>yield from</code>后面只是一个普通的生成器；从由<code>async修饰</code>的协程或生成器中获取数据时，必须使用<code>await</code>。</p>
+<p>②如果要使用<code>@asyncio.coroutine</code>装饰器明确声明协程，那么在协程定义体内部只能使用<code>yield from</code>，不能使用<code>yield</code>，因为使用到<code>yield</code>的地方已经在<code>asyncio</code>中全部封装成了函数或者方法。最新版的<code>@asyncio.coroutine</code>也可以装饰<code>async</code>修饰的协程，这种情况下<code>coroutine</code>不做任何事，只是原封不动的返回被装饰的协程。</p>
+<p>③ &lt;1&gt;处的代码之所以改用<code>async with</code>(异步上下文管理器)，是因为新版<code>asyncio</code>并不支持书中的旧语法<code>yield from aiohttp.request("GET", url)</code>。关于<code>async/await</code>，<code>async with/async for</code>的相关内容将在后续文章中介绍，这里只需要知道<code>async</code>对应于<code>@asyncio.coroutine</code>，<code>await</code>对应于<code>yield from</code>即可。</p>
+<p>④我们将<code>get_flag</code>改成了协程版本，并使用<code>aiohttp</code>来实现异步请求；<code>download_one</code>函数也随之变成了协程版本。</p>
+<p>⑤<code>download_many</code>只是一个普通函数，它要驱动协程运行。在这个函数中，我们通过<code>asyncio.get_event_loop()</code>创建事件循环(实质就是一个线程)来驱动协程的运行。接着生成含20个<code>download_one</code>协程的协程列表<code>to_do</code>，随后再调用<code>asyncio.wait(to_do)</code>将这个协程列表包装成<strong>一个</strong><code>wait</code>协程，取名为<code>wait_coro</code>。<code>wait</code>协程会将<code>to_do</code>中所有的协程包装成<code>Task</code>对象(<code>Future</code>的子类)，再形成列表。最后，我们通过<code>loop.run_until_complete(wait_coro)</code>驱动协程<code>wait_coro</code>运行。<strong>整个的驱动链是这样的：<code>loop.run_until_complete</code>驱动协程<code>wait_coro</code>，<code>wait_coro</code>再在内部驱动20个协程。</strong></p>
+<p>⑥<code>wait</code>协程最后会返回一个元组，第一个元素是<strong>完成的协程数</strong>，第二个是<strong>未完成的协程数</strong>，<code>loop.run_until_complete</code>返回<strong>传入的协程的返回值</strong>(实际代码是Future.result())。有点绕，其实就是<code>wait_coro</code>最后返回一个元组给<code>run_until_complete</code>，<code>run_until_complete</code>再把这个值返回给调用方。</p>
+<p>⑦在<a href="http://www.vpointer.net/articles/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF36-%E4%BD%BF%E7%94%A8future%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/" target="_blank" rel="noopener">上一篇</a>中，我们知道<code>concurrent.futures</code>中有一个<code>Future</code>，且通过它的<code>result</code>方法获取最后运行的结果；在<code>asyncio</code>包中，不光有<code>Future</code>，还有它的子类<code>Task</code>，但获取结果通常并不是调用<code>result</code>方法，而是通过<code>yield from</code>或<code>await</code>，即<code>yield from future</code>获取结果。<code>asyncio.Future</code>类的<code>result</code>方法没有参数，不能设置超时时间；如果调用<code>result</code>时<code>future</code>还未运行完毕，它并不会阻塞去等待结果，而是抛出<code>asyncio.InvalidStateError</code>异常。</p>
+<h2 id="下载国旗改进版">2.4 下载国旗改进版</h2>
+<p><a href="http://www.vpointer.net/articles/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF36-%E4%BD%BF%E7%94%A8future%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/" target="_blank" rel="noopener">上一篇</a>中，我们除了使用<code>Executor.map()</code>批量处理线程之外，我们还使用了<code>concurrent.futures.as_completed()</code>挨个迭代运行完的线程返回的结果。<code>asyncio</code>也实现了这个方法，我们将使用这个函数改写上方的代码。</p>
+<p>还有一个问题：我们往往只关注了网络I/O请求，常常忽略本地的I/O操作。线程版本中的<code>save_flag</code>函数也是会阻塞线程的，因为它操作了磁盘。但由于图片太小，速度太快，我们感觉并不明显，如果换成更高像素的图片，这种速度差异就会很明显。我们将会以某种方式使其避免阻塞线程。下面是改写的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.5</span></span><br><span class="line"><span class="keyword">import</span> asyncio, os, sys, time, aiohttp</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">download_one</span><span class="params">(cc, semaphore)</span>:</span></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> semaphore:</span><br><span class="line">        image = <span class="keyword">await</span> get_flag(cc)</span><br><span class="line">    loop = asyncio.get_event_loop()</span><br><span class="line">    loop.run_in_executor(<span class="literal">None</span>, save_flag, image, cc + <span class="string">".gif"</span>)</span><br><span class="line">    <span class="keyword">return</span> cc</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">download_coro</span><span class="params">(cc_list, concur_req)</span>:</span></span><br><span class="line">    semaphore = asyncio.Semaphore(concur_req)  <span class="comment"># 它是一个信号量，用于控制并发量</span></span><br><span class="line">    to_do = [download_one(cc, semaphore) <span class="keyword">for</span> cc <span class="keyword">in</span> sorted(cc_list)]</span><br><span class="line">    to_do_iter = asyncio.as_completed(to_do)</span><br><span class="line">    <span class="keyword">for</span> future <span class="keyword">in</span> to_do_iter:</span><br><span class="line">        res = <span class="keyword">await</span> future</span><br><span class="line">        print(<span class="string">"Downloaded"</span>, res)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">download_many</span><span class="params">(cc_list, concur_req)</span>:</span>  <span class="comment"># 变化不大</span></span><br><span class="line">    loop = asyncio.get_event_loop()</span><br><span class="line">    coro = download_coro(cc_list, concur_req)</span><br><span class="line">    loop.run_until_complete(coro)</span><br><span class="line">    loop.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    t0 = time.time()</span><br><span class="line">    download_many(POP20_CC, <span class="number">1000</span>)  <span class="comment"># 第二个参数表示最大并发数</span></span><br><span class="line">    print(<span class="string">"\nDone! Time elapsed &#123;:.2f&#125;s."</span>.format(time.time() - t0))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果：</span></span><br><span class="line">Downloaded BD</span><br><span class="line">Downloaded CN</span><br><span class="line">-- snip --</span><br><span class="line">Downloaded US</span><br><span class="line"></span><br><span class="line">Done! Time elapsed <span class="number">1.21</span>s.</span><br></pre></td></tr></table></figure>
+<p>上述代码有3个地方值得关注：</p>
+<ul>
+<li><code>asyncio.as_completed()</code>以<strong>元素为协程的可迭代对象</strong>为参数，但自身并不是协程，只是一个<strong>生成器</strong>。它在内部将传入的协程包装成<code>Task</code>，然后返回一个生成器，产出协程的返回值。这个生成器按协程<strong>完成的顺序</strong>生成值(先完成先产出)，而<strong>不是</strong>按协程在迭代器中的顺序生成值。</li>
+<li><code>asyncio.Semaphore</code>是个信号量类，内部维护这一个计数器，调用它的<code>acquire</code>方法(这个方法是个协程)，计数器减一；对其调用<code>release</code>方法(这个方法不是协程)，计数器加一；当计数器为0时，会阻塞调用这个方法的协程。</li>
+<li>我们将<code>save_flag</code>函数放到了其他线程中，<code>loop.run_in_executor()</code>的第一个参数是<code>Executor</code>实例，如果为<code>None</code>，则使用事件循环的默认<code>ThreadPoolExecutor</code>实例。余下的参数是可调用对象，以及可调用对象的位置参数。</li>
+</ul>
+<h1 id="总结">3. 总结</h1>
+<p>本章开篇介绍了阻塞非阻塞、同步异步的概念，然后介绍了异步的两种实现方式：回调和协程。并通过代码比较了回调和协程的实现方式。然后我们使用<code>asyncio</code>和<code>aiohttp</code>两个库，将之前线程版本的下载国旗程序改为了协程版本。可惜我也是刚接触协程不久，写的内容不一定准确，尤其是关于<code>asyncio</code>的内容，这个库之前是一点都没接触过。后面我会专门研究Python中的协程，以及<code>asyncio</code>的实现，争取把这部分内容彻底搞懂。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/06/18/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF37-%E4%BD%BF%E7%94%A8asyncio%E5%8C%85%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/" title="Python学习之路37-使用asyncio包处理并发">http://yoursite.com/2018/06/18/Python学习之路37-使用asyncio包处理并发/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E8%BF%9B%E9%98%B6/" rel="tag"># Python进阶</a>
+              <a href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag"># 并发</a>
+              <a href="/tags/asyncio/" rel="tag"># asyncio</a>
+              <a href="/tags/%E5%BC%82%E6%AD%A5/" rel="tag"># 异步</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/06/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF36-%E4%BD%BF%E7%94%A8future%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/" rel="prev" title="Python学习之路36-使用future处理并发">
+      <i class="fa fa-chevron-left"></i> Python学习之路36-使用future处理并发
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/06/23/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF38-%E5%8A%A8%E6%80%81%E5%88%9B%E5%BB%BA%E5%B1%9E%E6%80%A7/" rel="next" title="Python学习之路38-动态创建属性">
+      Python学习之路38-动态创建属性 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异步"><span class="nav-text">2. 异步</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#回调"><span class="nav-text">2.1 回调</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#协程"><span class="nav-text">2.2 协程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下载国旗批量版"><span class="nav-text">2.3 下载国旗批量版</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下载国旗改进版"><span class="nav-text">2.4 下载国旗改进版</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text">3. 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/06/18/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF37-%E4%BD%BF%E7%94%A8asyncio%E5%8C%85%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/";
+    this.page.identifier = "2018/06/18/Python学习之路37-使用asyncio包处理并发/";
+    this.page.title = "Python学习之路37-使用asyncio包处理并发";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

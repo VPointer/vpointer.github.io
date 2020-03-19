@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《流畅的Python》笔记。 本篇主要讨论Python中的元类。Python中所有的类都直接或间接地是元类type的实例。阅读本篇时，请时刻注意你所阅读的内容指的是&quot;实例&quot;(或者说&quot;对象&quot;)、&quot;类&quot;还是&quot;元类&quot;，否则很容易被绕晕。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路41-元类">
+<meta property="og:url" content="http://yoursite.com/2018/06/26/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF41-%E5%85%83%E7%B1%BB/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《流畅的Python》笔记。 本篇主要讨论Python中的元类。Python中所有的类都直接或间接地是元类type的实例。阅读本篇时，请时刻注意你所阅读的内容指的是&quot;实例&quot;(或者说&quot;对象&quot;)、&quot;类&quot;还是&quot;元类&quot;，否则很容易被绕晕。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1529920648/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF41-%E5%85%83%E7%B1%BB/type_object.jpg">
+<meta property="article:published_time" content="2018-06-25T17:30:00.000Z">
+<meta property="article:modified_time" content="2018-06-25T17:30:00.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python进阶">
+<meta property="article:tag" content="元类">
+<meta property="article:tag" content="元编程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1529920648/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF41-%E5%85%83%E7%B1%BB/type_object.jpg">
+
+<link rel="canonical" href="http://yoursite.com/2018/06/26/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF41-%E5%85%83%E7%B1%BB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路41-元类 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/26/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF41-%E5%85%83%E7%B1%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路41-元类
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-06-26 01:30:00" itemprop="dateCreated datePublished" datetime="2018-06-26T01:30:00+08:00">2018-06-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index"><span itemprop="name">Python进阶</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/06/26/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF41-%E5%85%83%E7%B1%BB/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/26/Python学习之路41-元类/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《流畅的Python》笔记。</p>
+<p>本篇主要讨论Python中的元类。Python中所有的类都直接或间接地是元类type的实例。阅读本篇时，请时刻注意你所阅读的内容指的是<strong>"实例"(或者说"对象")</strong>、<strong>"类"</strong>还是<strong>"元类"</strong>，否则很容易被绕晕。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="前言">1. 前言</h1>
+<p>Python中，几乎所有的东西都是对象。<strong>不光类的实例是对象，连类本身也是对象</strong>。</p>
+<p>不像C++、Java等静态语言，在编译前就必须将类定义好，运行时不能再创建新类，Python则可以在运行时动态创建新类，且不通过关键字<code>class</code>。<strong>创建类的类叫做元类</strong>。<strong>元类</strong>也是类，它可以派生出<strong>新的元类</strong>，但<strong>所有元类</strong>最顶层的超类只有一个，就是我们经常用到的<code>type</code>。Python中所有的类都直接或间接地是<code>type</code>的<strong>实例</strong>。</p>
+<p>在运行时能通过元类动态创建类是Python的魅力，但想要理解这个"魅力"确并不是那么容易。本篇内容主要有：元类的简单示例，类装饰器，元类的原理、定义及使用方式，最后使用元类来弥补<a href="http://www.vpointer.net/articles/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF40-%E5%B1%9E%E6%80%A7%E6%8F%8F%E8%BF%B0%E7%AC%A6/" target="_blank" rel="noopener">上一篇</a>中描述符的不足。</p>
+<p>本篇只能算是对元类的初步介绍，更深层次的内容还需进一步学习。</p>
+<h1 id="初识元类">2. 初识元类</h1>
+<p>通常，如果要创建对象，需要先在某个模块中用<code>class</code>关键字定义好类，再在业务代码中创建这个类的实例。与这种事先定义的方式相反，可以通过<code>type</code>在运行时创建类，以下是它的示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="string">"this is a string"</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>type(a)</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> '<span class="title">str</span>'&gt;</span></span><br><span class="line">&gt;&gt;&gt; MyClass = type("MyClass", (object,), &#123;"x": 1, "x2": lambda self: self.x * 2&#125;)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>mc = MyClass()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>mc.x</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>mc.x2()</span><br><span class="line"><span class="number">2</span>                      <span class="comment"># 请留意下方这三个特殊属性</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>mc.__class__       <span class="comment"># __class__的值是实例所属的类</span></span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> '<span class="title">MyClass</span>'&gt;</span></span><br><span class="line"><span class="class">&gt;&gt;&gt; <span class="title">MyClass</span>.<span class="title">__bases__</span>  # <span class="title">__bases__</span>的值是类的所有直接超类</span></span><br><span class="line"><span class="class"><span class="params">(&lt;class <span class="string">'object'</span>&gt;,)</span></span></span><br><span class="line"><span class="class">&gt;&gt;&gt; <span class="title">MyClass</span>.<span class="title">__mro__</span>    # <span class="title">__mro__</span>的值是类的所有超类</span></span><br><span class="line"><span class="class"><span class="params">(&lt;class <span class="string">'MyClass'</span>&gt;, &lt;class <span class="string">'object'</span>&gt;)</span> </span></span><br><span class="line"><span class="class">&gt;&gt;&gt; <span class="title">MyClass</span>.<span class="title">__class__</span>  # 这表明<span class="title">MyClass</span>这个类是<span class="title">type</span>的对象</span></span><br><span class="line"><span class="class">&lt;<span class="title">class</span> '<span class="title">type</span>'&gt;</span></span><br></pre></td></tr></table></figure>
+<p>上述<code>MyClass</code>的定义等同于如下定义：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyClass</span><span class="params">(object)</span>:</span></span><br><span class="line">    x = <span class="number">1</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">x2</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self.x * <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p><code>type</code>通常被当做函数使用，但它其实是一个类。当只传入一个实例时，它返回实例的类型；当传入3个参数时，它生成并返回一个类：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">type(cls_name, bases, attr_dict)</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li><code>cls_name</code>是要创建的类的名称的字符串；</li>
+<li><code>bases</code>是一个元组，它存储即将创建的类的直接父类们，比如<code>MyClass</code>继承自<code>object</code>(如果只继承自<code>object</code>，可以将<code>bases</code>设置为空元组)；</li>
+<li><code>attr_dict</code>是新类的属性字典。不光包括数据属性，还包括了方法(含特殊方法)。不过，如果是数据属性，这些数据属性将成为<strong>类属性</strong>，而<strong>不是</strong>实例属性。如果想创建实例属性，请在<code>attr_dict</code>中传入<code>__init__</code>的定义，或者传入<code>__dict__</code>。</li>
+</ul>
+<p>为了更详细的介绍<code>type</code>的用法，我们用它来构造一个类工厂函数。</p>
+<h1 id="类工厂函数">3. 类工厂函数</h1>
+<p>对于数据结构固定的数据，如果想将其包装成类对象，传统的做法是使用<code>class</code>定义每个类，比如为宠物应用定义各种动物类：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, name, weight, owner)</span>:</span></span><br><span class="line">        self.name = name</span><br><span class="line">        self.weight = weight</span><br><span class="line">        self.owner = owner</span><br></pre></td></tr></table></figure>
+<p>不知道各位在敲这段代码时有没有抱怨：<code>name</code>，<code>weight</code>，<code>owner</code>敲了三遍！如果再多几种动物类，这种样板代码得写多少？当然，对于相关的类可以选择继承。但如果数据间不相关呢？难道定义每个类的时候都将这种样板代码敲一遍？这个时候就可以用<strong>类工厂函数</strong>来减少这种样板代码。下方代码展示了<code>type</code>更具体的用法，生成的类比较简单，适合用于处理格式固定的数据。这个工厂函数其实是在模仿<code>collections.namedtuple</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">record_factory</span><span class="params">(cls_name, field_name)</span>:</span></span><br><span class="line">    <span class="keyword">try</span>:   <span class="comment"># 假设传入的field_name是字符串，获取属性名</span></span><br><span class="line">        field_names = field_name.replace(<span class="string">","</span>, <span class="string">" "</span>).split()</span><br><span class="line">    <span class="keyword">except</span> AttributeError:</span><br><span class="line">        <span class="keyword">pass</span>  <span class="comment"># 如果不是字符串，则当做可迭代对象处理</span></span><br><span class="line">    field_names = tuple(field_names)   <span class="comment"># 将属性名存到元组中</span></span><br><span class="line">    <span class="comment"># __init__不作用于这个工厂函数！这是为要创建的类定义的构造方法</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, *args, **kwargs)</span>:</span>        </span><br><span class="line">        attrs = dict(zip(self.__slots__, args))</span><br><span class="line">        attrs.update(kwargs)</span><br><span class="line">        <span class="keyword">for</span> name, value <span class="keyword">in</span> attrs.items():</span><br><span class="line">            setattr(self, name, value)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__iter__</span><span class="params">(self)</span>:</span>   <span class="comment"># 让即将创建的类可迭代</span></span><br><span class="line">        <span class="keyword">for</span> name <span class="keyword">in</span> self.__slots__:</span><br><span class="line">            <span class="keyword">yield</span> getattr(self, name)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__repr__</span><span class="params">(self)</span>:</span>   <span class="comment"># 格式化输出</span></span><br><span class="line">        values = <span class="string">", "</span>.join(<span class="string">"&#123;&#125;=&#123;!r&#125;"</span>.format(*i) <span class="keyword">for</span> i <span class="keyword">in</span> zip(self.__slots__, self))</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"&#123;&#125;(&#123;&#125;)"</span>.format(self.__class__.__name__, values)</span><br><span class="line">    <span class="comment"># 类将拥有的属性</span></span><br><span class="line">    cls_attrs = dict(__slots__=field_names, __init__=__init__,</span><br><span class="line">                     __iter__=__iter__, __repr__=__repr__)</span><br><span class="line">    <span class="keyword">return</span> type(cls_name, (), cls_attrs)   <span class="comment"># 继承自object</span></span><br></pre></td></tr></table></figure>
+<p>下面是这个类工厂函数的用法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>Dog = record_factory(<span class="string">"Dog"</span>, <span class="string">"name weight owner"</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>dog = Dog(<span class="string">"test"</span>, <span class="number">5</span>, <span class="string">"Kevin"</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>dog</span><br><span class="line">Dog(name=<span class="string">'test'</span>, weight=<span class="number">5</span>, owner=<span class="string">'Kevin'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>dog.weight = <span class="number">6</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>dog</span><br><span class="line">Dog(name=<span class="string">'test'</span>, weight=<span class="number">6</span>, owner=<span class="string">'Kevin'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>name, weight, owner = dog</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>name, weight, owner</span><br><span class="line">(<span class="string">'test'</span>, <span class="number">6</span>, <span class="string">'Kevin'</span>)</span><br></pre></td></tr></table></figure>
+<p>下面我们将进一步了解元类。</p>
+<h1 id="元类">4. 元类</h1>
+<p>面向对象的思想有两大关系：类的继承和类的实例化。在Python中，<code>type</code>和<code>object</code>就像两个紧密合作的管理员，<code>type</code>主管实例化，<code>object</code>主管继承。</p>
+<p>我们都知道，Python中所有的类都是从<code>object</code>继承而来的。但如果你看过下方的代码后，不知道对这一点的理解会不会动摇：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>type.__bases__</span><br><span class="line">(&lt;class 'object'&gt;,)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>type.__class__</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> '<span class="title">type</span>'&gt;</span></span><br><span class="line"><span class="class">&gt;&gt;&gt; <span class="title">object</span>.<span class="title">__bases__</span></span></span><br><span class="line"><span class="class"><span class="params">()</span></span></span><br><span class="line"><span class="class">&gt;&gt;&gt; <span class="title">object</span>.<span class="title">__class__</span></span></span><br><span class="line"><span class="class">&lt;<span class="title">class</span> '<span class="title">type</span>'&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这段代码翻译成中文就是：<code>object</code>是<code>type</code>的实例，<code>type</code>是<code>object</code>的子类，因此<code>type</code>也是<code>type</code>自身的实例。这里完美地扯出了一个"先有蛋还是先有鸡"的问题：既然<code>object</code>是<code>type</code>的实例，那就得先由<code>type</code>创建<code>object</code>；但<code>type</code>又是<code>object</code>的子类，也就是得先有<code>object</code>，再有<code>type</code>，所以到底是谁先有？</p>
+<p>这个关系直到现在我也没搞清楚。如果是现实世界，可以说人类暂时还没搞清楚是先有鸡还是先有蛋，但Python这种编程语言可是人造的东西，况且底层还是C语言，所以我肯定不信什么"互为祖先，同时产生"这种说法，而且这在代码里不是死循环吗？查了很多资料，基本都是引用的这张图，其中虚线表示实例关系，实线表示继承关系：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1529920648/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF41-%E5%85%83%E7%B1%BB/type_object.jpg" /></p>
+<p>但大家都回避了前面那个问题：<code>object</code>从<code>type</code>实例化而来，可<code>type</code>又从<code>object</code>派生而来，到底谁先存在？</p>
+<p>只能去看源码。源码中<code>type</code>确实继承自<code>object</code>，但<code>object</code>的定义中并没有<code>metaclass</code>关键字出现(后面会讲到，如果以<code>class</code>的形式从元类实例化类，需要使用这个关键字)；并且，<code>object</code>中有这么一个定义：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__class__ = <span class="literal">None</span> <span class="comment"># (!) forward: type, real value is ''</span></span><br></pre></td></tr></table></figure>
+<p>这就让疑惑更深了：<code>object</code>究竟是不是<code>type</code>的实例？<code>type</code>中有如下定义：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">__bases__ = (</span><br><span class="line">    object,</span><br><span class="line">)</span><br><span class="line">__base__ = object</span><br><span class="line">__mro__ = (</span><br><span class="line">    <span class="literal">None</span>, <span class="comment"># (!) forward: type, real value is ''</span></span><br><span class="line">    object,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>更深层的源代码暂时还啃不动。官方<a href="https://docs.python.org/3/reference/datamodel.html#metaclasses" target="_blank" rel="noopener">说明文档</a>中说明了类的构建过程：所有的类，不管指没指明元类，都会经由<code>type()</code>，产生实际使用的类，这也验证了所有的类都是<code>type</code>的实例这一说法。</p>
+<p>这两者的具体关系还有待继续研究。但我们毕竟不是语言专家，我们更看重的是元类怎么使用。对于这些概念，我们只需要知道：</p>
+<ul>
+<li>元类<code>type</code>可以创建类；</li>
+<li>所有的类都直接或间接的是<code>type</code>的实例；</li>
+<li><code>type</code>是自身的实例；</li>
+<li><code>type</code>可以被继承，用于创建新的元类。</li>
+</ul>
+<h2 id="类装饰器">4.1 类装饰器</h2>
+<p>在继续元类之前，我们先来解决<a href="http://www.vpointer.net/articles/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF40-%E5%B1%9E%E6%80%A7%E6%8F%8F%E8%BF%B0%E7%AC%A6/" target="_blank" rel="noopener">上一篇</a>属性描述符没有解决的问题：储存属性需要手动指定，而自动生成的名称所表达的意思又不够明显：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>Food.weight.storage_name</span><br><span class="line"><span class="string">'_Quantity#0'</span></span><br></pre></td></tr></table></figure>
+<p>这是<a href="http://www.vpointer.net/articles/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF40-%E5%B1%9E%E6%80%A7%E6%8F%8F%E8%BF%B0%E7%AC%A6/" target="_blank" rel="noopener">上一篇</a>文章中自动生成储存属性的名称时采用的策略，但我们更希望是下面这种形式：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>Food.weight.storage_name</span><br><span class="line"><span class="string">'_Quantity#weight'</span></span><br></pre></td></tr></table></figure>
+<p>上一篇中也说过，描述符类很难获取托管类的类属性名称的。使用类装饰器则能解决这个问题。类装饰器和函数装饰器非常相似，是参数为类对象的函数，返回原来的类或修改后的类。这里我们将它装饰到<code>Food</code>类上，而不是<code>Quantity</code>类上(<code>Food</code>和<code>Quantity</code>的具体定义请查看<a href="http://www.vpointer.net/articles/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF40-%E5%B1%9E%E6%80%A7%E6%8F%8F%E8%BF%B0%E7%AC%A6/" target="_blank" rel="noopener">上一篇</a>文章。以下代码不能直接运行，请自行导入所需的类)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@entity</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Food</span>:</span>   <span class="comment"># 这个类比上一篇有所省略</span></span><br><span class="line">    weight = Quantity()   <span class="comment"># 并没有传入储存属性的名称</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, weight)</span>:</span></span><br><span class="line">        self.weight = weight</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">entity</span><span class="params">(cls)</span>:</span></span><br><span class="line">    <span class="keyword">for</span> key, attr <span class="keyword">in</span> cls.__dict__.items():</span><br><span class="line">        <span class="keyword">if</span> isinstance(attr, Validated):      <span class="comment"># 如果这个属性是Validated类的实例</span></span><br><span class="line">            type_name = type(attr).__name__  <span class="comment"># 则修改它的storage_name属性的值</span></span><br><span class="line">            attr.storage_name = <span class="string">"_&#123;&#125;#&#123;&#125;"</span>.format(type_name, key)</span><br><span class="line">    <span class="keyword">return</span> cls</span><br></pre></td></tr></table></figure>
+<p>其实实现的思路很简单：<code>Quantity</code>之所以无法获取<code>Food</code>类的属性名，是因为在<code>Food</code>中生成<code>Quantity</code>实例时，<code>Food</code>这个类都还没有创建完毕，自然只能手动传入。那等<code>Food</code>类创建完毕了再设置值不就行了？与函数装饰器类似，类装饰器会在<code>Food</code>生成后立即运行。</p>
+<p>也可以用类装饰器来替换掉类中的某些方法。但<strong>类装饰器有一个重大缺点：只能对直接依附的类有效</strong>。这意味着，被装饰类的子类不一定继承装饰器所做的修改，具体情况视改动的方式而定。</p>
+<blockquote>
+<p>小插曲：我看到这个概念的时候，无法理解为什么这被称之为"缺点"：继承的时候子类重写了父类的同名方法，这不再正常不过吗？难道是不准让子类重写这个方法，要让这个方法在整个继承体系中都保持唯一？那不重写不就完了吗？如果整个项目就一个人做，当然能保证不重写这个方法。但往往软件开发是个团队项目，其他人并不一定清楚这个方法能不能被重写。</p>
+</blockquote>
+<p>要保持方法在整个继承体系中保持唯一，不被子类所覆盖，这就得祭出元类。</p>
+<h2 id="使用元类">4.2 使用元类</h2>
+<p>当使用到元类的时候，其实就是在定制化类及其子类的行为。下面我们使用元类替换掉前面的类装饰器：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Validated和Quantity都在上一篇文章中，以下代码不能直接运行！</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EntityMeta</span><span class="params">(type)</span>:</span>  <span class="comment"># 在元类中，通常将self换成cls</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(cls, name, bases, attr_dict)</span>:</span>  <span class="comment"># 逻辑和类装饰器是一样的</span></span><br><span class="line">        super().__init__(name, bases, attr_dict)<span class="comment"># 这一步将name,bases,attr_dict绑定到了cls上</span></span><br><span class="line">        <span class="keyword">for</span> key, attr <span class="keyword">in</span> attr_dict.items():</span><br><span class="line">            <span class="keyword">if</span> isinstance(attr, Validated):</span><br><span class="line">                type_name = type(attr).__name__</span><br><span class="line">                attr.storage_name = <span class="string">"_&#123;&#125;#&#123;&#125;"</span>.format(type_name, key)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Entity</span><span class="params">(metaclass=EntityMeta)</span>:</span></span><br><span class="line">    <span class="string">"""带有验证字段的业务实体"""</span>   <span class="comment"># 什么都不用做，除非像添加新方法</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Food</span><span class="params">(Entity)</span>:</span>    <span class="comment"># 对这个类进行了简化</span></span><br><span class="line">    weight = Quantity()</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, weight)</span>:</span></span><br><span class="line">        self.weight = weight</span><br></pre></td></tr></table></figure>
+<p>请注意区分这些类的关系：</p>
+<ul>
+<li><code>EntityMeta</code>是元类<code>type</code>的子类，所以它也是个元类。</li>
+<li><code>Entity</code>使用<code>class</code>关键字来定义新的类，而不是调用<code>type()</code>函数来创建新的类；在定义<code>Entity</code>时，使用了<code>metaclass</code>关键字，表明这是元类<code>EntityMeta</code>的实例，而不是<code>EntityMeta</code>的子类，即，这不是继承关系。同时，<code>Entity</code>也(间接)是<code>type</code>的实例。</li>
+<li><code>Food</code>是<code>Entity</code>的子类，也是元类<code>EntityMeta</code>和<code>type</code>的实例。</li>
+</ul>
+<p>列出这些关系，是想提醒大家，如果要自行定义元类，请时刻注意，究竟谁是谁的子类，谁是谁的实例。下面来运行一下这段代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>Food.weight.storage_name</span><br><span class="line"><span class="string">'_Quantity#weight'</span>   <span class="comment"># 行为符合预期</span></span><br></pre></td></tr></table></figure>
+<p>这里又产生了3个问题。</p>
+<p>第1个问题是：从<code>EntityMeta</code>的<code>__init__</code>中可以看到，参数<code>cls</code>存的是元类的实例的引用，即类<code>Entity</code>或者类<code>Food</code>的引用，但整个初始化过程中，根本就没有用到<code>cls</code>，可结果表明，这些修改确实作用到了<code>Food</code>上，那么这是怎么作用<code>Food</code>上的呢？</p>
+<p><code>EntityMeta.__init__()</code>这个方法中的语句并不多，简答分析就能知道，问题出在<code>super().__init__()</code>，即<code>type.__init__()</code>上。但这个方法的具体实现我暂时也不知道，只能给出我的猜想：我们都知道，对于普通的类(例如<code>Food</code>)来说，它的对象(例如<code>f</code>)保存在内存中的某个位置<code>a</code>上，<code>Food</code>的<code>__init__</code>操作内存<code>a</code>上的数据；而开篇就提到，所有的类也都是对象，于是类比一下，元类(例如<code>EntityMeta</code>)的实例(例如<code>Food</code>)肯定也存储在内存的某个位置<code>b</code>，那么<code>type.__init__</code>肯定将传入的参数关联到了内存<code>b</code>(实例<code>Food</code>)上。所以，这些操作最后在<code>Food</code>上生效了。平时对类的使用，其实就是用内存<code>b</code>中的数据创建内存<code>a</code>中的数据。</p>
+<p>元类之所以难理解，难就难在我们并不习惯于"<strong>根据类来创建类</strong>"这种思路，我们习惯的是"<strong>根据类来创建实例</strong>"。这里也再次申明，<strong>没有"根据类来创建类"这种说法，一切都是"根据类来创建实例"</strong>！当涉及到元类时，就<strong>把元类看做平常使用的类，把元类生成的类看做平常使用的实例</strong>(或者说对象)。如果能这样想，下面两个问题也就能很好回答：</p>
+<ul>
+<li>两个<code>__init__</code>谁先运行呢？</li>
+<li>前面说到，在元类中定义的方法能影响到整个继承体系，即使子类重写这个方法也没有用，那这是怎么做到的呢？</li>
+</ul>
+<p>要彻底回答这两个问题，就要涉及到<strong>运行时</strong>与<strong>导入时</strong>的概念。</p>
+<h1 id="运行时导入时">5. 运行时&amp;导入时</h1>
+<p>为了正确地做元编程，必须知道Python解释器在什么时候运行各个代码块。Python程序员区分<strong>运行时</strong>与<strong>导入时</strong>这两个概念，但其实这两个术语并没有严格定义，而且两者有交集。</p>
+<p>在导入时，解释器会编译源文件，解释器会从上到下一次性解析完整个<code>.py</code>模块，然后生成用于执行的字节码，并将其存到<code>.pyc</code>文件中(这类文件在本地的<code>__pycache__</code>文件夹中)。所以，虽然Python是解释型语言，边解释边运行，但解释的不是<code>.py</code>源文件，而是<code>.pyc</code>中的字节码数据。</p>
+<p>导入时除了编译，还会做些其他的事情。由于Python中的语句几乎都是可执行的，稍不注意，某些本该在运行时才运行的语句会在导入时就运行，导致用户程序的状态被修改。这里指的就是<code>import</code>语句：</p>
+<ul>
+<li>在Java中，<code>import</code>只用作声明，运行的时候才真正执行<code>import</code>后面的包中的代码。</li>
+<li>在Python中，<code>import</code>不仅仅是声明。模块首次被导入时，模块中所有的代码都会被运行并缓存，以后再导入相同的模块时直接使用缓存(只做名称绑定)；所导入的模块中如果还有<code>import</code>，那么这些模块只要没被导入过，也会被运行一遍。这表明，<strong>运行时</strong>与<strong>导入时</strong>产生了交集。</li>
+</ul>
+<p>之前我在网上搜索这个概念的时候，很多博主都说，导入时会运行模块中所有的代码。其实并不是这样的，Python解释器确实会将模块从头执行到尾，但是：</p>
+<ul>
+<li><strong>对于函数</strong>，解释器只执行完<code>def</code>关键字所在的行，它会编译函数的定义体，把函数对象绑定到对应的全局名称上，但显然函数定义体不会被执行。只有到运行时，解释器才通过全局名称找到函数定义体，再执行它。</li>
+<li><strong>对于类</strong>，情况就不一样了。导入时，解释器会执行每个类的定义体，甚至会执行嵌套类的定义体。这么做的结果就是，定义了类的属性和方法(方法的定义体依然不会被执行)，并构建了类这个对象。</li>
+</ul>
+<p>绕了这么一大圈，终于和元类发生了关系！类这个对象在导入时就会被创建，所以，元类在导入时就会初始化它的实例：类。</p>
+<p>为了更真切的体验这个过程，下面创建几个类，并观察解释器在导入时和运行时的行为。</p>
+<p>下面的代码会用到类装饰器和元类，前面说到类装饰器在子类中不一定起作用，但元类一定起作用，请留意这两个的行为。</p>
+<h2 id="一般情况">5.1 一般情况</h2>
+<p>这里指没有元类的情况。首先创建两个模块，代码可能有点长，但都很简单。注意这两个模块的名称，首先是<code>evaltime.py</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># evaltime.py</span></span><br><span class="line"><span class="keyword">from</span> evalsupport <span class="keyword">import</span> deco_alpha</span><br><span class="line"></span><br><span class="line">print(<span class="string">'&lt;[1]&gt; evaltime module start'</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassOne</span>:</span>   <span class="comment"># 它嵌套了一个类</span></span><br><span class="line">    print(<span class="string">'&lt;[2]&gt; ClassOne body'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">'&lt;[3]&gt; ClassOne.__init__'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__del__</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">'&lt;[4]&gt; ClassOne.__del__'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">method_x</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">'&lt;[5]&gt; ClassOne.method_x'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">ClassTwo</span><span class="params">(object)</span>:</span></span><br><span class="line">        print(<span class="string">'&lt;[6]&gt; ClassTwo body'</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@deco_alpha</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassThree</span>:</span>  <span class="comment"># 它被类装饰器装饰</span></span><br><span class="line">    print(<span class="string">'&lt;[7]&gt; ClassThree body'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">method_y</span><span class="params">(self)</span>:</span>  <span class="comment"># 注意才场景2中观察这个方法的行为</span></span><br><span class="line">        print(<span class="string">'&lt;[8]&gt; ClassThree.method_y'</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassFour</span><span class="params">(ClassThree)</span>:</span>   <span class="comment"># 这里有一个继承，ClassThree被类装饰器装饰过</span></span><br><span class="line">    print(<span class="string">'&lt;[9]&gt; ClassFour body'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">method_y</span><span class="params">(self)</span>:</span>  <span class="comment"># 注意才场景2中观察这个方法的行为</span></span><br><span class="line">        print(<span class="string">'&lt;[10]&gt; ClassFour.method_y'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    print(<span class="string">'&lt;[11]&gt; ClassOne tests'</span>, <span class="number">30</span> * <span class="string">'.'</span>)</span><br><span class="line">    one = ClassOne()</span><br><span class="line">    one.method_x()</span><br><span class="line">    print(<span class="string">'&lt;[12]&gt; ClassThree tests'</span>, <span class="number">30</span> * <span class="string">'.'</span>)</span><br><span class="line">    three = ClassThree()</span><br><span class="line">    three.method_y()</span><br><span class="line">    print(<span class="string">'&lt;[13]&gt; ClassFour tests'</span>, <span class="number">30</span> * <span class="string">'.'</span>)</span><br><span class="line">    four = ClassFour()</span><br><span class="line">    four.method_y()</span><br><span class="line"></span><br><span class="line">print(<span class="string">'&lt;[14]&gt; evaltime module end'</span>)</span><br></pre></td></tr></table></figure>
+<p>接着是<code>evalsupport.py</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># evalsupport.py</span></span><br><span class="line">print(<span class="string">'&lt;[100]&gt; evalsupport module start'</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">deco_alpha</span><span class="params">(cls)</span>:</span></span><br><span class="line">    print(<span class="string">'&lt;[200]&gt; deco_alpha'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">inner_1</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">'&lt;[300]&gt; deco_alpha:inner_1'</span>)</span><br><span class="line"></span><br><span class="line">    cls.method_y = inner_1</span><br><span class="line">    <span class="keyword">return</span> cls</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MetaAleph</span><span class="params">(type)</span>:</span></span><br><span class="line">    print(<span class="string">'&lt;[400]&gt; MetaAleph body'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(cls, name, bases, dic)</span>:</span></span><br><span class="line">        print(<span class="string">'&lt;[500]&gt; MetaAleph.__init__'</span>)</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">inner_2</span><span class="params">(self)</span>:</span></span><br><span class="line">            print(<span class="string">'&lt;[600]&gt; MetaAleph.__init__:inner_2'</span>)</span><br><span class="line"></span><br><span class="line">        cls.method_z = inner_2    <span class="comment"># 实例中的这个属性如果有，则会被替换</span></span><br><span class="line">                                  <span class="comment"># 如果没有，则新建这个属性并赋值为内嵌函数inner_2的引用</span></span><br><span class="line">print(<span class="string">'&lt;[700]&gt; evalsupport module end'</span>)</span><br></pre></td></tr></table></figure>
+<p>上面这两个模块的代码中有<code>&lt;[N]&gt;</code>标记，<code>N</code>表示数字。现在请大家模拟以下两种场景，记录标记出现的顺序，最后再和真实结果比较。</p>
+<p><strong>场景1</strong>：在Python控制台中以交互的方式导入<code>evaltime.py</code>模块，即</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> evaltime.py</span><br></pre></td></tr></table></figure>
+<p><strong>场景2</strong>：在命令行中运行<code>evaltime.py</code>模块，即</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python3 evaltime.py</span><br></pre></td></tr></table></figure>
+<p>建议模拟完后再看下面的结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 场景1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> evaltime.py</span><br><span class="line">&lt;[<span class="number">100</span>]&gt; evalsupport module start    <span class="comment"># 运行evalsupport.py模块</span></span><br><span class="line">&lt;[<span class="number">400</span>]&gt; MetaAleph body              <span class="comment"># MetaAleph的定义体运行了</span></span><br><span class="line">&lt;[<span class="number">700</span>]&gt; evalsupport module end      <span class="comment"># 函数deco_alpha定义体在导入时并没有被执行！</span></span><br><span class="line">&lt;[<span class="number">1</span>]&gt; evaltime module start         <span class="comment"># 开始运行evaltime.py模块</span></span><br><span class="line">&lt;[<span class="number">2</span>]&gt; ClassOne body                 <span class="comment"># ClassOne的定义体被运行了，但其中的方法没有被运行</span></span><br><span class="line">&lt;[<span class="number">6</span>]&gt; ClassTwo body                 <span class="comment"># 嵌套的ClassTwo的定义体也被运行了</span></span><br><span class="line">&lt;[<span class="number">7</span>]&gt; ClassThree body               <span class="comment"># ClassThree的定义体被执行。</span></span><br><span class="line">&lt;[<span class="number">200</span>]&gt; deco_alpha    <span class="comment"># 跳到了类装饰器中，函数定义体在导入时被执行了！证明导入时创建了类对象</span></span><br><span class="line">&lt;[<span class="number">9</span>]&gt; ClassFour body                <span class="comment"># 类定义体被执行</span></span><br><span class="line">&lt;[<span class="number">14</span>]&gt; evaltime module end          <span class="comment"># 模块执行完毕</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 场景2</span></span><br><span class="line">$ python3 evaltime.py</span><br><span class="line">&lt;[<span class="number">100</span>]&gt; evalsupport module start</span><br><span class="line">&lt;[<span class="number">400</span>]&gt; MetaAleph body</span><br><span class="line">&lt;[<span class="number">700</span>]&gt; evalsupport module end</span><br><span class="line">&lt;[<span class="number">1</span>]&gt; evaltime module start</span><br><span class="line">&lt;[<span class="number">2</span>]&gt; ClassOne body</span><br><span class="line">&lt;[<span class="number">6</span>]&gt; ClassTwo body</span><br><span class="line">&lt;[<span class="number">7</span>]&gt; ClassThree body</span><br><span class="line">&lt;[<span class="number">200</span>]&gt; deco_alpha</span><br><span class="line">&lt;[<span class="number">9</span>]&gt; ClassFour body                <span class="comment"># 在此行之前，和导入时没有区别，毕竟要执行得先导入嘛</span></span><br><span class="line">&lt;[<span class="number">11</span>]&gt; ClassOne tests ..............................   <span class="comment"># 开始执行if中的内容了</span></span><br><span class="line">&lt;[<span class="number">3</span>]&gt; ClassOne.__init__             <span class="comment"># 初始化ClassOne</span></span><br><span class="line">&lt;[<span class="number">5</span>]&gt; ClassOne.method_x             <span class="comment"># 调用ClassOne的method_x方法</span></span><br><span class="line">&lt;[<span class="number">12</span>]&gt; ClassThree tests .............................. </span><br><span class="line">&lt;[<span class="number">300</span>]&gt; deco_alpha:inner_1          <span class="comment"># ClassThree的method_y被替换了</span></span><br><span class="line">&lt;[<span class="number">13</span>]&gt; ClassFour tests ..............................</span><br><span class="line">&lt;[<span class="number">10</span>]&gt; ClassFour.method_y           <span class="comment"># 类装饰器在子类上不起作用</span></span><br><span class="line">&lt;[<span class="number">14</span>]&gt; evaltime module end          <span class="comment"># 模块运行结束</span></span><br><span class="line">&lt;[<span class="number">4</span>]&gt; ClassOne.__del__              <span class="comment"># ClassOne在被销毁时调用__del__方法</span></span><br></pre></td></tr></table></figure>
+<p>不知大家的模拟是否和结果一致？</p>
+<p>场景2中的结果证明了，类装饰器在子类中不一定起作用。</p>
+<p>两个场景中，类装饰器在导入时都运行了一次，这证明了类对象在导入时创建，而不是在运行时创建。</p>
+<h2 id="加入元类">5.2 加入元类</h2>
+<p>还剩下的两个问题将在这个例子中找到答案。不过，还得再创建一个模块<code>evaltime_meta.py</code>，并建议大家回顾一下<code>MetaAleph</code>的实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># evaltime_meta.py</span></span><br><span class="line"><span class="keyword">from</span> evalsupport <span class="keyword">import</span> deco_alpha, MetaAleph</span><br><span class="line"></span><br><span class="line">print(<span class="string">'&lt;[1]&gt; evaltime_meta module start'</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@deco_alpha</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassThree</span><span class="params">()</span>:</span>  <span class="comment"># 被类装饰器装饰</span></span><br><span class="line">    print(<span class="string">'&lt;[2]&gt; ClassThree body'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">method_y</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">'&lt;[3]&gt; ClassThree.method_y'</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassFour</span><span class="params">(ClassThree)</span>:</span></span><br><span class="line">    print(<span class="string">'&lt;[4]&gt; ClassFour body'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">method_y</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">'&lt;[5]&gt; ClassFour.method_y'</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassFive</span><span class="params">(metaclass=MetaAleph)</span>:</span>   <span class="comment"># 它是元类MetaAleph的实例！</span></span><br><span class="line">    print(<span class="string">'&lt;[6]&gt; ClassFive body'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">'&lt;[7]&gt; ClassFive.__init__'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">method_z</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">'&lt;[8]&gt; ClassFive.method_y'</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassSix</span><span class="params">(ClassFive)</span>:</span>   <span class="comment"># 它也是元类MetaAleph的实例！</span></span><br><span class="line">    print(<span class="string">'&lt;[9]&gt; ClassSix body'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">method_z</span><span class="params">(self)</span>:</span></span><br><span class="line">        print(<span class="string">'&lt;[10]&gt; ClassSix.method_y'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    print(<span class="string">'&lt;[11]&gt; ClassThree tests'</span>, <span class="number">30</span> * <span class="string">'.'</span>)</span><br><span class="line">    three = ClassThree()</span><br><span class="line">    three.method_y()</span><br><span class="line">    print(<span class="string">'&lt;[12]&gt; ClassFour tests'</span>, <span class="number">30</span> * <span class="string">'.'</span>)</span><br><span class="line">    four = ClassFour()</span><br><span class="line">    four.method_y()</span><br><span class="line">    print(<span class="string">'&lt;[13]&gt; ClassFive tests'</span>, <span class="number">30</span> * <span class="string">'.'</span>)</span><br><span class="line">    five = ClassFive()</span><br><span class="line">    five.method_z()</span><br><span class="line">    print(<span class="string">'&lt;[14]&gt; ClassSix tests'</span>, <span class="number">30</span> * <span class="string">'.'</span>)</span><br><span class="line">    six = ClassSix()</span><br><span class="line">    six.method_z()</span><br><span class="line"></span><br><span class="line">print(<span class="string">'&lt;[15]&gt; evaltime_meta module end'</span>)</span><br></pre></td></tr></table></figure>
+<p>还是那两个场景：</p>
+<p><strong>场景1</strong>：在Python控制台中导入<code>evaltime_meta.py</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> evaltime_meta.py</span><br></pre></td></tr></table></figure>
+<p><strong>场景2</strong>：在命令行中运行<code>evaltime_meta.py</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python3 evaltime_meta.py</span><br></pre></td></tr></table></figure>
+<p>以下是两个场景的结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 场景1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> evaltime_meta.py</span><br><span class="line">&lt;[<span class="number">100</span>]&gt; evalsupport module start</span><br><span class="line">&lt;[<span class="number">400</span>]&gt; MetaAleph body</span><br><span class="line">&lt;[<span class="number">700</span>]&gt; evalsupport module end</span><br><span class="line">&lt;[<span class="number">1</span>]&gt; evaltime_meta module start</span><br><span class="line">&lt;[<span class="number">2</span>]&gt; ClassThree body</span><br><span class="line">&lt;[<span class="number">200</span>]&gt; deco_alpha</span><br><span class="line">&lt;[<span class="number">4</span>]&gt; ClassFour body        <span class="comment"># 到这里为止，和上一个场景1的情况一样</span></span><br><span class="line">&lt;[<span class="number">6</span>]&gt; ClassFive body        <span class="comment"># 执行了ClassFive定义体</span></span><br><span class="line">&lt;[<span class="number">500</span>]&gt; MetaAleph.__init__  <span class="comment"># 元类中的初始化方法在导入时被执行了！也证明导入时创建了类对象</span></span><br><span class="line">&lt;[<span class="number">9</span>]&gt; ClassSix body</span><br><span class="line">&lt;[<span class="number">500</span>]&gt; MetaAleph.__init__  <span class="comment"># 再次触发元类中的初始化方法，</span></span><br><span class="line">&lt;[<span class="number">15</span>]&gt; evaltime_meta module end</span><br><span class="line"></span><br><span class="line"><span class="comment"># 场景2</span></span><br><span class="line">$ python3 evaltime_meta.py</span><br><span class="line">&lt;[<span class="number">100</span>]&gt; evalsupport module start</span><br><span class="line">&lt;[<span class="number">400</span>]&gt; MetaAleph body</span><br><span class="line">&lt;[<span class="number">700</span>]&gt; evalsupport module end</span><br><span class="line">&lt;[<span class="number">1</span>]&gt; evaltime_meta module start</span><br><span class="line">&lt;[<span class="number">2</span>]&gt; ClassThree body</span><br><span class="line">&lt;[<span class="number">200</span>]&gt; deco_alpha</span><br><span class="line">&lt;[<span class="number">4</span>]&gt; ClassFour body</span><br><span class="line">&lt;[<span class="number">6</span>]&gt; ClassFive body</span><br><span class="line">&lt;[<span class="number">500</span>]&gt; MetaAleph.__init__</span><br><span class="line">&lt;[<span class="number">9</span>]&gt; ClassSix body</span><br><span class="line">&lt;[<span class="number">500</span>]&gt; MetaAleph.__init__   <span class="comment"># 到此行位置，和场景1的情况一样</span></span><br><span class="line">&lt;[<span class="number">11</span>]&gt; ClassThree tests ..............................</span><br><span class="line">&lt;[<span class="number">300</span>]&gt; deco_alpha:inner_1   <span class="comment"># 方法被类装饰器替换</span></span><br><span class="line">&lt;[<span class="number">12</span>]&gt; ClassFour tests ..............................</span><br><span class="line">&lt;[<span class="number">5</span>]&gt; ClassFour.method_y     <span class="comment"># 类装饰器对子类不起作用</span></span><br><span class="line">&lt;[<span class="number">13</span>]&gt; ClassFive tests ..............................</span><br><span class="line">&lt;[<span class="number">7</span>]&gt; ClassFive.__init__     <span class="comment"># 初始化ClassFive的实例five</span></span><br><span class="line">&lt;[<span class="number">600</span>]&gt; MetaAleph.__init__:inner_2  <span class="comment"># 方法被替换</span></span><br><span class="line">&lt;[<span class="number">14</span>]&gt; ClassSix tests ..............................</span><br><span class="line">&lt;[<span class="number">7</span>]&gt; ClassFive.__init__     <span class="comment"># 初始化ClassFive的子类ClassSix的实例six</span></span><br><span class="line">&lt;[<span class="number">600</span>]&gt; MetaAleph.__init__:inner_2  <span class="comment"># 子类的方法也被替换了！</span></span><br><span class="line">&lt;[<span class="number">15</span>]&gt; evaltime_meta module end</span><br></pre></td></tr></table></figure>
+<p>这组例子再一次证明了类对象在导入时创建！并且元类对它的类对象的初始化也在导入时进行。其实，导入时对于元类来说就是它的运行时。</p>
+<p>现在来回答之前留下的两个问题：</p>
+<ul>
+<li>元类只要有实例，元类的<code>__init__</code>方法就一定先于实例的<code>__init__</code>方法先执行。比较这两者的<code>__init__</code>方法有些牵强，毕竟类对象(例如<code>ClassFive</code>)在运行时创建，因此元类的<code>__init__</code>方法必定在导入时执行；而类实例在运行时才创建，类对象的<code>__init__</code>方法也就只能在运行时才执行。其实就是一个显而易见的逻辑：<strong>什么时候创建"实例"，就什么时候执行"类"中的<code>__init__</code>方法咯</strong>。不过得清楚，这里的"实例"和"类"究竟指代的是谁。</li>
+<li>上一条解释其实已经回答了"元类为什么能覆盖所有子类的方法"。<code>ClassFive</code>是元类<code>MetaAleph</code>的实例，而不是继承自<code>MetaAleph</code>；<code>ClassSix</code>虽继承自<code>ClassFive</code>，但又不是继承自<code>MetaAleph</code>，它仅仅只是<code>MetaAleph</code>的又一个实例而已。这里说的覆盖对元类而言根本就不是覆盖，元类仅仅只是在为它的实例的属性赋值而已：你(<code>ClassSix</code>)只是我(<code>MetaAleph</code>)的实例，你继承自我的另一个实例(<code>ClassFive</code>)，又不是继承自我，所以你跟我谈什么继承与覆盖？我只是在给你的属性赋值而已！</li>
+</ul>
+<p>本文对元类的介绍到此结束。这些内容仅仅只是元类的皮毛。其中有很多地方依然没有弄懂，继续努力吧！</p>
+<h2 id="补充">5.3 补充</h2>
+<p>其实如果想弥补本文中类装饰器的缺陷，可以不用定义元类，现在有更方便的方法：定义特殊方法<code>__init_subclass__</code>。它的作用和本文中的元类一样，但比创建元类简单直观得多。在创建子类时，子类都会被这个方法初始化。</p>
+<h1 id="总结">6. 总结</h1>
+<p>本文首先展示了元类的基本用法：直接用<code>type()</code>函数创建类，然后将元类用到了类工厂函数中。之后加入了一个小插曲，类装饰器；接着深入介绍了元类的概念性知识，并展示了如何使用<code>class</code>和<code>metaclass</code>关键字从元类创建类。最后，介绍了运行时与导入时的概念，并通过代码展示了这两者的区别，尤其展示了类的创建时间。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/06/26/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF41-%E5%85%83%E7%B1%BB/" title="Python学习之路41-元类">http://yoursite.com/2018/06/26/Python学习之路41-元类/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E8%BF%9B%E9%98%B6/" rel="tag"># Python进阶</a>
+              <a href="/tags/%E5%85%83%E7%BC%96%E7%A8%8B/" rel="tag"># 元编程</a>
+              <a href="/tags/%E5%85%83%E7%B1%BB/" rel="tag"># 元类</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/06/24/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF40-%E5%B1%9E%E6%80%A7%E6%8F%8F%E8%BF%B0%E7%AC%A6/" rel="prev" title="Python学习之路40-属性描述符">
+      <i class="fa fa-chevron-left"></i> Python学习之路40-属性描述符
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/06/28/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF42-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/" rel="next" title="Python学习之路42-数据结构和算法">
+      Python学习之路42-数据结构和算法 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#初识元类"><span class="nav-text">2. 初识元类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#类工厂函数"><span class="nav-text">3. 类工厂函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#元类"><span class="nav-text">4. 元类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#类装饰器"><span class="nav-text">4.1 类装饰器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用元类"><span class="nav-text">4.2 使用元类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#运行时导入时"><span class="nav-text">5. 运行时&amp;导入时</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一般情况"><span class="nav-text">5.1 一般情况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加入元类"><span class="nav-text">5.2 加入元类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充"><span class="nav-text">5.3 补充</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-text">6. 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/06/26/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF41-%E5%85%83%E7%B1%BB/";
+    this.page.identifier = "2018/06/26/Python学习之路41-元类/";
+    this.page.title = "Python学习之路41-元类";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

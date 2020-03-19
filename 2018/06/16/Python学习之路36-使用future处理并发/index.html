@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《流畅的Python》笔记。 本篇主要讨论concurrent.futures模块，并用它实现一个简单的并发操作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路36-使用future处理并发">
+<meta property="og:url" content="http://yoursite.com/2018/06/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF36-%E4%BD%BF%E7%94%A8future%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《流畅的Python》笔记。 本篇主要讨论concurrent.futures模块，并用它实现一个简单的并发操作。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-06-16T09:00:00.000Z">
+<meta property="article:modified_time" content="2018-06-16T09:00:00.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python进阶">
+<meta property="article:tag" content="future">
+<meta property="article:tag" content="并发">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2018/06/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF36-%E4%BD%BF%E7%94%A8future%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路36-使用future处理并发 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF36-%E4%BD%BF%E7%94%A8future%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路36-使用future处理并发
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-06-16 17:00:00" itemprop="dateCreated datePublished" datetime="2018-06-16T17:00:00+08:00">2018-06-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index"><span itemprop="name">Python进阶</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/06/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF36-%E4%BD%BF%E7%94%A8future%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/16/Python学习之路36-使用future处理并发/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《流畅的Python》笔记。</p>
+<p>本篇主要讨论concurrent.futures模块，并用它实现一个简单的并发操作。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="前言">1. 前言</h1>
+<p>我们都知道，如果有大量数据要处理，或者要处理大量链接，异步操作会比顺序操作快很多。Python中，<code>concurrent</code>和<code>asyncio</code>则是标准库中进行了高度封装的两个异步操作包。它们在底层使用了Python提供的更基础的两个模块，分别是<code>multiprocessing</code>和<code>threading</code>。</p>
+<p><code>future</code>(全小写)并不具体指某个类的实例，而且笔者查了老多资料也没看到哪个类叫做<code>future</code>，它泛指用于异步操作的对象。<code>concurrent.futures</code>和<code>asyncio</code>这两个模块中有两个名为<code>Future</code>的类：<code>concurrent.futures.Future</code>和<code>asyncio.Future</code>。这两个类的作用相同，都表示<strong>可能已经完成或尚未完成的延迟计算</strong>。这两个<code>Future</code>的实例并不应该由我们手动创建，而应交由并发框架(也就是前面那两个模块)来实例化。</p>
+<p>本篇主要介绍<code>concurrent.futures</code>模块的简单使用，并会将其和顺序计算进行对比，其中还会涉及GIL和阻塞型I/O的概念。<code>asyncio</code>将在下一篇进行介绍。</p>
+<h1 id="顺序执行">2. 顺序执行</h1>
+<p>首先实现一个下载各国国旗的程序，随后再将它与并发版本进行对比。以下是顺序执行的版本，它下载人口前20的国家的国旗，并保存到本地：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码2.1，flags.py</span></span><br><span class="line"><span class="keyword">import</span> os, time, sys  <span class="comment"># 这么引用只是为了节省篇幅，并不提倡</span></span><br><span class="line"><span class="keyword">import</span> requests  <span class="comment"># 第三方库</span></span><br><span class="line"></span><br><span class="line">POP20_CC = (<span class="string">"CN IN US ID BR PK NG BD RU JP MX PH VN ET EG DE IR TR CD FR"</span>).split()</span><br><span class="line"><span class="comment"># 如果想测试自己的并发程序，为了避免被误认为是DOS攻击，请自建http服务</span></span><br><span class="line">BASE_URL = <span class="string">"http://flupy.org/data/flags"</span>  </span><br><span class="line">DEST_DIR = <span class="string">"downloads/"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">save_flag</span><span class="params">(img, filename)</span>:</span>  <span class="comment"># 保存图片到本地</span></span><br><span class="line">    path = os.path.join(DEST_DIR, filename)</span><br><span class="line">    <span class="keyword">with</span> open(path, <span class="string">"wb"</span>) <span class="keyword">as</span> fp:</span><br><span class="line">        fp.write(img)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_flag</span><span class="params">(cc)</span>:</span>   <span class="comment"># 请求图片</span></span><br><span class="line">    url = <span class="string">"&#123;&#125;/&#123;cc&#125;/&#123;cc&#125;.gif"</span>.format(BASE_URL, cc=cc.lower())</span><br><span class="line">    resp = requests.get(url)</span><br><span class="line">    <span class="keyword">return</span> resp.content</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(text)</span>:</span>  <span class="comment"># 每获取一张图片就给出一个提示</span></span><br><span class="line">    print(text, end=<span class="string">" "</span>)</span><br><span class="line">    sys.stdout.flush()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">download_one</span><span class="params">(cc)</span>:</span>   <span class="comment"># 下载一张图片</span></span><br><span class="line">    image = get_flag(cc)</span><br><span class="line">    show(cc)</span><br><span class="line">    save_flag(image, cc.lower() + <span class="string">".gif"</span>)</span><br><span class="line">    <span class="keyword">return</span> cc   <span class="comment"># 这个return主要是给后面的并发程序用的，此处不要这行代码也可以</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">download_many</span><span class="params">(cc_list)</span>:</span>   <span class="comment"># 下载多张图片</span></span><br><span class="line">    <span class="keyword">for</span> cc <span class="keyword">in</span> sorted(cc_list):</span><br><span class="line">        download_one(cc)</span><br><span class="line">    <span class="keyword">return</span> len(cc_list)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">(download_many)</span>:</span>   <span class="comment"># 主程序，接收一个函数为参数</span></span><br><span class="line">    t0 = time.time()   <span class="comment"># 开始时间</span></span><br><span class="line">    count = download_many(POP20_CC)</span><br><span class="line">    elapsed = time.time() - t0   <span class="comment"># 结束时间</span></span><br><span class="line">    msg = <span class="string">"\n&#123;&#125; flags downloaded in &#123;:.2f&#125;s"</span></span><br><span class="line">    print(msg.format(count, elapsed))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    main(download_many)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">BD BR CD CN DE EG ET FR ID IN IR JP MX NG PH PK RU TR US VN </span><br><span class="line"><span class="number">20</span> flags downloaded <span class="keyword">in</span> <span class="number">14.83</span>s   <span class="comment"># 耗时，只做了一次</span></span><br></pre></td></tr></table></figure>
+<h1 id="concurrent.futures">3. concurrent.futures</h1>
+<p>现在我们用<code>concurrent.futures</code>模块将上述代码改写为线程版本，使其异步执行，其中有大部分函数延用上述代码。</p>
+<h2 id="futures.as_completed">3.1 futures.as_completed</h2>
+<p>首先实现一个更具有细节的版本，我们手动提交线程，然后再运行。这个版本只是为了讲述细节，所以并没有全部下载，最大线程数也没有设置得很高：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.1，flags_threadpool.py</span></span><br><span class="line"><span class="keyword">from</span> concurrent <span class="keyword">import</span> futures</span><br><span class="line"><span class="keyword">from</span> flags <span class="keyword">import</span> save_flag, get_flag, download_one, show, main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">download_many_ac</span><span class="params">(cc_list)</span>:</span></span><br><span class="line">    cc_list = cc_list[:<span class="number">5</span>] <span class="comment"># 只下载前五个用于测试</span></span><br><span class="line">    <span class="keyword">with</span> futures.ThreadPoolExecutor(len(cc_list) / <span class="number">2</span>) <span class="keyword">as</span> executor:</span><br><span class="line">        to_do = &#123;&#125;   <span class="comment"># 有意写出字典，其实也可以是列表或集合，但这是个惯用方法</span></span><br><span class="line">        <span class="keyword">for</span> cc <span class="keyword">in</span> sorted(cc_list):</span><br><span class="line">            future = executor.submit(download_one, cc)</span><br><span class="line">            to_do[future] = cc</span><br><span class="line">            msg = <span class="string">"Scheduled for &#123;&#125;: &#123;&#125;"</span></span><br><span class="line">            print(msg.format(cc, future))</span><br><span class="line">        results = []</span><br><span class="line">        <span class="keyword">for</span> future <span class="keyword">in</span> futures.as_completed(to_do):</span><br><span class="line">            res = future.result()</span><br><span class="line">            msg = <span class="string">"&#123;&#125; result: &#123;!r&#125;"</span></span><br><span class="line">            print(msg.format(future, res))</span><br><span class="line">            results.append(res)</span><br><span class="line">        <span class="keyword">return</span> len(results)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    main(download_many_ac)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果：</span></span><br><span class="line">Scheduled <span class="keyword">for</span> BR: &lt;Future at <span class="number">0x1cbca5ab0f0</span> state=running&gt;</span><br><span class="line">Scheduled <span class="keyword">for</span> CN: &lt;Future at <span class="number">0x1cbcb339b00</span> state=running&gt;</span><br><span class="line">Scheduled <span class="keyword">for</span> ID: &lt;Future at <span class="number">0x1cbcb3490f0</span> state=running&gt;</span><br><span class="line">Scheduled <span class="keyword">for</span> IN: &lt;Future at <span class="number">0x1cbcb349748</span> state=pending&gt;</span><br><span class="line">Scheduled <span class="keyword">for</span> US: &lt;Future at <span class="number">0x1cbcb3497f0</span> state=pending&gt;</span><br><span class="line">CN &lt;Future at <span class="number">0x1cbcb339b00</span> state=finished returned str&gt; result: <span class="string">'CN'</span></span><br><span class="line">BR &lt;Future at <span class="number">0x1cbca5ab0f0</span> state=finished returned str&gt; result: <span class="string">'BR'</span></span><br><span class="line">IN &lt;Future at <span class="number">0x1cbcb349748</span> state=finished returned str&gt; result: <span class="string">'IN'</span></span><br><span class="line">US &lt;Future at <span class="number">0x1cbcb3497f0</span> state=finished returned str&gt; result: <span class="string">'US'</span></span><br><span class="line">ID &lt;Future at <span class="number">0x1cbcb3490f0</span> state=finished returned str&gt; result: <span class="string">'ID'</span></span><br><span class="line"></span><br><span class="line"><span class="number">5</span> flags downloaded <span class="keyword">in</span> <span class="number">2.39</span>s  <span class="comment"># 20个一起下载只需要1.6s左右</span></span><br></pre></td></tr></table></figure>
+<p><strong>解释</strong>：</p>
+<ul>
+<li>在<code>concurrent.futures</code>中有一个名为<code>Executor</code>的抽象基类，由它定义执行异步操作的接口。在这个模块中有它的两个具体类：的<code>ThreadPoolExecutor</code>和<code>ProcessPoolExecutor</code>，前者是线程，后者是进程。<code>Executor</code>的第一个参数指定最大运行线程数。</li>
+<li><code>Executor.submit(func, *args, **kwargs)</code>方法会在线程中执行<code>func(*args, **kwargs)</code>，它将这个方法<strong>封装成<code>Future</code>对象并返回</strong>(假设这个实例叫做<code>future</code>)。<code>submit</code>方法会对<code>future</code>进行排期，如果运行的线程数没达到最大线程数，则<code>future</code>会被<strong>立即运行</strong>，并将其状态置为<code>running</code>；否则就<strong>等待</strong>，并将其状态置为<code>pending</code>。<strong>这同时也表明，线程在<code>submit</code>方法中启动</strong>。</li>
+<li><code>futures.as_completed</code>函数的第一个参数是一个<code>future</code>序列，在内部会被转换成<code>set</code>。它返回一个迭代器，在<code>future</code>运行结束后产出<code>future</code>。在使用这个函数时还有一个惯用方法：将<code>future</code>放到一个字典中。因为<code>as_completed</code>返回的<code>future</code>的顺序不一定是传入时的顺序，使用字典可以很轻松的做一些后续处理。</li>
+<li>上述代码中，从第31-35行的最开始两个字母是由<code>show</code>函数输出的。光看上述结果，会让人觉得线程是在<code>as_completed</code>中启动的，而之所以结果输出得这么整齐，是因为<code>for</code>循环里只是“提交”，实际运行是在线程中。如果在每次循环最后都执行<code>sleep(2)</code>，你将会看到这样的结果： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.2</span></span><br><span class="line">Scheduled <span class="keyword">for</span> BR: &lt;Future at <span class="number">0x13e6b30b2b0</span> state=running&gt;</span><br><span class="line">BR Scheduled <span class="keyword">for</span> CN: &lt;Future at <span class="number">0x13e6b5820b8</span> state=running&gt;</span><br><span class="line">CN Scheduled <span class="keyword">for</span> ID: &lt;Future at <span class="number">0x13e6c099278</span> state=running&gt;</span><br><span class="line">-- snip --</span><br></pre></td></tr></table></figure></li>
+<li><code>concurrent.futures.Future</code>有一个<strong><code>result</code>方法，它返回<code>future</code>中可调用对象运行完成后的结果，或者重新抛出可调用对象运行时的异常</strong>。如果<code>future</code>还未运行完成，调用<code>future.result()</code>将<strong>阻塞调用方所在的线程</strong>，直到有结果可返回；它还可以接受一个<code>timeout</code>参数用于指定运行时间，如果在<code>timeout</code>时间内<code>future</code>没有运行完毕，将抛出<code>TimeoutError</code>异常。</li>
+</ul>
+<h2 id="executor.map">3.2 Executor.map</h2>
+<p>在<code>代码3.1</code>中，我们自行提交线程，其实，上述可改为更简洁的版本：使用<code>Executor.map</code>批量提交，只需要新建一个<code>download_many</code>函数，其余不变：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.3</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">download_many</span><span class="params">(cc_list)</span>:</span></span><br><span class="line">    <span class="keyword">with</span> futures.ThreadPoolExecutor(len(cc_list)) <span class="keyword">as</span> executor:</span><br><span class="line">        res = executor.map(download_one, sorted(cc_list))</span><br><span class="line">    <span class="keyword">return</span> len(list(res))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果：</span></span><br><span class="line">JP RUBR  EG CN VN BD TR FR ID NG DE IN PK ET PH IR US CD MX </span><br><span class="line"><span class="number">20</span> flags downloaded <span class="keyword">in</span> <span class="number">1.69</span>s</span><br></pre></td></tr></table></figure>
+<p><code>Executor.map()</code>方法和内置的<code>map</code>函数类似，它将第一个参数(可调用对象)映射到第二个参数(可迭代对象)的每一个元素上以创建<code>Future</code>列表。<code>Executor.map()</code>方法内部也是通过调用<code>Future.submit</code>来创建<code>Future</code>对象。</p>
+<h2 id="比较">3.3 比较</h2>
+<p>从上面代码可以看出，虽然使用<code>Executor.map()</code>的代码量比较少，但<code>Executor.submit()</code>和<code>futures.as_completed()</code>的组合更灵活。</p>
+<p><code>Executor.map()</code>更适合于需要批量处理的情况，比如同一函数(或者可调用对象)不同参数。而<code>Executor.submit()</code>则更适合于零散的情况，比如不同函数同一参数，不同函数不同参数，甚至两个线程毫无关联。</p>
+<h1 id="补充">4. 补充</h1>
+<p>本文主体部分已经结束，下面是一些补充。</p>
+<h2 id="io密集型和gil">4.1 I/O密集型和GIL</h2>
+<p>CPython本身并不是线程安全的，因此有全局解释器锁(Global Interpreter Lock, GIL)，一次只允许使用一个线程执行Python字节码。</p>
+<p>以这个为基础，按理说上述所有代码将都不能并行下载，因为一次只能运行一个线程，并且线程版本的运行时间应该比顺序版本的还要多才对(线程切换耗时)。但结果也表明，两个线程版本的耗时都大大降低了。</p>
+<p>这是因为，Python标准库中所有执行阻塞型I/O操作的函数，在等待操作系统返回结果时都会释放GIL。这就意味着，GIL几乎对I/O密集型处理并没有什么影响，依然可以使用多线程。</p>
+<h2 id="cpu密集型">4.2 CPU密集型</h2>
+<p><code>concurrent.futures</code>中还有一个<code>ProcessPoolExecutor</code>类，它实现的是真正的<strong>并行计算</strong>。它和<code>ThreadPoolExecutro</code>一样，继承自<code>Executor</code>，两者实现了共同的接口，因此使用<code>concurrent.futures</code>编写的代码可以轻松地在线程版本与进程版本之间转换，比如要讲上述代码改为进程版本，只需更改<code>download_many()</code>中的一行代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.4</span></span><br><span class="line"><span class="keyword">with</span> futures.ThreadPoolExecutor(len(cc_list)) <span class="keyword">as</span> executor:</span><br><span class="line"><span class="comment"># 改为：</span></span><br><span class="line"><span class="keyword">with</span> futures.ProcessPoolExecutor() <span class="keyword">as</span> executor:</span><br></pre></td></tr></table></figure>
+<p>也可以指定进程数，但默认是<code>os.cpu_count()</code>的返回值，即电脑的CPU核心数。</p>
+<p>这个类非常适合于CPU密集型作业上。使用这个类实现的上述代码虽然比线程版本慢一些，但依然比顺序版本快很多。</p>
+<h2 id="进度条">4.3 进度条</h2>
+<p>如果你用最新版<code>pip</code>下载过第三方库，你会发现在下载时会有一个文字进度条。在Python中想要实现这种效果可以使用第三方库<code>tqdm</code>，以下是它的一个简单用法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 代码3.5</span></span><br><span class="line"><span class="keyword">import</span> tqdm</span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> sleep</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> tqdm.tqdm(range(<span class="number">1000</span>)):</span><br><span class="line">    sleep(<span class="number">0.01</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果：</span></span><br><span class="line"> <span class="number">40</span>%|████      |  <span class="number">400</span>/<span class="number">1000</span> [<span class="number">00</span>:<span class="number">10</span>&lt;<span class="number">00</span>:<span class="number">00</span>, <span class="number">98.11</span>it/s]</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/06/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF36-%E4%BD%BF%E7%94%A8future%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/" title="Python学习之路36-使用future处理并发">http://yoursite.com/2018/06/16/Python学习之路36-使用future处理并发/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E8%BF%9B%E9%98%B6/" rel="tag"># Python进阶</a>
+              <a href="/tags/future/" rel="tag"># future</a>
+              <a href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag"># 并发</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/06/12/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF35-%E5%8D%8F%E7%A8%8B/" rel="prev" title="Python学习之路35-协程">
+      <i class="fa fa-chevron-left"></i> Python学习之路35-协程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/06/18/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF37-%E4%BD%BF%E7%94%A8asyncio%E5%8C%85%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/" rel="next" title="Python学习之路37-使用asyncio包处理并发">
+      Python学习之路37-使用asyncio包处理并发 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#顺序执行"><span class="nav-text">2. 顺序执行</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#concurrent.futures"><span class="nav-text">3. concurrent.futures</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#futures.as_completed"><span class="nav-text">3.1 futures.as_completed</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#executor.map"><span class="nav-text">3.2 Executor.map</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#比较"><span class="nav-text">3.3 比较</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#补充"><span class="nav-text">4. 补充</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#io密集型和gil"><span class="nav-text">4.1 I&#x2F;O密集型和GIL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cpu密集型"><span class="nav-text">4.2 CPU密集型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进度条"><span class="nav-text">4.3 进度条</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/06/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF36-%E4%BD%BF%E7%94%A8future%E5%A4%84%E7%90%86%E5%B9%B6%E5%8F%91/";
+    this.page.identifier = "2018/06/16/Python学习之路36-使用future处理并发/";
+    this.page.title = "Python学习之路36-使用future处理并发";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

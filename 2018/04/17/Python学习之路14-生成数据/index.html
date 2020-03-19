@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《Python编程：从入门到实践》笔记。 从本篇起将用三篇的篇幅介绍如何用Python进行数据可视化。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python学习之路14-生成数据">
+<meta property="og:url" content="http://yoursite.com/2018/04/17/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《Python编程：从入门到实践》笔记。 从本篇起将用三篇的篇幅介绍如何用Python进行数据可视化。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828284/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/1523965060972.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828284/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/1523967507756.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828294/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/1523970221035.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828287/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/1523978508082.png">
+<meta property="article:published_time" content="2018-04-17T15:29:00.000Z">
+<meta property="article:modified_time" content="2018-04-17T10:29:00.000Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Python基础">
+<meta property="article:tag" content="数据可视化">
+<meta property="article:tag" content="matplotlib">
+<meta property="article:tag" content="pygal">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1527828284/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/1523965060972.png">
+
+<link rel="canonical" href="http://yoursite.com/2018/04/17/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python学习之路14-生成数据 | 嘴强黑铁</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">天下事以难而废者十之一，以惰而废者十之九</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/17/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python学习之路14-生成数据
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2018-04-17 23:29:00 / 修改时间：18:29:00" itemprop="dateCreated datePublished" datetime="2018-04-17T23:29:00+08:00">2018-04-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/Python%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">Python基础</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-users"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="firestore-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2018/04/17/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/04/17/Python学习之路14-生成数据/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《Python编程：从入门到实践》笔记。 从本篇起将用三篇的篇幅介绍如何用Python进行数据可视化。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="前言">1. 前言</h1>
+<p>从本篇开始，我们将用三篇的篇幅来初步介绍如何使用Python来进行数据可视化操作。本篇的内容包括：</p>
+<ul>
+<li>绘制简单的折线图；</li>
+<li>随机漫步；</li>
+<li>使用<code>Pygal</code>模拟掷骰子。</li>
+</ul>
+<p>在正式开始之前，需要安装两个扩展包：<code>matplotlib</code>和<code>pygal</code>。Python中安装第三方库的方式已在上一个项目中介绍过了，这里不再赘述。</p>
+<h1 id="绘制简单的折线图">2. 绘制简单的折线图</h1>
+<h2 id="简单的折线图">2.1 简单的折线图</h2>
+<p>首先我们绘制一个简单的折线图，代码保存到<code>mpl_squares.py</code>文件中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输入数据, x轴</span></span><br><span class="line">input_values = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment"># 输出数据, y轴</span></span><br><span class="line">squares = [<span class="number">1</span>, <span class="number">4</span>, <span class="number">9</span>, <span class="number">16</span>, <span class="number">25</span>]</span><br><span class="line"><span class="comment"># linewidth表示线条的粗细</span></span><br><span class="line">plt.plot(input_values, squares, linewidth=<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置图标标题，并给坐标轴加上标签</span></span><br><span class="line">plt.title(<span class="string">"Square Numbers"</span>, fontsize=<span class="number">24</span>)</span><br><span class="line">plt.xlabel(<span class="string">"Value"</span>, fontsize=<span class="number">14</span>)</span><br><span class="line">plt.ylabel(<span class="string">"Square of Value"</span>, fontsize=<span class="number">14</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置刻度标记的大小</span></span><br><span class="line">plt.tick_params(axis=<span class="string">"both"</span>, labelsize=<span class="number">14</span>)</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p><code>matplotlib.pyplot.plot()</code>函数可以只传入一个<code>squares</code>参数，表示<code>y</code>轴的值，此时将从<code>x</code>轴0点处开始一一对应。有时这样很简便，但在此例中图标将不正确，所以我们传入了<code>input_values</code>列表，将其与<code>squares</code>列表一一对应。</p>
+<p>代码从第10行到15行都可以省了，这些代码只是让图表的信息更全。最终的结果如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828284/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/1523965060972.png" /></p>
+<h2 id="生成散点图">2.2 生成散点图</h2>
+<p>我们使用<code>matplotlib.pyplot</code>中的<code>scatter()</code>函数来生成散点图，将代码保存到<code>scatter_squares.py</code>文件中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">x_values = list(range(<span class="number">1</span>, <span class="number">1001</span>))</span><br><span class="line">y_values = [x ** <span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> x_values]</span><br><span class="line"></span><br><span class="line"><span class="comment"># s表示点的大小，edgecolor表示点的轮廓的颜色,c表示数据点的颜色(可以使用RGB颜色)</span></span><br><span class="line"><span class="comment"># plt.scatter(x_values, y_values, s=4, edgecolor="none", c="red")</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用渐变色, 给c赋值了一个y值列表，并使用参数cmap告诉pylot使用哪个颜色来映射</span></span><br><span class="line">plt.scatter(x_values, y_values, s=<span class="number">40</span>, edgecolor=<span class="string">"none"</span>, c=y_values, cmap=plt.cm.Blues)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置图表标题并给坐标轴加上标签</span></span><br><span class="line">plt.title(<span class="string">"Square Number"</span>, fontsize=<span class="number">24</span>)</span><br><span class="line">plt.xlabel(<span class="string">"Value"</span>, fontsize=<span class="number">14</span>)</span><br><span class="line">plt.ylabel(<span class="string">"Square of Value"</span>, fontsize=<span class="number">14</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置刻度的大小</span></span><br><span class="line">plt.tick_params(axis=<span class="string">"both"</span>, which=<span class="string">"major"</span>, labelsize=<span class="number">14</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 每个坐标轴的取值范围</span></span><br><span class="line">plt.axis([<span class="number">0</span>, <span class="number">1100</span>, <span class="number">0</span>, <span class="number">1100000</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第一个参数是路径名，第二个参数指定将图表多余的空白区域裁减掉。</span></span><br><span class="line">plt.savefig(<span class="string">"squares.png"</span>, bbox_inches=<span class="string">"tight"</span>)</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p>我们使用了列表生成式来生成y轴的数据，并使用渐变色来绘制图像，<code>matplotlib.pyplot.cm.Blues</code>是<code>matplotlib</code>自带的渐变色，它和<code>c</code>的每一个值对应。通过<code>pyplot</code>的<code>axis()</code>函数来设置每个轴的取值范围。最后将图像保存到本地。生成的图像如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828284/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/1523967507756.png" /></p>
+<h1 id="随机漫步">3. 随机漫步</h1>
+<p>随机漫步指的是：每次行走都完全随机，没有明确的方向，结果是由一系列随机决策决定的。在自然界、物理学、生物学、化学和经济领域，随机漫步都有其实际用途。</p>
+<p>使用Python生成随机漫步数据，再使用<code>matplotlib</code>将这些数据绘制出来。首先创建<code>RandomWalk</code>类，代码保存到<code>random_walk.py</code>文件中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> random <span class="keyword">import</span> choice</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RandomWalk</span>:</span></span><br><span class="line">    <span class="string">"""一个生成随机漫步数据的类"""</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, num_points=<span class="number">5000</span>)</span>:</span></span><br><span class="line">        <span class="string">"""初始化随机漫步的属性"""</span></span><br><span class="line">        self.num_points = num_points</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 所有随机漫步都始于(0, 0)，这两个列表用于存储随机漫步数据</span></span><br><span class="line">        self.x_values = [<span class="number">0</span>]</span><br><span class="line">        self.y_values = [<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fill_walk</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""计算随机漫步包含的所有点"""</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 不断漫步，直到列表到达指定的长度</span></span><br><span class="line">        <span class="keyword">while</span> len(self.x_values) &lt; self.num_points:</span><br><span class="line">            <span class="comment"># 决定前进方向以及沿这个方向前进的距离</span></span><br><span class="line">            <span class="comment"># 通过choice从给定值中随机选取</span></span><br><span class="line">            x_direction = choice([<span class="number">1</span>, <span class="number">-1</span>])  <span class="comment"># 正向还是负向</span></span><br><span class="line">            x_distance = choice([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])  <span class="comment"># 移动的距离</span></span><br><span class="line">            x_step = x_direction * x_distance</span><br><span class="line"></span><br><span class="line">            y_direction = choice([<span class="number">1</span>, <span class="number">-1</span>])</span><br><span class="line">            y_distance = choice([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])</span><br><span class="line">            y_step = y_direction * y_distance</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 拒绝原地踏步</span></span><br><span class="line">            <span class="keyword">if</span> x_step == <span class="number">0</span> <span class="keyword">and</span> y_step == <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># 计算下一个点的坐标</span></span><br><span class="line">            next_x = self.x_values[<span class="number">-1</span>] + x_step</span><br><span class="line">            next_y = self.y_values[<span class="number">-1</span>] + y_step</span><br><span class="line"></span><br><span class="line">            self.x_values.append(next_x)</span><br><span class="line">            self.y_values.append(next_y)</span><br></pre></td></tr></table></figure>
+<p>下面的代码用于生成随机漫步图像，代码保存到<code>rw_visual.py</code>文件中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">from</span> random_walk <span class="keyword">import</span> RandomWalk</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    rw = RandomWalk(<span class="number">50000</span>)</span><br><span class="line">    rw.fill_walk()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 设置绘图窗口的尺寸</span></span><br><span class="line">    plt.figure(figsize=(<span class="number">10</span>, <span class="number">6</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绘制随机漫步的图像</span></span><br><span class="line">    point_number = list(range(rw.num_points))</span><br><span class="line">    plt.scatter(rw.x_values, rw.y_values, s=<span class="number">1</span>, c=point_number,</span><br><span class="line">                edgecolors=<span class="string">"none"</span>, cmap=plt.cm.Blues)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 突出起点和终点</span></span><br><span class="line">    plt.scatter(<span class="number">0</span>, <span class="number">0</span>, c=<span class="string">"green"</span>, edgecolors=<span class="string">"none"</span>, s=<span class="number">100</span>)</span><br><span class="line">    plt.scatter(rw.x_values[<span class="number">-1</span>], rw.y_values[<span class="number">-1</span>], c=<span class="string">"red"</span>, edgecolors=<span class="string">"none"</span>,</span><br><span class="line">                s=<span class="number">100</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 隐藏坐标轴</span></span><br><span class="line">    plt.axes().get_xaxis().set_visible(<span class="literal">False</span>)</span><br><span class="line">    plt.axes().get_yaxis().set_visible(<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">    plt.show()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> input(<span class="string">"Make another walk?(y/n)"</span>) == <span class="string">"n"</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+<p>程序通过一个循环类多次绘制随机漫步图；通过<code>pyplot</code>的<code>figure()</code>函数来设置图像的尺寸，<code>figsize</code>的单位是英寸；通过渐变色来绘制图像的路径，颜色由浅到深，并且我们将起点（绿色）和终点（红色）显著标出；最后隐藏坐标轴。最终的图像如下（每次运行的效果都不同）：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828294/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/1523970221035.png" /></p>
+<h1 id="使用pygal模拟掷骰子">4. 使用Pygal模拟掷骰子</h1>
+<p>首先我们需要创建一个骰子类<code>Dice</code>，将其保存到<code>dice.py</code>中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> random <span class="keyword">import</span> randint</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dice</span>:</span></span><br><span class="line">    <span class="string">"""表示一个骰子类"""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, num_sides=<span class="number">6</span>)</span>:</span></span><br><span class="line">        <span class="string">"""骰子默认为6面"""</span></span><br><span class="line">        self.num_sides = num_sides</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">roll</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""返回一个位于1和骰子面数之间的随机值"""</span></span><br><span class="line">        <span class="keyword">return</span> randint(<span class="number">1</span>, self.num_sides)</span><br></pre></td></tr></table></figure>
+<p>可以自行设定骰子的面数。下面是掷两个骰子50000次，统计俩骰子点数之和的分布的模拟，最后生成了一个矢量文件<code>.svg</code>文件，它能在浏览器中打开，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pygal</span><br><span class="line"><span class="keyword">from</span> dice <span class="keyword">import</span> Dice</span><br><span class="line"></span><br><span class="line">dice_1 = Dice()</span><br><span class="line">dice_2 = Dice(<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 掷骰子多次，并将结果存储在一个列表中</span></span><br><span class="line">results = []</span><br><span class="line"><span class="keyword">for</span> roll_num <span class="keyword">in</span> range(<span class="number">50000</span>):</span><br><span class="line">    results.append(dice_1.roll() + dice_2.roll())</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分析结果</span></span><br><span class="line">frequences = []</span><br><span class="line"><span class="comment"># 能够模拟掷任何双骰子的情况，不管这些骰子有多少面</span></span><br><span class="line">max_result = dice_1.num_sides + dice_2.num_sides</span><br><span class="line"><span class="keyword">for</span> value <span class="keyword">in</span> range(<span class="number">2</span>, max_result + <span class="number">1</span>):</span><br><span class="line">    <span class="comment"># 统计每个结果的频数</span></span><br><span class="line">    frequences.append(results.count(value))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对结果进行可视化</span></span><br><span class="line"><span class="comment"># 创建条形图</span></span><br><span class="line">hist = pygal.Bar()</span><br><span class="line"></span><br><span class="line">hist.title = <span class="string">"Result of rolling a D6 and a D10 50000 times."</span></span><br><span class="line"><span class="comment"># 创建x轴上的刻度</span></span><br><span class="line">hist.x_labels = [str(value) <span class="keyword">for</span> value <span class="keyword">in</span> range(<span class="number">2</span>, max_result + <span class="number">1</span>)]</span><br><span class="line">hist.x_title = <span class="string">"Result"</span></span><br><span class="line">hist.y_title = <span class="string">"Frequency of Result"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 给这组数据起个名字，并加到图表中</span></span><br><span class="line">hist.add(<span class="string">"D6 + D10"</span>, frequences)</span><br><span class="line"><span class="comment"># 将图像渲染为svg文件，矢量图</span></span><br><span class="line">hist.render_to_file(<span class="string">"dice_visual.svg"</span>)</span><br></pre></td></tr></table></figure>
+<p>注意，<code>frequences</code>中的数据依次与<code>hist.x_labels</code>对应。下面是最终结果：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1527828287/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/1523978508082.png" /></p>
+<p><code>Pygal</code>让这个图表具有交互性：如果你将鼠标指向该图中的任何数据条，将看到它的具体数据。</p>
+<h1 id="小结">5. 小结</h1>
+<p>本篇主要讲述了：</p>
+<ul>
+<li>如何生成数据集以及如何对其进行可视化；</li>
+<li>如何使用<code>matplotlib</code>创建简单的图表；</li>
+<li>如果使用散点图来探索随机漫步过程；</li>
+<li>如何使用<code>Pygal</code>创建直方图，以及如何使用直方图来探索同时掷两个面数不同的骰子的结果。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2018/04/17/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/" title="Python学习之路14-生成数据">http://yoursite.com/2018/04/17/Python学习之路14-生成数据/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/Python%E5%9F%BA%E7%A1%80/" rel="tag"># Python基础</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag"># 数据可视化</a>
+              <a href="/tags/matplotlib/" rel="tag"># matplotlib</a>
+              <a href="/tags/pygal/" rel="tag"># pygal</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/04/16/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF13-%E8%AE%B0%E5%88%86/" rel="prev" title="Python学习之路13-记分">
+      <i class="fa fa-chevron-left"></i> Python学习之路13-记分
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/04/18/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF15-%E4%B8%8B%E8%BD%BD%E6%95%B0%E6%8D%AE/" rel="next" title="Python学习之路15-下载数据">
+      Python学习之路15-下载数据 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">1. 前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#绘制简单的折线图"><span class="nav-text">2. 绘制简单的折线图</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简单的折线图"><span class="nav-text">2.1 简单的折线图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成散点图"><span class="nav-text">2.2 生成散点图</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#随机漫步"><span class="nav-text">3. 随机漫步</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用pygal模拟掷骰子"><span class="nav-text">4. 使用Pygal模拟掷骰子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-text">5. 小结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : 'AIzaSyAFOq7uv-psl3oHDz6tH-04ndS8j9Q_BQY',
+      projectId: 'zuiqiangiron'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://yoursite.com/2018/04/17/Python%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF14-%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE/";
+    this.page.identifier = "2018/04/17/Python学习之路14-生成数据/";
+    this.page.title = "Python学习之路14-生成数据";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>
