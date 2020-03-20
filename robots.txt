@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /categories/
+Allow: /archives/
+Allow: /tags/
+
+Disallow: /js/
+Disallow: /css/
+
+Sitemap: https://www.zuiqiangiron.xyz/sitemap.xml
