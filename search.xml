@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>LeetCode 1351.统计有序矩阵中的负数</title>
+    <url>/2020/03/21/LeetCode%201351.%E7%BB%9F%E8%AE%A1%E6%9C%89%E5%BA%8F%E7%9F%A9%E9%98%B5%E4%B8%AD%E7%9A%84%E8%B4%9F%E6%95%B0/</url>
+    <content><![CDATA[<blockquote>
+<p>LeetCode刷题记。</p>
+<p><a href="https://leetcode.com/problems/count-negative-numbers-in-a-sorted-matrix/" target="_blank" rel="noopener">1351.统计有序矩阵中的负数</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="题目描述">1. 题目描述</h1>
+<p>给你一个 <code>m * n</code> 的矩阵 <code>grid</code>，矩阵中的元素无论是按行还是按列，都以非递增顺序排列。</p>
+<p>请你统计并返回 <code>grid</code> 中 <strong>负数</strong> 的数目。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：grid &#x3D; [[4,3,2,-1],[3,2,1,-1],[1,1,-1,-2],[-1,-1,-2,-3]]</span><br><span class="line">输出：8</span><br><span class="line">解释：矩阵中共有 8 个负数。</span><br></pre></td></tr></table></figure>
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：grid &#x3D; [[3,2],[1,0]]</span><br><span class="line">输出：0</span><br></pre></td></tr></table></figure>
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：grid &#x3D; [[1,-1],[-1,-1]]</span><br><span class="line">输出：3</span><br></pre></td></tr></table></figure>
+<p><strong>示例 4：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：grid &#x3D; [[-1]]</span><br><span class="line">输出：1</span><br></pre></td></tr></table></figure>
+<p><strong>提示：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">m &#x3D;&#x3D; grid.length</span><br><span class="line">n &#x3D;&#x3D; grid[i].length</span><br><span class="line">1 &lt;&#x3D; m, n &lt;&#x3D; 100</span><br><span class="line">-100 &lt;&#x3D; grid[i][j] &lt;&#x3D; 100</span><br></pre></td></tr></table></figure>
+<h1 id="解题思路">2. 解题思路</h1>
+<p>两种写法，一个是双层循环，一个是单层循环，但都是双百。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 双层循环</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">countNegatives</span><span class="params">(<span class="keyword">int</span>[][] grid)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> rows = grid.length;</span><br><span class="line">        <span class="keyword">int</span> cols = grid[<span class="number">0</span>].length;</span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; rows; ++i) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = cols - <span class="number">1</span>; j &gt;= <span class="number">0</span>; --j) &#123;</span><br><span class="line">                <span class="keyword">if</span> (grid[i][j] &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                    count += rows - i;</span><br><span class="line">                    --cols;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 单层循环</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">countNegatives</span><span class="params">(<span class="keyword">int</span>[][] grid)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> m = grid.length;</span><br><span class="line">        <span class="keyword">int</span> n = grid[<span class="number">0</span>].length;</span><br><span class="line">        <span class="comment">// start from bottom left</span></span><br><span class="line">        <span class="keyword">int</span> r = grid.length - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> neg_count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (r &gt;= <span class="number">0</span> &amp;&amp; c &lt; n) &#123;</span><br><span class="line">            <span class="keyword">if</span> (grid[r][c] &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                r--;</span><br><span class="line">                neg_count += n - c;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                c++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> neg_count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>算法题</category>
+        <category>益智类</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Java</tag>
+        <tag>算法题</tag>
+        <tag>益智类</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LeetCode 1266.访问所有点的最小时间</title>
     <url>/2020/03/11/LeetCode%201266.%E8%AE%BF%E9%97%AE%E6%89%80%E6%9C%89%E7%82%B9%E7%9A%84%E6%9C%80%E5%B0%8F%E6%97%B6%E9%97%B4/</url>
     <content><![CDATA[<blockquote>
@@ -25,13 +61,14 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">rangeSumBST2</span><span class="params">(TreeNode root, <span class="keyword">int</span> L, <span class="keyword">int</span> R)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> times = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; points.length; ++i) &#123;</span><br><span class="line">            times += Math.max(Math.abs(points[i][<span class="number">0</span>] - points[i - <span class="number">1</span>][<span class="number">0</span>]), Math.abs(points[i][<span class="number">1</span>] - points[i - <span class="number">1</span>][<span class="number">1</span>]));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> times;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>LeetCode</category>
+        <category>算法题</category>
+        <category>切比雪夫距离</category>
       </categories>
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>算法</tag>
         <tag>切比雪夫距离</tag>
+        <tag>算法题</tag>
       </tags>
   </entry>
   <entry>
@@ -54,14 +91,14 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">rangeSumBST</span><span class="params">(TreeNode root, <span class="keyword">int</span> L, <span class="keyword">int</span> R)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (root == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (root.val &lt; L)&#123;</span><br><span class="line">            <span class="keyword">return</span> rangeSumBST(root.right, L, R);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span>(root.val &gt; R)&#123;</span><br><span class="line">            <span class="keyword">return</span> rangeSumBST(root.left, L, R);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> root.val + rangeSumBST(root.left, L, R) + rangeSumBST(root.right, L, R);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>LeetCode</category>
+        <category>算法题</category>
         <category>二叉树</category>
       </categories>
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>算法</tag>
         <tag>二叉树</tag>
+        <tag>算法题</tag>
       </tags>
   </entry>
   <entry>
@@ -91,14 +128,15 @@
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> List</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decompressRLElist</span><span class="params">(nums: List[int])</span> -&gt; List[int]:</span></span><br><span class="line">    <span class="keyword">return</span> [nums[<span class="number">2</span> * i + <span class="number">1</span>] <span class="keyword">for</span> i <span class="keyword">in</span> range(int(len(nums) / <span class="number">2</span>)) <span class="keyword">for</span> j <span class="keyword">in</span> range(nums[<span class="number">2</span> * i])]</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>LeetCode</category>
+        <category>数据结构题</category>
+        <category>Arrays</category>
       </categories>
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>算法</tag>
         <tag>Python</tag>
         <tag>Arrays</tag>
+        <tag>数据结构</tag>
       </tags>
   </entry>
   <entry>
@@ -141,7 +179,7 @@
 <p>空间复杂度：<span class="math inline">\(O(n)\)</span></p>
 ]]></content>
       <categories>
-        <category>LeetCode</category>
+        <category>算法题</category>
         <category>排序</category>
       </categories>
       <tags>
@@ -149,6 +187,7 @@
         <tag>Java</tag>
         <tag>算法</tag>
         <tag>Python</tag>
+        <tag>排序</tag>
       </tags>
   </entry>
   <entry>
