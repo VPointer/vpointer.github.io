@@ -1,6 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>LeetCode 1370.上升下降字符串</title>
+    <url>/2020/03/22/LeetCode%201370.%E4%B8%8A%E5%8D%87%E4%B8%8B%E9%99%8D%E5%AD%97%E7%AC%A6%E4%B8%B2/</url>
+    <content><![CDATA[<blockquote>
+<p>LeetCode刷题记。</p>
+<p><a href="https://leetcode.com/problems/increasing-decreasing-string/" target="_blank" rel="noopener">1370.上升下降字符串</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="题目描述">题目描述</h1>
+<p>给你一个字符串 <code>s</code> ，请你根据下面的算法重新构造字符串：</p>
+<ol type="1">
+<li>从<code>s</code> 中选出 最小 的字符，将它 接在 结果字符串的后面。</li>
+<li>从<code>s</code> 剩余字符中选出 最小 的字符，且该字符比上一个添加的字符大，将它 接在 结果字符串后面。</li>
+<li>重复步骤 2 ，直到你没法从 s 中选择字符。</li>
+<li>从 s 中选出 最大 的字符，将它 接在 结果字符串的后面。</li>
+<li>从 s 剩余字符中选出 最大 的字符，且该字符比上一个添加的字符小，将它 接在 结果字符串后面。</li>
+<li>重复步骤 5 ，直到你没法从 s 中选择字符。</li>
+<li>重复步骤 1 到 6 ，直到 s 中所有字符都已经被选过。</li>
+</ol>
+<p>在任何一步中，如果最小或者最大字符不止一个 ，你可以选择其中任意一个，并将其添加到结果字符串。</p>
+<p>请你返回将 s 中字符重新排序后的 结果字符串 。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：s &#x3D; &quot;aaaabbbbcccc&quot;</span><br><span class="line">输出：&quot;abccbaabccba&quot;</span><br><span class="line">解释：第一轮的步骤 1，2，3 后，结果字符串为 result &#x3D; &quot;abc&quot;</span><br><span class="line">第一轮的步骤 4，5，6 后，结果字符串为 result &#x3D; &quot;abccba&quot;</span><br><span class="line">第一轮结束，现在 s &#x3D; &quot;aabbcc&quot; ，我们再次回到步骤 1</span><br><span class="line">第二轮的步骤 1，2，3 后，结果字符串为 result &#x3D; &quot;abccbaabc&quot;</span><br><span class="line">第二轮的步骤 4，5，6 后，结果字符串为 result &#x3D; &quot;abccbaabccba&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：s &#x3D; &quot;rat&quot;</span><br><span class="line">输出：&quot;art&quot;</span><br><span class="line">解释：单词 &quot;rat&quot; 在上述算法重排序以后变成 &quot;art&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：s &#x3D; &quot;leetcode&quot;</span><br><span class="line">输出：&quot;cdelotee&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>示例 4：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：s &#x3D; &quot;ggggggg&quot;</span><br><span class="line">输出：&quot;ggggggg&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>示例 5：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：s &#x3D; &quot;spo&quot;</span><br><span class="line">输出：&quot;ops&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>1 &lt;= s.length &lt;= 500</code></li>
+<li><code>s</code>只包含小写英文字母。</li>
+</ul>
+<h1 id="解题思路">解题思路</h1>
+<p>两个思路：</p>
+<ol type="1">
+<li>按照题目中的流程描述走；</li>
+<li>定义一排桶，反复遍历；</li>
+<li>排序</li>
+</ol>
+<h2 id="方法1按题中描述的流程">方法1：按题中描述的流程</h2>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">sortString</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = s.length();</span><br><span class="line">        <span class="keyword">int</span>[] mark = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line">        <span class="keyword">var</span> s_chars = s.toCharArray();</span><br><span class="line">        Arrays.sort(s_chars); <span class="comment">// 先将字符串排序</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">char</span>[] rst = Arrays.copyOf(s_chars, len);</span><br><span class="line">        mark[<span class="number">0</span>] = <span class="number">1</span>; <span class="comment">// 第一个位置已经排好</span></span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> pre = s_chars[<span class="number">0</span>]; <span class="comment">// 需要和前一个位置的字符进行比较</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (i &lt; len) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt; len; ++j) &#123; <span class="comment">// 题中步骤1-3</span></span><br><span class="line">                <span class="keyword">if</span> (s_chars[j] != pre &amp;&amp; mark[j] == <span class="number">0</span>) &#123;</span><br><span class="line">                    rst[i++] = s_chars[j];</span><br><span class="line">                    mark[j] = <span class="number">1</span>;</span><br><span class="line">                    pre = s_chars[j];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (i &gt;= len) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            pre = -<span class="number">1</span>; <span class="comment">// 重制pre</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = len - <span class="number">1</span>; j &gt;= <span class="number">0</span>; --j) &#123; <span class="comment">// 题中步骤4-6</span></span><br><span class="line">                <span class="keyword">if</span> (s_chars[j] != pre &amp;&amp; mark[j] == <span class="number">0</span>) &#123;</span><br><span class="line">                    rst[i++] = s_chars[j];</span><br><span class="line">                    mark[j] = <span class="number">1</span>;</span><br><span class="line">                    pre = s_chars[j];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (i &gt;= len) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            pre = -<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> String.copyValueOf(rst);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="方法2定义桶">方法2：定义桶</h2>
+<p>题中所述的方法归结起来无非就是：先按字符编码升序遍历，然后再降序遍历，然后反复进行，直到所有字符都被遍历到。这个过程，其实可以定义一排桶，26个英文字符，每个桶中保存的是该字符在<code>s</code>中剩余的出现次数。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">sortString</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] buckets = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">26</span>];</span><br><span class="line">        <span class="keyword">int</span> len = s.length();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">char</span> c : s.toCharArray()) &#123;</span><br><span class="line">            ++buckets[c - <span class="string">'a'</span>];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">char</span>[] rst = <span class="keyword">new</span> <span class="keyword">char</span>[len];</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> add = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; i &lt; len; ) &#123;</span><br><span class="line">            <span class="keyword">if</span> (buckets[j] != <span class="number">0</span>) &#123;</span><br><span class="line">                rst[i++] = (<span class="keyword">char</span>) (<span class="string">'a'</span> + j);</span><br><span class="line">                --buckets[j];</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            j += add;</span><br><span class="line">            <span class="comment">// 变换方向</span></span><br><span class="line">            <span class="keyword">if</span> (j == <span class="number">26</span>) &#123;</span><br><span class="line">                --j;</span><br><span class="line">                add = -<span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (j == -<span class="number">1</span>) &#123;</span><br><span class="line">                ++j;</span><br><span class="line">                add = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> String.valueOf(rst);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>算法题</category>
+        <category>排序</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Java</tag>
+        <tag>算法</tag>
+        <tag>Python</tag>
+        <tag>排序</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LeetCode 1351.统计有序矩阵中的负数</title>
     <url>/2020/03/21/LeetCode%201351.%E7%BB%9F%E8%AE%A1%E6%9C%89%E5%BA%8F%E7%9F%A9%E9%98%B5%E4%B8%AD%E7%9A%84%E8%B4%9F%E6%95%B0/</url>
     <content><![CDATA[<blockquote>
