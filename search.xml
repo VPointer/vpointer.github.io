@@ -1,6 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>LeetCode 1347. Minimum Number of Steps to Make Two Strings Anagram</title>
+    <url>/2020/03/26/LeetCode%201347.%20Minimum%20Number%20of%20Steps%20to%20Make%20Two%20Strings%20Anagram/</url>
+    <content><![CDATA[<blockquote>
+<p>LeetCode刷题记。</p>
+<p><a href="https://leetcode.com/problems/minimum-number-of-steps-to-make-two-strings-anagram/" target="_blank" rel="noopener">1347. Minimum Number of Steps to Make Two Strings Anagram</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="题目描述">题目描述</h1>
+<p>Given two equal-size strings <code>s</code> and <code>t</code>. In one step you can choose <strong>any character</strong> of <code>t</code> and replace it with <strong>another character</strong>.</p>
+<p>Return <em>the minimum number of steps</em> to make <code>t</code> an anagram of <code>s</code>.</p>
+<p>An <strong>Anagram</strong> of a string is a string that contains the same characters with a different (or the same) ordering.</p>
+<p><strong>Example 1:</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: s &#x3D; &quot;bab&quot;, t &#x3D; &quot;aba&quot;</span><br><span class="line">Output: 1</span><br><span class="line">Explanation: Replace the first &#39;a&#39; in t with b, t &#x3D; &quot;bba&quot; which is anagram of s.</span><br></pre></td></tr></table></figure>
+<p><strong>Example 2:</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: s &#x3D; &quot;leetcode&quot;, t &#x3D; &quot;practice&quot;</span><br><span class="line">Output: 5</span><br><span class="line">Explanation: Replace &#39;p&#39;, &#39;r&#39;, &#39;a&#39;, &#39;i&#39; and &#39;c&#39; from t with proper characters to make t anagram of s.</span><br></pre></td></tr></table></figure>
+<p><strong>Example 3:</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: s &#x3D; &quot;anagram&quot;, t &#x3D; &quot;mangaar&quot;</span><br><span class="line">Output: 0</span><br><span class="line">Explanation: &quot;anagram&quot; and &quot;mangaar&quot; are anagrams.</span><br></pre></td></tr></table></figure>
+<p><strong>Example 4:</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: s &#x3D; &quot;xxyyzz&quot;, t &#x3D; &quot;xxyyzz&quot;</span><br><span class="line">Output: 0</span><br></pre></td></tr></table></figure>
+<p><strong>Example 5:</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: s &#x3D; &quot;friend&quot;, t &#x3D; &quot;family&quot;</span><br><span class="line">Output: 4</span><br></pre></td></tr></table></figure>
+<p><strong>Constraints:</strong></p>
+<ul>
+<li><code>1 &lt;= s.length &lt;= 50000</code></li>
+<li><code>s.length == t.length</code></li>
+<li><code>s</code> and <code>t</code> contain lower-case English letters only.</li>
+</ul>
+<h1 id="解题思路">解题思路</h1>
+<p>创建一个桶<code>buckets</code>，记录每个字母在<code>s</code>中出现的次数，然后再遍历<code>t</code>字符串，减去<code>buckets</code>中相应的计数器。最后遍历桶，所有正值之和即为所求。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">minSteps</span><span class="params">(String s, String t)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] buckets = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">26</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">char</span> c : s.toCharArray()) &#123;</span><br><span class="line">            ++buckets[c - <span class="string">'a'</span>];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">char</span> c : t.toCharArray()) &#123;</span><br><span class="line">            --buckets[c - <span class="string">'a'</span>];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> b : buckets) &#123;</span><br><span class="line">            <span class="keyword">if</span> (b &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                sum += b;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> sum;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>算法题</category>
+        <category>桶</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Java</tag>
+        <tag>算法题</tag>
+        <tag>桶</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LeetCode 1008.先序遍历构造二叉搜索树</title>
+    <url>/2020/03/26/LeetCode%201008.%E5%85%88%E5%BA%8F%E9%81%8D%E5%8E%86%E6%9E%84%E9%80%A0%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/</url>
+    <content><![CDATA[<blockquote>
+<p>LeetCode刷题记。</p>
+<p><a href="https://leetcode.com/problems/construct-binary-search-tree-from-preorder-traversal/" target="_blank" rel="noopener">1008. Construct Binary Search Tree from Preorder Traversal</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="题目描述">题目描述</h1>
+<p>Return the root node of a binary <strong>search</strong> tree that matches the given <code>preorder</code> traversal.</p>
+<p><em>(Recall that a binary search tree is a binary tree where for every node, any descendant of <code>node.left</code> has a value <code>&lt;</code> <code>node.val</code>, and any descendant of <code>node.right</code> has a value <code>&gt;</code> <code>node.val</code>. Also recall that a preorder traversal displays the value of the <code>node</code> first, then traverses <code>node.left</code>, then traverses <code>node.right</code>.)</em></p>
+<p><strong>Example:</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: [8,5,1,7,10,12]</span><br><span class="line">Output: [8,5,10,1,7,null,12]</span><br></pre></td></tr></table></figure>
+<p><img src="https://assets.leetcode.com/uploads/2019/03/06/1266.png" style="zoom:50%;" /></p>
+<p><strong>Note:</strong></p>
+<ol type="1">
+<li><code>1 &lt;= preorder.length &lt;= 100</code></li>
+<li>The values of <code>preorder</code> are distinct.</li>
+</ol>
+<h1 id="解题思路">解题思路</h1>
+<p>如果学过数据结构，那么会知道，只有先序遍历是无法构造二叉树的，但如果该二叉树是二叉搜索树，则可以构造。构造过程就是根据输入数组第一个元素，将后续数组划分成两个部分分别递归：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> TreeNode <span class="title">bstFromPreorder</span><span class="params">(<span class="keyword">int</span>[] preorder)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> construct(preorder, <span class="number">0</span>, preorder.length);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> TreeNode <span class="title">construct</span><span class="params">(<span class="keyword">int</span>[] preorder, <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (low &gt;= high) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> middle = findMiddle(preorder, low, high);</span><br><span class="line">        <span class="keyword">var</span> node = <span class="keyword">new</span> TreeNode(preorder[low]);</span><br><span class="line">        node.left = construct(preorder, low + <span class="number">1</span>, middle);</span><br><span class="line">        node.right = construct(preorder, middle, high);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> node;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">findMiddle</span><span class="params">(<span class="keyword">int</span>[] preorder, <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = low + <span class="number">1</span>; i &lt; high; ++i) &#123;</span><br><span class="line">            <span class="keyword">if</span> (preorder[i] &gt; preorder[low]) &#123;</span><br><span class="line">                <span class="keyword">return</span> i;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> high; <span class="comment">// 注意这里</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>需要注意<code>findMiddle()</code>这个函数，最后，如果遍历完<code>preorder</code>都没有找到比开始元素大的元素，说明这是一棵单边二叉树。</p>
+]]></content>
+      <categories>
+        <category>算法题</category>
+        <category>二叉树</category>
+        <category>二叉搜索树</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Java</tag>
+        <tag>二叉树</tag>
+        <tag>算法题</tag>
+        <tag>二叉搜索树</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LeetCode 1329. Sort the Matrix Diagonally</title>
+    <url>/2020/03/26/LeetCode%201329.%20Sort%20the%20Matrix%20Diagonally/</url>
+    <content><![CDATA[<blockquote>
+<p>LeetCode刷题记。</p>
+<p><a href="https://leetcode.com/problems/sort-the-matrix-diagonally/" target="_blank" rel="noopener">1329. Sort the Matrix Diagonally</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="题目描述">题目描述</h1>
+<p>Given a <code>m * n</code> matrix <code>mat</code> of integers, sort it diagonally in ascending order from the top-left to the bottom-right then return the sorted array.</p>
+<p><strong>Example:</strong></p>
+<p><img src="https://assets.leetcode.com/uploads/2020/01/21/1482_example_1_2.png" /></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: mat &#x3D; [[3,3,1,1],[2,2,1,2],[1,1,1,2]]</span><br><span class="line">Output: [[1,1,1,1],[1,2,2,2],[1,2,3,3]]</span><br></pre></td></tr></table></figure>
+<p><strong>Constraints:</strong></p>
+<ul>
+<li><code>m == mat.length</code></li>
+<li><code>n == mat[i].length</code></li>
+<li><code>1 &lt;= m, n &lt;= 100</code></li>
+<li><code>1 &lt;= mat[i][j] &lt;= 100</code></li>
+</ul>
+<h1 id="解题思路">解题思路</h1>
+<p>我看到这个题的时候是懵逼的，能想到的做法就是按照图示的那种暴力解法。虽然看到某大神的解法，感叹原来还有这规律：<code>mat[i][j]</code>所在的对角线的编号是唯一的，它可由坐标相减，即<code>i - j</code>唯一表示。于是有了如下算法：</p>
+<h3 id="方法1">方法1:</h3>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[][] diagonalSort(<span class="keyword">int</span>[][] mat) &#123;</span><br><span class="line">        <span class="keyword">int</span> rows = mat.length, cols = mat[<span class="number">0</span>].length;</span><br><span class="line"></span><br><span class="line">        HashMap&lt;Integer, PriorityQueue&lt;Integer&gt;&gt; dia = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> r = <span class="number">0</span>; r &lt; rows; ++r) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> c = <span class="number">0</span>; c &lt; cols; ++c) &#123;</span><br><span class="line">                dia.putIfAbsent(r - c, <span class="keyword">new</span> PriorityQueue&lt;&gt;());</span><br><span class="line">                dia.get(r - c).add(mat[r][c]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> r = <span class="number">0</span>; r &lt; rows; ++r) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> c = <span class="number">0</span>; c &lt; cols; ++c) &#123;</span><br><span class="line">                mat[r][c] = dia.get(r - c).poll();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> mat;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法的优点在于好懂，但该方法并不是最快的，它的时间复杂度是<code>O(MNlogD), D=min(M, N)</code>，空间复杂度是<code>O(MN)</code>。</p>
+<p>以下是更快的算法：</p>
+<h3 id="方法2">方法2:</h3>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> TreeNode <span class="title">constructMaximumBinaryTree</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> construct(nums, <span class="number">0</span>, nums.length);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> TreeNode <span class="title">construct</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (low &gt;= high) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> tempMax = findMaxIndex(nums, low, high);</span><br><span class="line">        TreeNode node = <span class="keyword">new</span> TreeNode(nums[tempMax]);</span><br><span class="line">        node.left = construct(nums, low, tempMax);</span><br><span class="line">        node.right = construct(nums, tempMax + <span class="number">1</span>, high);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> node;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">findMaxIndex</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i = low;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = low + <span class="number">1</span>; j &lt; high; ++j) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[j] &gt; nums[i]) &#123;</span><br><span class="line">                i = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> i;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>算法题</category>
+        <category>益智类</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Java</tag>
+        <tag>算法题</tag>
+        <tag>益智类</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LeetCode 654. Maximum Binary Tree</title>
+    <url>/2020/03/26/LeetCode%20654.%20Maximum%20Binary%20Tree/</url>
+    <content><![CDATA[<blockquote>
+<p>LeetCode刷题记。</p>
+<p><a href="https://leetcode.com/problems/maximum-binary-tree/" target="_blank" rel="noopener">654. Maximum Binary Tree</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="题目描述">题目描述</h1>
+<p>Given an integer array with no duplicates. A maximum tree building on this array is defined as follow:</p>
+<ol type="1">
+<li>The root is the maximum number in the array.</li>
+<li>The left subtree is the maximum tree constructed from left part subarray divided by the maximum number.</li>
+<li>The right subtree is the maximum tree constructed from right part subarray divided by the maximum number.</li>
+</ol>
+<p>Construct the maximum tree by the given array and output the root node of this tree.</p>
+<p><strong>Example:</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: [3,2,1,6,0,5]</span><br><span class="line">Output: return the tree root node representing the following tree:</span><br><span class="line"></span><br><span class="line">      6</span><br><span class="line">    &#x2F;   \</span><br><span class="line">   3     5</span><br><span class="line">    \    &#x2F; </span><br><span class="line">     2  0   </span><br><span class="line">       \</span><br><span class="line">        1</span><br></pre></td></tr></table></figure>
+<p><strong>Note:</strong></p>
+<ol type="1">
+<li>The size of the given array will be in the range <code>[1,1000]</code>.</li>
+</ol>
+<h1 id="解题思路">解题思路</h1>
+<p>其实就是一边分割数组，一边构建二叉树。用最大数左边的数组构建一个二叉树作为左子树，最大数右边的数组构建一个二叉树作为右子树。以下是两种写法：</p>
+<h3 id="写法1">写法1:</h3>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode left;</span></span><br><span class="line"><span class="comment"> *     TreeNode right;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int x) &#123; val = x; &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> TreeNode <span class="title">constructMaximumBinaryTree</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> construct(nums, <span class="number">0</span>, nums.length - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> TreeNode <span class="title">construct</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (low == high) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> TreeNode(nums[low]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> tempMax = findMaxIndex(nums, low, high);</span><br><span class="line">        <span class="keyword">var</span> node = <span class="keyword">new</span> TreeNode(nums[tempMax]);</span><br><span class="line">        <span class="keyword">if</span> (tempMax == low) &#123;</span><br><span class="line">            node.right = construct(nums, tempMax + <span class="number">1</span>, high);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (tempMax == high) &#123;</span><br><span class="line">            node.left = construct(nums, low, tempMax - <span class="number">1</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            node.left = construct(nums, low, tempMax - <span class="number">1</span>);</span><br><span class="line">            node.right = construct(nums, tempMax + <span class="number">1</span>, high);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> node;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">findMaxIndex</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i = low;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = low + <span class="number">1</span>; j &lt;= high; ++j) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[j] &gt; nums[i]) &#123;</span><br><span class="line">                i = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> i;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于<code>construct()</code>中传入的是<code>nums</code>的最大有效位置<code>nums.length - 1</code>，所以导致后面需要添加很多判断代码。</p>
+<p>以下是精简代码：</p>
+<h3 id="写法2">写法2:</h3>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> TreeNode <span class="title">constructMaximumBinaryTree</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> construct(nums, <span class="number">0</span>, nums.length);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> TreeNode <span class="title">construct</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (low &gt;= high) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> tempMax = findMaxIndex(nums, low, high);</span><br><span class="line">        TreeNode node = <span class="keyword">new</span> TreeNode(nums[tempMax]);</span><br><span class="line">        node.left = construct(nums, low, tempMax);</span><br><span class="line">        node.right = construct(nums, tempMax + <span class="number">1</span>, high);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> node;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">findMaxIndex</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i = low;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = low + <span class="number">1</span>; j &lt; high; ++j) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[j] &gt; nums[i]) &#123;</span><br><span class="line">                i = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> i;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>算法题</category>
+        <category>二叉树</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Java</tag>
+        <tag>二叉树</tag>
+        <tag>算法题</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LeetCode 1038. Binary Search Tree to Greater Sum Tree</title>
     <url>/2020/03/25/LeetCode%201038.%20Binary%20Search%20Tree%20to%20Greater%20Sum%20Tree/</url>
     <content><![CDATA[<blockquote>
