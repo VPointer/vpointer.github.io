@@ -1,6 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Mac下Hadoop集群配置</title>
+    <url>/2020/03/27/Mac%E4%B8%8BHadoop%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<blockquote>
+<p>在Mac下的Hadoop集群配置。使用VMware Fusion，Hadoop 2.6.0，Ubuntu 18.04，OpenJDK8，一个Master，两个Slaves。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="ubuntu必要软件安装及配置">1. Ubuntu必要软件安装及配置</h1>
+<p>Ubuntu18.04的安装这里不再赘述，如果选择的是Ubuntu Server版，可以在安装过程中选择安装<code>openssh</code>。</p>
+<p>三台节点的<code>hostname</code>以及<code>ip</code>对应如下：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">192.168.1.111 node1</span><br><span class="line">192.168.1.112 node2</span><br><span class="line">192.168.1.113 node3</span><br></pre></td></tr></table></figure>
+<p>首先配置<code>node1</code>，配置好后直接克隆该虚拟机。</p>
+<h2 id="ubuntu换源">1.1 Ubuntu换源</h2>
+<p>替换<code>/etc/apt/sources.list</code>文件中的内容为如下内容（<a href="https://mirror.tuna.tsinghua.edu.cn/help/ubuntu/" target="_blank" rel="noopener">清华源</a>）：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span></span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse</span><br><span class="line"><span class="meta">#</span><span class="bash"> deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse</span></span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse</span><br><span class="line"><span class="meta">#</span><span class="bash"> deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse</span></span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse</span><br><span class="line"><span class="meta">#</span><span class="bash"> deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse</span></span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse</span><br><span class="line"><span class="meta">#</span><span class="bash"> deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 预发布软件源，不建议启用</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-proposed main restricted universe multiverse</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-proposed main restricted universe multiverse</span></span><br></pre></td></tr></table></figure>
+<p>然后执行如下命令更新：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo apt update</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo apt upgrade -y <span class="comment"># upgrade命令可以不执行</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="安装必要软件">1.2 安装必要软件</h2>
+<p>主要就是安装jdk，openssh和scala（单是hadoop用不到scala，这里是为之后的spark安装的）</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo apt install -y openjdk-8-jdk-headless openssh-server scala</span></span><br></pre></td></tr></table></figure>
+<p>JDK环境变量将在后面集中配置。</p>
+<h1 id="配置">2. 配置</h1>
+<p>CDH的hadoop生态比较稳定，下载<a href="http://archive.cloudera.com/cdh5/cdh/5/" target="_blank" rel="noopener">hadoop-2.6.0-cdh5.16.2</a>版本的hadoop，解压：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tar zxvf hadoop-2.6.0-cdh5.16.2.tar.gz</span></span><br></pre></td></tr></table></figure>
+<h2 id="配置环境变量">2.1 配置环境变量</h2>
+<p>编辑<code>/etc/profile</code>（需要root权限）或者你的个人bash(<code>.bashrc</code>)，zsh(<code>.zshrc</code>)配置文件（推荐后者），添加如下内容到末尾：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64</span><br><span class="line">export HADOOP_HOME=/home/hadoop/hadoop-2.6.0-cdh5.16.2</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 通过apt安装openjdk的话，无需添加java的bin目录</span></span><br><span class="line">export PATH=$&#123;HADOOP_HOME&#125;/bin:$&#123;HADOOP_HOME&#125;/sbin:$PATH</span><br></pre></td></tr></table></figure>
+<p>执行<code>source</code>，使其生效：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">source</span> .zshrc</span></span><br></pre></td></tr></table></figure>
+<h2 id="设置固定ip">2.2 设置固定IP</h2>
+<p>参考看<a href="%5Bhttps://www.zuiqiangiron.xyz/2020/03/27/Ubuntu18.04%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%85%8D%E7%BD%AE%E5%9B%BA%E5%AE%9AIP/%5D(https://www.zuiqiangiron.xyz/2020/03/27/Ubuntu18.04虚拟机配置固定IP/)">这篇文章</a>。</p>
+<h2 id="添加hostname">2.3 添加hostname</h2>
+<p>在<code>/etc/hosts</code>中加入如下内容：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 默认是127.0.1.1 node1，可以保留默认映射，但这样保留的话，克隆完后还得修改该文件</span></span><br><span class="line"><span class="number">192.168</span><span class="number">.1</span><span class="number">.111</span> <span class="string">node1</span> </span><br><span class="line"><span class="comment"># 下方两行是添加的内容</span></span><br><span class="line"><span class="number">192.168</span><span class="number">.1</span><span class="number">.112</span> <span class="string">node2</span></span><br><span class="line"><span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span> <span class="string">node3</span></span><br></pre></td></tr></table></figure>
+<h2 id="hadoop配置">2.4 Hadoop配置</h2>
+<p>进入 <code>${HADOOP_HOME}/etc/hadoop</code> 目录下，修改配置文件：</p>
+<h3 id="hadoop-env.sh">2.4.1 hadoop-env.sh</h3>
+<p>制定<code>JAVA_HOME</code>，最好还是直接指定：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64</span><br></pre></td></tr></table></figure>
+<h3 id="core-site.xml">2.4.2 core-site.xml</h3>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--指定 namenode 的 hdfs 协议文件系统的通信地址--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.defaultFS<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- node1就是你的主机名hostname，不推荐换成IP地址--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://node1:8020<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--指定 hadoop 集群存储临时文件的目录--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.tmp.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/home/hadoop/HadoopData/tmp<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="hdfs-site.xml">2.4.3 hdfs-site.xml</h3>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--namenode 节点数据（即元数据）的存放位置，可以指定多个目录实现容错，多个目录用逗号分隔--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.name.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/home/hadoop/HadoopData/namenode/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--datanode 节点数据（即数据块）的存放位置--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/home/hadoop/HadoopData/datanode/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="yarn-site.xml">2.4.4 yarn-site.xml</h3>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--配置 NodeManager 上运行的附属服务。需要配置成 mapreduce_shuffle 后才可以在 Yarn 上运行 MapReduce 程序。--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>mapreduce_shuffle<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--resourcemanager 的主机名--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.hostname<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>node1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="mapred-site.xml">2.4.5 mapred-site.xml</h3>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--指定 mapreduce 作业运行在 yarn 上--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.framework.name<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>yarn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="slaves">2.4.6 slaves</h3>
+<p>配置所有slave节点的主机名(或 IP 地址)，一行一个。所有slave节点上的 <code>DataNode</code> 服务和 <code>NodeManager</code> 服务都会被启动。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">node1</span><br><span class="line">node2</span><br><span class="line">node3</span><br></pre></td></tr></table></figure>
+<h1 id="克隆虚拟机">3. 克隆虚拟机</h1>
+<p>关闭虚拟机，然后“创建完整克隆”即可：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1585319354/BigDataMachineLearning/image-20200327212434791.png" alt="image-20200327212434791" style="zoom:50%;" /></p>
+<p>克隆出两个虚拟机：node2和node3。</p>
+<p>然后<strong>修改两个新虚拟机的IP</strong>。</p>
+<p>接着修改分别修改两个虚拟机的<code>/etc/hostname</code>，分别改为<code>node2</code>和<code>node3</code>。</p>
+<p>重启虚拟机。</p>
+<h1 id="配置ssh">4. 配置SSH</h1>
+<p>为每个虚拟机创建密钥：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ssh-keygen <span class="comment"># 3台虚拟机均执行此操作</span></span></span><br></pre></td></tr></table></figure>
+<p>在<code>node1</code>，也就是master节点中执行如下命令，使得master节点能够无密码访问各个slave节点：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ssh-copy-id -i ~/.ssh/id_rsa.pub node1</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ssh-copy-id -i ~/.ssh/id_rsa.pub node2</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ssh-copy-id -i ~/.ssh/id_rsa.pub node3</span></span><br></pre></td></tr></table></figure>
+<p>验证登陆（请不要跳过，否则待会儿启动集群的时候依然要验证）：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 默认所有虚拟机的用户名是相同的，毕竟都是克隆出来的，但如果不是克隆出来的，请加上用户名:</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ssh username@hostname</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ssh node1</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ssh node2</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ssh node3</span></span><br></pre></td></tr></table></figure>
+<h1 id="启动hadoop集群">5. 启动Hadoop集群</h1>
+<p>如果没有将hadoop目录下的<code>bin</code>和<code>sbin</code>文件添加到<code>PATH</code>中，则需要先进入相应的目录</p>
+<h2 id="初始化hdfs">5.1 初始化hdfs</h2>
+<p><code>hdfs</code>命令在<code>${HADOOP_HOME}/bin</code>下</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> hdfs namenode -format</span></span><br></pre></td></tr></table></figure>
+<h2 id="启动集群">5.2 启动集群</h2>
+<p>以下两个命令均在<code>${HADOOP_HOME}/sbin</code>目录下</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 启动dfs服务</span></span><br><span class="line">start-dfs.sh</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动yarn服务</span></span><br><span class="line">start-yarn.sh</span><br></pre></td></tr></table></figure>
+<p>如果配置正确，在<code>node1</code>中执行<code>jps</code>命令将会看到如下输出：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> jps</span></span><br><span class="line">7058 DataNode</span><br><span class="line">7269 SecondaryNameNode</span><br><span class="line">7429 ResourceManager</span><br><span class="line">6870 NameNode</span><br><span class="line">7756 NodeManager</span><br><span class="line">8063 Jps</span><br></pre></td></tr></table></figure>
+<p>在slave节点中输入<code>jps</code>命令将会看到如下内容：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> jps</span></span><br><span class="line">4336 DataNode</span><br><span class="line">4487 NodeManager</span><br><span class="line">4616 Jps</span><br></pre></td></tr></table></figure>
+<p>或者进入Web界面，在浏览器中输入<code>192.168.1.111:50070</code>：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1585319349/BigDataMachineLearning/image-20200327221644388.png" alt="image-20200327221644388" style="zoom:50%;" /></p>
+<p>还可以通过yarn的web界面查看，输入<code>192.168.1.111:8088</code>，看到如下界面：</p>
+<figure>
+<img src="https://res.cloudinary.com/vpointer/image/upload/v1585319349/BigDataMachineLearning/image-20200327221844312.png" alt="" /><figcaption>image-20200327221844312</figcaption>
+</figure>
+<h2 id="提交任务到集群">5.3 提交任务到集群</h2>
+<p>在任何一个Hadoop节点上都可以提交任务，以下以Hadoop自带的计算圆周率为例：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> hadoop jar <span class="variable">$HADOOP_HOME</span>/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.15.2.jar pi 3 3</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>配置</category>
+        <category>Hadoop</category>
+      </categories>
+      <tags>
+        <tag>配置</tag>
+        <tag>Ubuntu18.04</tag>
+        <tag>Hadoop分布式集群</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Ubuntu 18.04虚拟机配置固定IP</title>
     <url>/2020/03/27/Ubuntu18.04%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%85%8D%E7%BD%AE%E5%9B%BA%E5%AE%9AIP/</url>
     <content><![CDATA[<blockquote>

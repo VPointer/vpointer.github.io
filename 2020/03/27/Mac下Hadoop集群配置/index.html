@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="Y0-gFMBzGnbrueUrh8PjkmnvCGItjob2oR3HjG9SVnE">
+  <meta name="msvalidate.01" content="97A49017D4D536B99438C4EE0E9FBA3F">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zuiqiangiron.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在Mac下的Hadoop集群配置。使用VMware Fusion，Hadoop 2.6.0，Ubuntu 18.04，OpenJDK8，一个Master，两个Slaves。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mac下Hadoop集群配置">
+<meta property="og:url" content="https://www.zuiqiangiron.xyz/2020/03/27/Mac%E4%B8%8BHadoop%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="在Mac下的Hadoop集群配置。使用VMware Fusion，Hadoop 2.6.0，Ubuntu 18.04，OpenJDK8，一个Master，两个Slaves。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1585319354/BigDataMachineLearning/image-20200327212434791.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1585319349/BigDataMachineLearning/image-20200327221644388.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1585319349/BigDataMachineLearning/image-20200327221844312.png">
+<meta property="article:published_time" content="2020-03-27T14:30:00.000Z">
+<meta property="article:modified_time" content="2020-03-27T14:32:51.537Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="配置">
+<meta property="article:tag" content="Ubuntu18.04">
+<meta property="article:tag" content="Hadoop分布式集群">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1585319354/BigDataMachineLearning/image-20200327212434791.png">
+
+<link rel="canonical" href="https://www.zuiqiangiron.xyz/2020/03/27/Mac%E4%B8%8BHadoop%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Mac下Hadoop集群配置 | 嘴强黑铁</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161480657-1"></script>
+    <script pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161480657-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">天下事以难而废者十之一，以惰而废者十之九</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zuiqiangiron.xyz/2020/03/27/Mac%E4%B8%8BHadoop%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Mac下Hadoop集群配置
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-03-27 22:30:00 / 修改时间：22:32:51" itemprop="dateCreated datePublished" datetime="2020-03-27T22:30:00+08:00">2020-03-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">配置</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%85%8D%E7%BD%AE/Hadoop/" itemprop="url" rel="index"><span itemprop="name">Hadoop</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/03/27/Mac%E4%B8%8BHadoop%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/03/27/Mac下Hadoop集群配置/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>在Mac下的Hadoop集群配置。使用VMware Fusion，Hadoop 2.6.0，Ubuntu 18.04，OpenJDK8，一个Master，两个Slaves。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="ubuntu必要软件安装及配置">1. Ubuntu必要软件安装及配置</h1>
+<p>Ubuntu18.04的安装这里不再赘述，如果选择的是Ubuntu Server版，可以在安装过程中选择安装<code>openssh</code>。</p>
+<p>三台节点的<code>hostname</code>以及<code>ip</code>对应如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.111 node1</span><br><span class="line">192.168.1.112 node2</span><br><span class="line">192.168.1.113 node3</span><br></pre></td></tr></table></figure>
+<p>首先配置<code>node1</code>，配置好后直接克隆该虚拟机。</p>
+<h2 id="ubuntu换源">1.1 Ubuntu换源</h2>
+<p>替换<code>/etc/apt/sources.list</code>文件中的内容为如下内容（<a href="https://mirror.tuna.tsinghua.edu.cn/help/ubuntu/" target="_blank" rel="noopener">清华源</a>）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span></span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse</span><br><span class="line"><span class="meta">#</span><span class="bash"> deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse</span></span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse</span><br><span class="line"><span class="meta">#</span><span class="bash"> deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse</span></span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse</span><br><span class="line"><span class="meta">#</span><span class="bash"> deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse</span></span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse</span><br><span class="line"><span class="meta">#</span><span class="bash"> deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 预发布软件源，不建议启用</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-proposed main restricted universe multiverse</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-proposed main restricted universe multiverse</span></span><br></pre></td></tr></table></figure>
+<p>然后执行如下命令更新：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo apt update</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo apt upgrade -y <span class="comment"># upgrade命令可以不执行</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="安装必要软件">1.2 安装必要软件</h2>
+<p>主要就是安装jdk，openssh和scala（单是hadoop用不到scala，这里是为之后的spark安装的）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo apt install -y openjdk-8-jdk-headless openssh-server scala</span></span><br></pre></td></tr></table></figure>
+<p>JDK环境变量将在后面集中配置。</p>
+<h1 id="配置">2. 配置</h1>
+<p>CDH的hadoop生态比较稳定，下载<a href="http://archive.cloudera.com/cdh5/cdh/5/" target="_blank" rel="noopener">hadoop-2.6.0-cdh5.16.2</a>版本的hadoop，解压：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tar zxvf hadoop-2.6.0-cdh5.16.2.tar.gz</span></span><br></pre></td></tr></table></figure>
+<h2 id="配置环境变量">2.1 配置环境变量</h2>
+<p>编辑<code>/etc/profile</code>（需要root权限）或者你的个人bash(<code>.bashrc</code>)，zsh(<code>.zshrc</code>)配置文件（推荐后者），添加如下内容到末尾：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64</span><br><span class="line">export HADOOP_HOME=/home/hadoop/hadoop-2.6.0-cdh5.16.2</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 通过apt安装openjdk的话，无需添加java的bin目录</span></span><br><span class="line">export PATH=$&#123;HADOOP_HOME&#125;/bin:$&#123;HADOOP_HOME&#125;/sbin:$PATH</span><br></pre></td></tr></table></figure>
+<p>执行<code>source</code>，使其生效：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">source</span> .zshrc</span></span><br></pre></td></tr></table></figure>
+<h2 id="设置固定ip">2.2 设置固定IP</h2>
+<p>参考看<a href="%5Bhttps://www.zuiqiangiron.xyz/2020/03/27/Ubuntu18.04%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%85%8D%E7%BD%AE%E5%9B%BA%E5%AE%9AIP/%5D(https://www.zuiqiangiron.xyz/2020/03/27/Ubuntu18.04虚拟机配置固定IP/)">这篇文章</a>。</p>
+<h2 id="添加hostname">2.3 添加hostname</h2>
+<p>在<code>/etc/hosts</code>中加入如下内容：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 默认是127.0.1.1 node1，可以保留默认映射，但这样保留的话，克隆完后还得修改该文件</span></span><br><span class="line"><span class="number">192.168</span><span class="number">.1</span><span class="number">.111</span> <span class="string">node1</span> </span><br><span class="line"><span class="comment"># 下方两行是添加的内容</span></span><br><span class="line"><span class="number">192.168</span><span class="number">.1</span><span class="number">.112</span> <span class="string">node2</span></span><br><span class="line"><span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span> <span class="string">node3</span></span><br></pre></td></tr></table></figure>
+<h2 id="hadoop配置">2.4 Hadoop配置</h2>
+<p>进入 <code>${HADOOP_HOME}/etc/hadoop</code> 目录下，修改配置文件：</p>
+<h3 id="hadoop-env.sh">2.4.1 hadoop-env.sh</h3>
+<p>制定<code>JAVA_HOME</code>，最好还是直接指定：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64</span><br></pre></td></tr></table></figure>
+<h3 id="core-site.xml">2.4.2 core-site.xml</h3>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--指定 namenode 的 hdfs 协议文件系统的通信地址--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.defaultFS<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- node1就是你的主机名hostname，不推荐换成IP地址--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://node1:8020<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--指定 hadoop 集群存储临时文件的目录--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.tmp.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/home/hadoop/HadoopData/tmp<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="hdfs-site.xml">2.4.3 hdfs-site.xml</h3>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--namenode 节点数据（即元数据）的存放位置，可以指定多个目录实现容错，多个目录用逗号分隔--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.name.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/home/hadoop/HadoopData/namenode/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--datanode 节点数据（即数据块）的存放位置--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/home/hadoop/HadoopData/datanode/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="yarn-site.xml">2.4.4 yarn-site.xml</h3>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--配置 NodeManager 上运行的附属服务。需要配置成 mapreduce_shuffle 后才可以在 Yarn 上运行 MapReduce 程序。--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>mapreduce_shuffle<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--resourcemanager 的主机名--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.hostname<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>node1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="mapred-site.xml">2.4.5 mapred-site.xml</h3>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--指定 mapreduce 作业运行在 yarn 上--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.framework.name<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>yarn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="slaves">2.4.6 slaves</h3>
+<p>配置所有slave节点的主机名(或 IP 地址)，一行一个。所有slave节点上的 <code>DataNode</code> 服务和 <code>NodeManager</code> 服务都会被启动。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node1</span><br><span class="line">node2</span><br><span class="line">node3</span><br></pre></td></tr></table></figure>
+<h1 id="克隆虚拟机">3. 克隆虚拟机</h1>
+<p>关闭虚拟机，然后“创建完整克隆”即可：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1585319354/BigDataMachineLearning/image-20200327212434791.png" alt="image-20200327212434791" style="zoom:50%;" /></p>
+<p>克隆出两个虚拟机：node2和node3。</p>
+<p>然后<strong>修改两个新虚拟机的IP</strong>。</p>
+<p>接着修改分别修改两个虚拟机的<code>/etc/hostname</code>，分别改为<code>node2</code>和<code>node3</code>。</p>
+<p>重启虚拟机。</p>
+<h1 id="配置ssh">4. 配置SSH</h1>
+<p>为每个虚拟机创建密钥：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ssh-keygen <span class="comment"># 3台虚拟机均执行此操作</span></span></span><br></pre></td></tr></table></figure>
+<p>在<code>node1</code>，也就是master节点中执行如下命令，使得master节点能够无密码访问各个slave节点：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ssh-copy-id -i ~/.ssh/id_rsa.pub node1</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ssh-copy-id -i ~/.ssh/id_rsa.pub node2</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ssh-copy-id -i ~/.ssh/id_rsa.pub node3</span></span><br></pre></td></tr></table></figure>
+<p>验证登陆（请不要跳过，否则待会儿启动集群的时候依然要验证）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 默认所有虚拟机的用户名是相同的，毕竟都是克隆出来的，但如果不是克隆出来的，请加上用户名:</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ssh username@hostname</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ssh node1</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ssh node2</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ssh node3</span></span><br></pre></td></tr></table></figure>
+<h1 id="启动hadoop集群">5. 启动Hadoop集群</h1>
+<p>如果没有将hadoop目录下的<code>bin</code>和<code>sbin</code>文件添加到<code>PATH</code>中，则需要先进入相应的目录</p>
+<h2 id="初始化hdfs">5.1 初始化hdfs</h2>
+<p><code>hdfs</code>命令在<code>${HADOOP_HOME}/bin</code>下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> hdfs namenode -format</span></span><br></pre></td></tr></table></figure>
+<h2 id="启动集群">5.2 启动集群</h2>
+<p>以下两个命令均在<code>${HADOOP_HOME}/sbin</code>目录下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 启动dfs服务</span></span><br><span class="line">start-dfs.sh</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动yarn服务</span></span><br><span class="line">start-yarn.sh</span><br></pre></td></tr></table></figure>
+<p>如果配置正确，在<code>node1</code>中执行<code>jps</code>命令将会看到如下输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> jps</span></span><br><span class="line">7058 DataNode</span><br><span class="line">7269 SecondaryNameNode</span><br><span class="line">7429 ResourceManager</span><br><span class="line">6870 NameNode</span><br><span class="line">7756 NodeManager</span><br><span class="line">8063 Jps</span><br></pre></td></tr></table></figure>
+<p>在slave节点中输入<code>jps</code>命令将会看到如下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> jps</span></span><br><span class="line">4336 DataNode</span><br><span class="line">4487 NodeManager</span><br><span class="line">4616 Jps</span><br></pre></td></tr></table></figure>
+<p>或者进入Web界面，在浏览器中输入<code>192.168.1.111:50070</code>：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1585319349/BigDataMachineLearning/image-20200327221644388.png" alt="image-20200327221644388" style="zoom:50%;" /></p>
+<p>还可以通过yarn的web界面查看，输入<code>192.168.1.111:8088</code>，看到如下界面：</p>
+<figure>
+<img src="https://res.cloudinary.com/vpointer/image/upload/v1585319349/BigDataMachineLearning/image-20200327221844312.png" alt="" /><figcaption>image-20200327221844312</figcaption>
+</figure>
+<h2 id="提交任务到集群">5.3 提交任务到集群</h2>
+<p>在任何一个Hadoop节点上都可以提交任务，以下以Hadoop自带的计算圆周率为例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> hadoop jar <span class="variable">$HADOOP_HOME</span>/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.15.2.jar pi 3 3</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zuiqiangiron.xyz/2020/03/27/Mac%E4%B8%8BHadoop%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/" title="Mac下Hadoop集群配置">https://www.zuiqiangiron.xyz/2020/03/27/Mac下Hadoop集群配置/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag"># 配置</a>
+              <a href="/tags/Ubuntu18-04/" rel="tag"># Ubuntu18.04</a>
+              <a href="/tags/Hadoop%E5%88%86%E5%B8%83%E5%BC%8F%E9%9B%86%E7%BE%A4/" rel="tag"># Hadoop分布式集群</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/27/Ubuntu18.04%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%85%8D%E7%BD%AE%E5%9B%BA%E5%AE%9AIP/" rel="prev" title="Ubuntu 18.04虚拟机配置固定IP">
+      <i class="fa fa-chevron-left"></i> Ubuntu 18.04虚拟机配置固定IP
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ubuntu必要软件安装及配置"><span class="nav-text">1. Ubuntu必要软件安装及配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ubuntu换源"><span class="nav-text">1.1 Ubuntu换源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装必要软件"><span class="nav-text">1.2 安装必要软件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置"><span class="nav-text">2. 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#配置环境变量"><span class="nav-text">2.1 配置环境变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置固定ip"><span class="nav-text">2.2 设置固定IP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#添加hostname"><span class="nav-text">2.3 添加hostname</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hadoop配置"><span class="nav-text">2.4 Hadoop配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hadoop-env.sh"><span class="nav-text">2.4.1 hadoop-env.sh</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#core-site.xml"><span class="nav-text">2.4.2 core-site.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hdfs-site.xml"><span class="nav-text">2.4.3 hdfs-site.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yarn-site.xml"><span class="nav-text">2.4.4 yarn-site.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mapred-site.xml"><span class="nav-text">2.4.5 mapred-site.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#slaves"><span class="nav-text">2.4.6 slaves</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#克隆虚拟机"><span class="nav-text">3. 克隆虚拟机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置ssh"><span class="nav-text">4. 配置SSH</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#启动hadoop集群"><span class="nav-text">5. 启动Hadoop集群</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#初始化hdfs"><span class="nav-text">5.1 初始化hdfs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动集群"><span class="nav-text">5.2 启动集群</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#提交任务到集群"><span class="nav-text">5.3 提交任务到集群</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="嘴强黑铁"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">59</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://www.zuiqiangiron.xyz/2020/03/27/Mac%E4%B8%8BHadoop%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/";
+    this.page.identifier = "2020/03/27/Mac下Hadoop集群配置/";
+    this.page.title = "Mac下Hadoop集群配置";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>
