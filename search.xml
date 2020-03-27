@@ -1,6 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Ubuntu 18.04虚拟机配置固定IP</title>
+    <url>/2020/03/27/Ubuntu18.04%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%85%8D%E7%BD%AE%E5%9B%BA%E5%AE%9AIP/</url>
+    <content><![CDATA[<blockquote>
+<p>Mac下，Ubuntu 18.04在VMware Fusion中配置固定IP。</p>
+<p>以下是两种配置方法，一个是针对netplan，一个是ifupdown。</p>
+<p>Ubuntu 18.04 Bionic Beaver默认使用的是netplan。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="桥接模式">桥接模式</h1>
+<p>不管是哪种配置方式，都需要修改虚拟机的网络配置为桥接模式：</p>
+<p>虚拟机设置 -&gt; 网络适配器</p>
+<figure>
+<img src="https://res.cloudinary.com/vpointer/image/upload/v1585299058/BigDataMachineLearning/image-20200327154755576.png" alt="" /><figcaption>image-20200327154755576</figcaption>
+</figure>
+<h1 id="netplan配置固定ip">netplan配置固定IP</h1>
+<p>进入<code>/etc/netplan/</code>目录后会发现一个名为<code>01-netcfg.yaml</code>或者<code>50-cloud-init.yaml</code>的默认配置文件。它的内容如下：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># This file describes the network interfaces available on your system</span></span><br><span class="line"><span class="comment"># For more information, see netplan(5).</span></span><br><span class="line"><span class="attr">network:</span></span><br><span class="line">  <span class="attr">version:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">renderer:</span> <span class="string">networkd</span></span><br><span class="line">  <span class="attr">ethernets:</span></span><br><span class="line">    <span class="attr">ens33:</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">yes</span></span><br></pre></td></tr></table></figure>
+<p>将配置修改如下：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># This file describes the network interfaces available on your system</span></span><br><span class="line"><span class="comment"># For more information, see netplan(5).</span></span><br><span class="line"><span class="attr">network:</span></span><br><span class="line">	<span class="attr">version:</span> <span class="number">2</span></span><br><span class="line">	<span class="attr">ethernets:</span></span><br><span class="line">		<span class="attr">ens33:</span>  <span class="comment"># 请使用ifconfig或者ip a命令确认你的网卡名</span></span><br><span class="line">			<span class="attr">dhcp4:</span> <span class="literal">no</span></span><br><span class="line">			<span class="attr">addresses:</span> <span class="string">[192.168.1.111/24]</span></span><br><span class="line">			<span class="attr">gateway4:</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span></span><br><span class="line">			<span class="attr">nameservers:</span></span><br><span class="line">				<span class="attr">addresses:</span> <span class="string">[114.114.114.114]</span> <span class="comment"># 多个地址用逗号隔开</span></span><br></pre></td></tr></table></figure>
+<p>然后执行如下命令即可：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo netplan apply</span></span><br></pre></td></tr></table></figure>
+<p>注意文件上方的注释，并不是任何时候都是这样，它会有一些配置提示，以下是通常情况，以下是虚拟机中安装Ubuntu可能会遇到的情况：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># This file is generated from information provided by the datasource.  Changes</span></span><br><span class="line"><span class="comment"># to it will not persist across an instance reboot.  To disable cloud-init's</span></span><br><span class="line"><span class="comment"># network configuration capabilities, write a file</span></span><br><span class="line"><span class="comment"># /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:</span></span><br><span class="line"><span class="comment"># network: &#123;config: disabled&#125;</span></span><br><span class="line"><span class="attr">network:</span></span><br><span class="line">    <span class="attr">ethernets:</span></span><br><span class="line">        <span class="attr">ens33:</span></span><br><span class="line">            <span class="attr">dhcp4:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">version:</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>它提示我们需要创建<code>/etc/cloud/cloud.cfg.d/99-disable-network-config.cfg</code>文件，并填入如下内容后，我们自行配置的固定IP才能生效：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">network:</span></span><br><span class="line">    <span class="attr">config:</span> <span class="string">disabled</span></span><br></pre></td></tr></table></figure>
+<h1 id="ifupdown配置固定ip">ifupdown配置固定IP</h1>
+<p>如果你的Ubuntu版本比较老，使用的是ifupdown来管理网络配置，则需要修改两个文件。</p>
+<p>首先修改<code>/etc/network/interfaces</code>文件，它是一个只有注释（注意其中的注释，它会提示你正确操作）的空文件，在其中添加如下内容：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ifupdown has been replaced by netplan(5) on this system.  See</span></span><br><span class="line"><span class="comment"># /etc/netplan for current configuration.</span></span><br><span class="line"><span class="comment"># To re-enable ifupdown on this system, you can run:</span></span><br><span class="line"><span class="comment">#    sudo apt install ifupdown</span></span><br><span class="line"></span><br><span class="line"><span class="string">auto</span> <span class="string">ens33</span></span><br><span class="line"><span class="string">iface</span> <span class="string">ens33</span> <span class="string">inet</span> <span class="string">static</span></span><br><span class="line"><span class="string">address</span> <span class="number">192.168</span><span class="number">.24</span><span class="number">.67</span></span><br><span class="line"><span class="string">gateway</span> <span class="number">192.168</span><span class="number">.24</span><span class="number">.1</span></span><br><span class="line"><span class="string">netmask</span> <span class="number">255.255</span><span class="number">.255</span><span class="number">.0</span></span><br></pre></td></tr></table></figure>
+<p>然后修改<code>/etc/systemd/resolved.conf</code>文件，取消掉<code>DNS</code>的注释，并添加上你常用的DNS服务器地址，空格分隔（不是逗号）：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment">#  This file is part of systemd.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#  systemd is free software; you can redistribute it and/or modify it</span></span><br><span class="line"><span class="comment">#  under the terms of the GNU Lesser General Public License as published by</span></span><br><span class="line"><span class="comment">#  the Free Software Foundation; either version 2.1 of the License, or</span></span><br><span class="line"><span class="comment">#  (at your option) any later version.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Entries in this file show the compile time defaults.</span></span><br><span class="line"><span class="comment"># You can change settings by editing this file.</span></span><br><span class="line"><span class="comment"># Defaults can be restored by simply deleting this file.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># See resolved.conf(5) for details</span></span><br><span class="line"></span><br><span class="line"><span class="string">[Resolve]</span></span><br><span class="line"><span class="string">DNS=114.114.114.114</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line"><span class="comment">#FallbackDNS=</span></span><br><span class="line"><span class="comment">#Domains=</span></span><br><span class="line"><span class="comment">#LLMNR=no</span></span><br><span class="line"><span class="comment">#MulticastDNS=no</span></span><br><span class="line"><span class="comment">#DNSSEC=no</span></span><br><span class="line"><span class="comment">#Cache=yes</span></span><br><span class="line"><span class="comment">#DNSStubListener=yes</span></span><br></pre></td></tr></table></figure>
+<p>保存重启即可。</p>
+]]></content>
+      <categories>
+        <category>配置</category>
+        <category>Ubuntu18.04</category>
+      </categories>
+      <tags>
+        <tag>配置</tag>
+        <tag>Ubuntu18.04</tag>
+        <tag>固定IP</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LeetCode 1347. Minimum Number of Steps to Make Two Strings Anagram</title>
     <url>/2020/03/26/LeetCode%201347.%20Minimum%20Number%20of%20Steps%20to%20Make%20Two%20Strings%20Anagram/</url>
     <content><![CDATA[<blockquote>
