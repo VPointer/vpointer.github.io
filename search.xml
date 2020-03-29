@@ -1,6 +1,178 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>LeetCode 1079.活字印刷</title>
+    <url>/2020/03/29/LeetCode%201079.%E6%B4%BB%E5%AD%97%E5%8D%B0%E5%88%B7/</url>
+    <content><![CDATA[<blockquote>
+<p>LeetCode刷题记。</p>
+<p><a href="https://leetcode-cn.com/problems/letter-tile-possibilities/" target="_blank" rel="noopener">1079.活字印刷</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="题目描述">题目描述</h1>
+<p>你有一套活字字模 <code>tiles</code>，其中每个字模上都刻有一个字母 <code>tiles[i]</code>。返回你可以印出的非空字母序列的数目。</p>
+<p><strong>示例 1</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：&quot;AAB&quot;</span><br><span class="line">输出：8</span><br><span class="line">解释：可能的序列为 &quot;A&quot;, &quot;B&quot;, &quot;AA&quot;, &quot;AB&quot;, &quot;BA&quot;, &quot;AAB&quot;, &quot;ABA&quot;, &quot;BAA&quot;。</span><br></pre></td></tr></table></figure>
+<p><strong>示例 2</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：&quot;AAABBC&quot;</span><br><span class="line">输出：188</span><br></pre></td></tr></table></figure>
+<p>提示：</p>
+<ol type="1">
+<li><code>1 &lt;= tiles.length &lt;= 7</code></li>
+<li><code>tiles</code>由大写英文字母组成</li>
+</ol>
+<h1 id="解题思路">解题思路</h1>
+<p>3种解法：</p>
+<ul>
+<li>纯递归解法，非常耗时</li>
+<li>回溯法：速度大幅提升，但任不是最优解法</li>
+<li>直接计算排列数：因为该题只求个数，不用返回所有可能结果，所以直接计算排列数是最快的，但依然要递归。</li>
+</ul>
+<h3 id="方法1">方法1:</h3>
+<p>纯递归，用一个<code>index</code>数组记录哪些元素被访问过，同时记录元素被访问的次序。<code>result</code>是一个<code>HashSet</code>，用于记录结果。该方法特别耗时。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    Set&lt;String&gt; result = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">    <span class="keyword">char</span>[] input;</span><br><span class="line">    <span class="keyword">int</span>[] index;</span><br><span class="line">    <span class="keyword">int</span> inputLen;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">numTilePossibilities</span><span class="params">(String tiles)</span> </span>&#123;</span><br><span class="line">        inputLen = tiles.length();</span><br><span class="line">        index = <span class="keyword">new</span> <span class="keyword">int</span>[inputLen];</span><br><span class="line">        Arrays.fill(index, -<span class="number">1</span>);</span><br><span class="line">        input = tiles.toCharArray();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= inputLen; ++i) &#123;</span><br><span class="line">            dfs(i, <span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result.size();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="keyword">int</span> totalLevel, <span class="keyword">int</span> curLevel)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (curLevel == totalLevel) &#123;</span><br><span class="line">            <span class="keyword">char</span>[] temp = <span class="keyword">new</span> <span class="keyword">char</span>[totalLevel];</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; inputLen; ++i) &#123;</span><br><span class="line">                <span class="keyword">if</span> (index[i] != -<span class="number">1</span>) &#123;</span><br><span class="line">                    temp[index[i]] = input[i];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            result.add(String.valueOf(temp));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; inputLen; ++i) &#123;</span><br><span class="line">                <span class="keyword">if</span> (index[i] == -<span class="number">1</span>) &#123;</span><br><span class="line">                    index[i] = curLevel;</span><br><span class="line">                    dfs(totalLevel, curLevel + <span class="number">1</span>);</span><br><span class="line">                    index[i] = -<span class="number">1</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="方法2">方法2:</h3>
+<p>回溯法解法，首先统计每个字符出现的次数，然后深度优先遍历。参考自<a href="https://leetcode-cn.com/problems/letter-tile-possibilities/solution/hui-su-suan-fa-python-dai-ma-by-liweiwei1419/" target="_blank" rel="noopener">liweiwei1419</a>。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">numTilePossibilities</span><span class="params">(String tiles)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] counter = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">26</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">char</span> c : tiles.toCharArray()) &#123;</span><br><span class="line">            ++counter[c - <span class="string">'A'</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dfs(counter);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">dfs</span><span class="params">(<span class="keyword">int</span>[] counter)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">26</span>; ++i) &#123;</span><br><span class="line">            <span class="keyword">if</span> (counter[i] != <span class="number">0</span>) &#123;</span><br><span class="line">                --counter[i];</span><br><span class="line">                ++n;</span><br><span class="line">                n += dfs(counter);</span><br><span class="line">                ++counter[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> n;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="方法3">方法3:</h3>
+<p>直接就算排列数：因为元素可以重复，所以通过组合数来计算排列数。</p>
+<p>参考自英文版LeetCode中的最优代码，由于不知道是谁写的，所以没发附链接。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> lastIdx = <span class="number">0</span>; <span class="comment">// 等于输入中不同字符的个数，也是charIdx的有效长度</span></span><br><span class="line">    <span class="keyword">int</span>[] charIdx = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">26</span>]; <span class="comment">// 用于记录出现了哪些字符</span></span><br><span class="line">    <span class="keyword">int</span>[] numb; <span class="comment">// 用于记录每个字符出现的次数</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">numTilePossibilities</span><span class="params">(String tiles)</span> </span>&#123;</span><br><span class="line">        numb = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">26</span>];</span><br><span class="line">        <span class="keyword">int</span> charCount = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; tiles.length(); i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> idx = tiles.charAt(i) - <span class="string">'A'</span>;</span><br><span class="line">            <span class="keyword">if</span> (numb[idx] == <span class="number">0</span>) &#123;</span><br><span class="line">                charIdx[charCount] = idx;</span><br><span class="line">                charCount++;</span><br><span class="line">            &#125;</span><br><span class="line">            numb[idx]++;</span><br><span class="line">        &#125;</span><br><span class="line">        ;</span><br><span class="line">        lastIdx = charCount - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> result = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> len = <span class="number">1</span>; len &lt;= tiles.length(); len++) &#123;</span><br><span class="line">            result += possibilitiesWithLen(<span class="number">0</span>, len);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">possibilitiesWithLen</span><span class="params">(<span class="keyword">int</span> curIdx, <span class="keyword">int</span> lenLeft)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> charNumb = numb[charIdx[curIdx]];</span><br><span class="line">        <span class="keyword">if</span> (curIdx == lastIdx) &#123;</span><br><span class="line">            <span class="comment">// 由于已经遍历到了最后一种字符（不是最后一个字符），如果剩余的字符数lenLeft比当前字符的字符个数还小，那就只有一种结果，返回1；否则说明当前不足以构建合法的字符串，返回0</span></span><br><span class="line">            <span class="keyword">return</span> (charNumb &gt;= lenLeft) ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (charNumb &gt; lenLeft) &#123;</span><br><span class="line">            <span class="comment">// 表示某一个字符的数量大于了所剩字符的数量</span></span><br><span class="line">            charNumb = lenLeft;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> result = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= charNumb; i++) &#123;</span><br><span class="line">            <span class="comment">// (kOutOfN(i, lenLeft)等同于lenLeft个位子，先占据i个，有多少种不同的占法</span></span><br><span class="line">            <span class="comment">// possibilitiesWithLen(curIdx + 1, lenLeft - i))表示剩余位置的排列数</span></span><br><span class="line">            result += (kOutOfN(i, lenLeft) * possibilitiesWithLen(curIdx + <span class="number">1</span>, lenLeft - i));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">kOutOfN</span><span class="params">(<span class="keyword">int</span> k, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 组合数计算公式，不是排列数计算公式！</span></span><br><span class="line">        <span class="keyword">if</span> (k == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> m = n - k;</span><br><span class="line">        <span class="keyword">if</span> (k &gt; m) &#123;</span><br><span class="line">            k = m;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> p1 = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> p2 = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (; k &gt; <span class="number">0</span>; k--, n--) &#123;</span><br><span class="line">            p1 *= n;</span><br><span class="line">            p2 *= k;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> p1 / p2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>算法题</category>
+        <category>回溯法</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Java</tag>
+        <tag>算法题</tag>
+        <tag>递归</tag>
+        <tag>回溯法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Scala学习</title>
+    <url>/2020/03/28/Scala%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<blockquote>
+<p>Scala语法学习。。。谁让Spark，Kafka都是用它来写的呢。。。</p>
+<p>未完待续。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="scala数据结构">Scala数据结构</h1>
+<ul>
+<li><p><code>Any</code>是所有类型的父类</p>
+<ul>
+<li><code>Null</code>是所有<code>AnyRef</code>的子类，它只有<code>null</code>这一个值，只能给<code>AnyRef</code>，不能给<code>AnyVal</code>；</li>
+<li><code>Nothing</code>类型是所有类型的子类，它可以作为返回值返回给所有变量或函数，常用于抛出异常。它表示该方法没有正常的返回值</li>
+<li><code>Unit</code>表示空类型，相当于java中的<code>void</code>，只能用作表示方法不返回任何类型，它的值为<code>()</code></li>
+</ul></li>
+<li><p>数据类型字节数：</p>
+<ul>
+<li><p><code>Byte</code>：1</p></li>
+<li><p><code>Boolean</code>：1</p></li>
+<li><p><code>Short</code>：2</p></li>
+<li><p><code>Char</code>：2，无符号，对应的是Unicode，而不是ASCII</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 当把一个字面量赋值给变量时，只判断范围是否超过</span></span><br><span class="line"><span class="keyword">var</span> a: <span class="type">Char</span> = <span class="number">98</span> <span class="comment">// 不报错</span></span><br><span class="line"><span class="comment">// 当把一个计算结果赋值给变量时，不光要判断范围，还要判断类型</span></span><br><span class="line"><span class="keyword">var</span> b: <span class="type">Char</span> = <span class="number">97</span> + <span class="number">1</span> <span class="comment">// 报错</span></span><br></pre></td></tr></table></figure></li>
+<li><p><code>Int</code>：4，字面整数值的默认数据类型</p></li>
+<li><p><code>Float</code>：4，大致保留小数点后7位</p></li>
+<li><p><code>Long</code>：8</p></li>
+<li><p><code>Double</code>：8，字面小数值的默认类型</p></li>
+<li><p><code>Byte</code>和<code>Short</code>不能转换成<code>Char</code></p></li>
+<li><p><code>Byte</code>，<code>Short</code>和<code>Char</code>三者运算时会转换成<code>Int</code></p></li>
+</ul></li>
+</ul>
+<h1 id="scala零散要点">Scala零散要点</h1>
+<ul>
+<li><p>Scala中所有数据类型都是对象！没有Java中的原生类型。</p></li>
+<li><p>Scala中数据类型也分为：值类型（<code>AnyVal</code>），引用类型（<code>AnyRef</code>），但都是对象！</p></li>
+<li><p>在Scala中，如果一个方法没有型参，则可以省略括号。</p></li>
+<li><p>标识符</p>
+<ul>
+<li>标识符首字符可以是运算符，但后面也必须跟至少一个标识符（第二位，而不是最末尾）</li>
+<li>用反引号包起来的字符串也可以做标识符，反引号中可以是关键字</li>
+<li><strong><code>Int</code>在Scala中并不是关键字！它是预定义标识符，可以用作变量名，但最好不要！其它也一样</strong></li>
+</ul></li>
+<li><p><code>trait</code>等价于java中的<code>interface + abstract class</code></p></li>
+<li><p>Scala中任何表达式都有返回值，返回值为满足条件的代码块中的最后一行</p></li>
+<li><p>Scala中，任何语法结构都可以嵌套其它语法结构</p></li>
+</ul>
+<h1 id="scala中的循环">Scala中的循环</h1>
+<h2 id="scala中的for循环">Scala中的<code>for</code>循环：</h2>
+<ul>
+<li><p><code>to</code>是闭区间<code>[starrt, end]</code></p></li>
+<li><p><code>until</code>是左闭右开区间<code>[start, end)</code></p></li>
+<li><p>循环守卫<code>if</code>：相当于<code>continue</code></p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(i &lt;- <span class="number">1</span> to <span class="number">3</span> <span class="keyword">if</span> i != <span class="number">2</span>)&#123; <span class="comment">// 跳过！</span></span><br><span class="line">	.......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>引人变量：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (i &lt;- <span class="number">1</span> to <span class="number">3</span>; j = <span class="number">4</span> - i)&#123;</span><br><span class="line">	......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>嵌套循环：可以写在一行</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (i &lt;- <span class="number">1</span> to <span class="number">3</span>; j &lt;- <span class="number">1</span> to <span class="number">3</span>) &#123;</span><br><span class="line">	<span class="comment">// 其实是两层循环</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但这么写只能用于一些简单的情况</p></li>
+<li><p>循环返回值<code>yield</code>：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> rst = <span class="keyword">for</span> (i &lt;- <span class="number">1</span> to <span class="number">10</span>) <span class="keyword">yield</span> &#123;i * i&#125;</span><br></pre></td></tr></table></figure>
+<p>将10个返回结果存放到集合<code>Vector</code>中，并将该<code>Vector</code>返回给<code>rst</code></p>
+<p><strong>这也体现了该语言在大数据处理中的应用。</strong></p></li>
+<li><p>小括号变大括号：使用大括号可以实现分行</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> &#123;</span><br><span class="line">	i &lt;- <span class="number">1</span> to <span class="number">3</span></span><br><span class="line">	j &lt;- <span class="number">1</span> to <span class="number">3</span>&#125; &#123;</span><br><span class="line">	<span class="comment">// 其实是两层循环</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等价于下方代码</span></span><br><span class="line"><span class="keyword">for</span> (i &lt;- <span class="number">1</span> to <span class="number">3</span>; j &lt;- <span class="number">1</span> to <span class="number">3</span>) &#123;</span><br><span class="line">	<span class="comment">// 其实是两层循环</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>控制步长<code>Range</code>：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (i &lt;- <span class="type">Range</span>(<span class="number">1</span>, <span class="number">10</span>, <span class="number">2</span>)) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等价写法</span></span><br><span class="line"><span class="keyword">for</span> (i &lt;- <span class="number">1</span> to <span class="number">10</span> <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">1</span>) &#123;&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="while循环和do...while循环"><code>while</code>循环和<code>do...while</code>循环：</h2>
+<p>它们的返回值是<code>Unit</code>，即本身没有返回值，Scala不推荐使用<code>while</code></p>
+<h2 id="如何中断循环">如何中断循环</h2>
+<p>Scala中没有<code>continue</code>和<code>break</code>这两个关键字！它是通过<strong>函数式的风格</strong>来实现这两个关键字的效果。</p>
+<h3 id="如何实现break效果">如何实现break效果</h3>
+<p>Scala将<code>break</code>关键字替换成了<code>util.control.Breaks</code>中的<code>break()</code>函数以及<code>breakable()</code>函数：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">breakable( <span class="comment">// 它是一个高阶函数</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123; </span><br><span class="line">        <span class="keyword">break</span>() <span class="comment">// 它通过抛出breakException异常来实现中断，所以，需要捕获异常来处理</span></span><br><span class="line">    &#125;</span><br><span class="line">)</span><br><span class="line"><span class="comment">// 补充：高阶函数是指能够接受函数作为参数的函数。</span></span><br></pre></td></tr></table></figure>
+<p>但是，由于传入的是代码块，<code>breakable()</code>使用小括号让代码看起来比较怪，所以又会将小括号改为大括号：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">breakable&#123; </span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123; </span><br><span class="line">        <span class="keyword">break</span>()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="如何实现continue效果">如何实现<code>continue</code>效果</h3>
+<p>使用循环守卫或者<code>if...else...</code>结构</p>
+<h1 id="scala中下划线_的含义">Scala中下划线<code>_</code>的含义：</h1>
+<ul>
+<li>引包的时候，表示将某个包中的内容全部引入</li>
+<li>将方法转换成函数</li>
+</ul>
+<h1 id="scala函数式编程">Scala函数式编程</h1>
+<ol type="1">
+<li><p>scala中，方法和函数是两个概念，但是，这<strong>两者几乎等同</strong>。</p>
+<p>方法/函数的定义：关键字<code>def</code></p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyMath</span></span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">sum</span></span>(x:<span class="type">Int</span>, y:<span class="type">Int</span>):<span class="type">Int</span> = &#123; <span class="comment">// 这里是等号</span></span><br><span class="line">		x + y</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">multi</span></span>(x:<span class="type">Int</span>, y:<span class="type">Int</span>):<span class="type">Int</span> = &#123;</span><br><span class="line">    x * y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>匿名函数的定义如下：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> f = (x:<span class="type">Int</span>, y:<span class="type">Int</span>) =&gt; &#123; <span class="comment">// 注意符号</span></span><br><span class="line">	x + y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>方法转换到函数：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> fromDef = <span class="type">MyMath</span>.sum _ <span class="comment">// 不带括号，然后空格接一个下划线</span></span><br></pre></td></tr></table></figure></li>
+<li><p>方法或函数定义中，等号的含义：</p>
+<ul>
+<li>明确声明了返回值，此时必须有等号</li>
+<li>可以不声明返回值，此时也必须有等号，表示返回值类型需要推导</li>
+<li>没有等号，表示代码块没有返回值，或者返回值为<code>Unit</code></li>
+</ul></li>
+<li><p>如果函数没有型参，则调用时可以不带括号</p></li>
+<li><p>Scala中，如果函数中使用了<code>return</code>，编译器将不能自行推断函数返回类型；如果函数没有返回值（也就是没有加等号），那么即使有了<code>return</code>，也没有返回值</p></li>
+<li><p>形参默认是<code>val</code></p></li>
+<li><p>形参可以有默认值</p></li>
+<li><p>支持命名参数，类似Python的参数，默认从左到右依次覆盖</p></li>
+<li><p>递归不能使用自动类型推到返回值，必须明确指定</p></li>
+<li><p>支持可变参数</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sum</span></span>(args:<span class="type">Int</span>*):<span class="type">Int</span>=&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>可变参数必须写在最后</p></li>
+<li><p>函数懒加载<code>lazy</code></p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">lazy</span> <span class="keyword">val</span> rst = sum(<span class="number">10</span>, <span class="number">20</span>)</span><br></pre></td></tr></table></figure>
+<p>当<code>rst</code>后续被用到的时候，再去计算。</p>
+<p><code>lazy</code>不能修饰<code>var</code></p>
+<p><code>lazy</code>也可以用于变量的声明</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">lazy</span> <span class="keyword">val</span> t = <span class="number">10</span></span><br></pre></td></tr></table></figure></li>
+<li></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Scala</category>
+      </categories>
+      <tags>
+        <tag>Scala</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LeetCode 1111.有效括号的嵌套深度</title>
     <url>/2020/03/28/LeetCode%201111.%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7%E7%9A%84%E5%B5%8C%E5%A5%97%E6%B7%B1%E5%BA%A6/</url>
     <content><![CDATA[<blockquote>
