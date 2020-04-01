@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="Y0-gFMBzGnbrueUrh8PjkmnvCGItjob2oR3HjG9SVnE">
+  <meta name="msvalidate.01" content="97A49017D4D536B99438C4EE0E9FBA3F">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zuiqiangiron.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Scala数据结构。 未完待续。  Scala数据结构基本概念 同时支持可变集合和不可变集合（并发安全）：  不可变集合：scala.collection.immutable 可变集合：scala.collection.mutable  对于几乎所有的集合类，Scala都同时提供了可变和不可变两个版本。Scala默认采用不可变集合。 Scala所有的集合都扩展自Iterable。 Scala集合">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Scala数据结构">
+<meta property="og:url" content="https://www.zuiqiangiron.xyz/2020/04/01/Scala%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="Scala数据结构。 未完待续。  Scala数据结构基本概念 同时支持可变集合和不可变集合（并发安全）：  不可变集合：scala.collection.immutable 可变集合：scala.collection.mutable  对于几乎所有的集合类，Scala都同时提供了可变和不可变两个版本。Scala默认采用不可变集合。 Scala所有的集合都扩展自Iterable。 Scala集合">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1585720054/scala/mutable.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1585720054/scala/immutable.jpg">
+<meta property="article:published_time" content="2020-04-01T10:00:00.000Z">
+<meta property="article:modified_time" content="2020-04-01T10:58:49.962Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Scala">
+<meta property="article:tag" content="Scala数据结构">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1585720054/scala/mutable.png">
+
+<link rel="canonical" href="https://www.zuiqiangiron.xyz/2020/04/01/Scala%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Scala数据结构 | 嘴强黑铁</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161480657-1"></script>
+    <script pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161480657-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">天下事以难而废者十之一，以惰而废者十之九</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zuiqiangiron.xyz/2020/04/01/Scala%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Scala数据结构
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-01 18:00:00 / 修改时间：18:58:49" itemprop="dateCreated datePublished" datetime="2020-04-01T18:00:00+08:00">2020-04-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Scala/" itemprop="url" rel="index"><span itemprop="name">Scala</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Scala/Scala%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">Scala数据结构</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/04/01/Scala%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/04/01/Scala数据结构/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>Scala数据结构。</p>
+<p>未完待续。</p>
+</blockquote>
+<h1 id="scala数据结构基本概念">Scala数据结构基本概念</h1>
+<p>同时支持<strong>可变集合</strong>和<strong>不可变集合（并发安全）</strong>：</p>
+<ul>
+<li>不可变集合：<code>scala.collection.immutable</code></li>
+<li>可变集合：<code>scala.collection.mutable</code></li>
+</ul>
+<p>对于几乎所有的集合类，Scala都同时提供了可变和不可变两个版本。<strong>Scala默认采用不可变集合</strong>。</p>
+<p>Scala所有的集合都扩展自<code>Iterable</code>。</p>
+<p>Scala集合三大类：</p>
+<ul>
+<li>序列Seq（Java中没有这个类，Scala特有）</li>
+<li>集合Set</li>
+<li>映射Map</li>
+</ul>
+<p><code>syn</code>开头的集合表示线程安全。</p>
+<h2 id="可变集合继承关系">可变集合继承关系</h2>
+<figure>
+<img src="https://res.cloudinary.com/vpointer/image/upload/v1585720054/scala/mutable.png" alt="" /><figcaption>img</figcaption>
+</figure>
+<h2 id="不可变集合继承关系">不可变集合继承关系</h2>
+<figure>
+<img src="https://res.cloudinary.com/vpointer/image/upload/v1585720054/scala/immutable.jpg" alt="" /><figcaption>img</figcaption>
+</figure>
+<h1 id="数组">数组</h1>
+<h2 id="定长数组array">定长数组Array</h2>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> test = <span class="keyword">new</span> <span class="type">Array</span>[int](<span class="number">10</span>)</span><br><span class="line"><span class="keyword">val</span> test2 = <span class="type">Array</span>(<span class="number">1</span>, <span class="number">1.1</span>, <span class="string">"1.2"</span>) <span class="comment">// apply方法，其中的类型可以不同，此时数组的泛型是Any</span></span><br><span class="line"><span class="keyword">val</span> t = test(<span class="number">0</span>) <span class="comment">// 下标访问使用小括号</span></span><br><span class="line"><span class="comment">// 两种遍历方式</span></span><br><span class="line"><span class="keyword">for</span> (i &lt;- test) &#123; println(i) &#125;</span><br><span class="line"><span class="keyword">for</span> (i &lt;- <span class="number">0</span> unitl test2.lenght) &#123; println(test2(i)) &#125;</span><br></pre></td></tr></table></figure>
+<p><code>Array</code>就在包<code>scala</code>中，所以不用引包。</p>
+<p>上述<code>test</code>的底层就是<code>int[] test = new int[10];</code></p>
+<p><code>test2</code>的泛型是<code>Any</code>。</p>
+<h2 id="变长数组arraybuffer">变长数组ArrayBuffer</h2>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> scala.collection.mutable.<span class="type">ArrayBuffer</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> ab = <span class="type">ArrayBuffer</span>[<span class="type">Any</span>](<span class="number">1</span>, <span class="number">1.1</span>, <span class="string">"1.2"</span>)</span><br><span class="line">ab.append(<span class="number">1.3</span>f, <span class="string">"1.4"</span>)</span><br><span class="line">ab.remove(<span class="number">4</span>) <span class="comment">// 删除第5个元素</span></span><br></pre></td></tr></table></figure>
+<p>类似Java的<code>ArrayLis</code>。</p>
+<h2 id="多维数组">多维数组</h2>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建一个3行4列的二维Int数组</span></span><br><span class="line"><span class="keyword">val</span> arrDim = <span class="type">Array</span>.ofDim[<span class="type">Int</span>](<span class="number">3</span>, <span class="number">4</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 遍历</span></span><br><span class="line"><span class="keyword">for</span> (row &lt;- arrDim)&#123;</span><br><span class="line">    <span class="keyword">for</span> (c &lt;- row)&#123;</span><br><span class="line">        println(c)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="定长变长数组的相互转换">定长变长数组的相互转换</h2>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">test.toBuffer <span class="comment">// 定长数组转可变数组</span></span><br><span class="line">ab.toArray <span class="comment">// 变长数组转定长数组</span></span><br></pre></td></tr></table></figure>
+<p><code>test</code>和<code>ab</code>本身都没有变化。</p>
+<h2 id="scala数组与java数组的互换">Scala数组与Java数组的互换</h2>
+<h3 id="scala数组转java">Scala数组转Java</h3>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> temp = <span class="type">ArrayBuffer</span>(<span class="string">"1"</span>, <span class="string">"2"</span>, <span class="string">"3"</span>)</span><br><span class="line"><span class="comment">// 引入了一个隐式转换Buffer转Java List</span></span><br><span class="line"><span class="keyword">import</span> scala.collection.<span class="type">JavaConversions</span>.bufferAsJavaList</span><br><span class="line"><span class="keyword">val</span> javaArr = <span class="keyword">new</span> <span class="type">ProcessBuilder</span>(temp)</span><br><span class="line"><span class="keyword">val</span> arrList = javaArr.command()</span><br></pre></td></tr></table></figure>
+<h3 id="java数组转scala">Java数组转Scala</h3>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 依然是引入隐式转换</span></span><br><span class="line"><span class="keyword">import</span> scala.collection.<span class="type">JavaConversions</span>.asScalaBuffer</span><br><span class="line"><span class="keyword">import</span> scala.collection.mutable.<span class="type">Buffer</span></span><br><span class="line"><span class="keyword">val</span> scalaArr: <span class="type">Buffer</span>[<span class="type">String</span>] = arrList  <span class="comment">// Java转Scala很简单</span></span><br></pre></td></tr></table></figure>
+<h1 id="元组tuple">元组Tuple</h1>
+<p>为了高效的操作元组，编译器根据元素个数的不同，对应不同的元组：只有一个元素的元组的类型就是<code>Tuple1</code>，有2个元素的元组的类型就是<code>Tuple2</code>，以此类推，但<strong>最大只有22个元素</strong>！</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> t1 = (<span class="number">1</span>, <span class="number">2</span>) <span class="comment">// tupleTest是Tuple2</span></span><br><span class="line"></span><br><span class="line">println(t1._1) <span class="comment">// 访问元组的第一个元素</span></span><br><span class="line">println(t1.productElement(<span class="number">0</span>)) <span class="comment">// 访问元组的第一个元素</span></span><br></pre></td></tr></table></figure>
+<h2 id="遍历元组">遍历元组</h2>
+<p>元组的遍历不能用传统方式，而是要用迭代器。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不能像传统那样遍历</span></span><br><span class="line"><span class="keyword">for</span> (item &lt;- t1) &#123;&#125; <span class="comment">// 报错！</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(item &lt;- t1.productIterator)&#123;&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="list">List</h1>
+<p>Scala中<code>List</code>并不是接口，且是不可变的。可变<code>List</code>使用<code>ListBuffer</code>。</p>
+<p><code>List</code>在包对象<code>package object scala</code>中做了声明，所以能直接用。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> list01 = <span class="type">List</span>(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>)</span><br><span class="line"><span class="keyword">val</span> list02 = <span class="type">Nil</span> <span class="comment">// 空集，不等于null，而是List()</span></span><br></pre></td></tr></table></figure>
+<p><code>List</code>可以放任何类型的元素。</p>
+<p>向<code>List</code>追加元素，会返回一个新的<code>List</code></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 追加单个元素</span></span><br><span class="line"><span class="keyword">val</span> list03 = list01 :+ <span class="number">1</span> <span class="comment">// 末尾追加元素</span></span><br><span class="line"><span class="keyword">val</span> list04 = <span class="number">1</span> +: list01 <span class="comment">// 开头追加数据</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ::符号可以追加一个集合，从右向左！</span></span><br><span class="line"><span class="comment">// list05的内容如下： List(4,5,6,List(1,2,3))</span></span><br><span class="line"><span class="keyword">val</span> list05 = <span class="number">4</span>::<span class="number">5</span>::<span class="number">6</span>::list01::<span class="type">Nil</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// :::符号：将集合中的每一个元素加到末尾的集合中</span></span><br><span class="line"><span class="comment">// list06的内容如下：List(4,5,6,1,2,3)，依然是从右到左</span></span><br><span class="line"><span class="keyword">val</span> list06 = <span class="number">4</span>::<span class="number">5</span>::<span class="number">6</span>::list01:::<span class="type">Nil</span></span><br></pre></td></tr></table></figure>
+<p><code>::</code>和<code>:::</code>都是从右到左。</p>
+<h2 id="可变listlistbuffer">可变List：ListBuffer</h2>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> lb000 = <span class="type">ListBuffer</span>[<span class="type">Int</span>](<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>)</span><br><span class="line"><span class="keyword">val</span> lb001 = <span class="keyword">new</span> <span class="type">ListBuffer</span>[<span class="type">Int</span>]</span><br><span class="line"><span class="comment">// 添加单个元素</span></span><br><span class="line">lb001 += <span class="number">1</span></span><br><span class="line">lb001.append(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 添加另一个集合中的元素</span></span><br><span class="line">lb001 ++= list000 <span class="comment">// lb001: ListBuffer(1, 2, 1, 2, 3)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除元素</span></span><br><span class="line">lb001.remove(<span class="number">1</span>) <span class="comment">// 参数是下标</span></span><br></pre></td></tr></table></figure>
+<h1 id="队列queue">队列Queue</h1>
+<p>它也分为可变和不可变，但一般使用不可变版本。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> q1 = <span class="keyword">new</span> <span class="type">Queue</span>[<span class="type">Any</span>]</span><br><span class="line"><span class="comment">// 入队</span></span><br><span class="line">q1 += <span class="number">1</span> <span class="comment">// Queue(1)</span></span><br><span class="line">q1 += <span class="type">List</span>(<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>)	<span class="comment">// Queue(1, List(2, 3, 4))</span></span><br><span class="line">q1 ++= <span class="type">List</span>(<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>)	<span class="comment">// Queue(1, List(2, 3, 4), 5, 6, 7)</span></span><br><span class="line">q1.enqueue(<span class="number">8</span>)	<span class="comment">// Queue(1, List(2, 3, 4), 5, 6, 7, 8)</span></span><br><span class="line"><span class="comment">// 出队</span></span><br><span class="line"><span class="keyword">val</span> q = q1.dequeue()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 访问第一个元素</span></span><br><span class="line"><span class="keyword">val</span> head = q1.head</span><br><span class="line"><span class="comment">// 访问最后一个元素</span></span><br><span class="line"><span class="keyword">val</span> last = q1.last</span><br><span class="line"><span class="comment">// 访问尾元素（除第一个元素之外的元素）</span></span><br><span class="line"><span class="keyword">val</span> tail = q1.tail</span><br></pre></td></tr></table></figure>
+<h1 id="map集合">Map集合</h1>
+<p>Scala中，<code>不可变的Map</code>是有序的，<code>可变的Map</code>是无序的。默认是不可变的。</p>
+<h2 id="不可变map">不可变Map</h2>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> imMap = <span class="type">Map</span>(<span class="string">"Alice"</span> -&gt; <span class="number">10</span>, <span class="string">"Bob"</span> -&gt; <span class="number">20</span>)</span><br></pre></td></tr></table></figure>
+<p>在底层，每对的Key-Value都是<code>Tuple2</code>。</p>
+<h2 id="可变map">可变Map</h2>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> scala.collection.mutable</span><br><span class="line"><span class="keyword">val</span> mMap = mutable.<span class="type">Map</span>(<span class="string">"Alice"</span> -&gt; <span class="number">10</span>, <span class="string">"Bob"</span> -&gt; <span class="number">20</span>)</span><br><span class="line"><span class="comment">// 对偶元组方式创建</span></span><br><span class="line"><span class="keyword">val</span> mMap2 = mutable.<span class="type">Map</span>((<span class="string">"Alice"</span>, <span class="number">10</span>), (<span class="string">"Bob"</span>, <span class="number">20</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建空映射</span></span><br><span class="line"><span class="keyword">val</span> emptyMap = <span class="keyword">new</span> mutable.<span class="type">HashMap</span>[<span class="type">String</span>, <span class="type">Int</span>]</span><br></pre></td></tr></table></figure>
+<h2 id="map的使用">Map的使用</h2>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 添加/更新元素</span></span><br><span class="line">mMap(<span class="string">"Tom"</span>) = <span class="number">30</span> <span class="comment">// 有则更改，无则添加</span></span><br><span class="line">mMap += (<span class="string">"A"</span>-&gt;<span class="number">40</span>)</span><br><span class="line">mMap += (<span class="string">"B"</span>-&gt;<span class="number">50</span>, <span class="string">"C"</span>-&gt;<span class="number">60</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除元素</span></span><br><span class="line">mMap -= (<span class="string">"A"</span>, <span class="string">"B"</span>) <span class="comment">// 如果Key不存在，也不会报错</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 取元素</span></span><br><span class="line"><span class="comment">// 方式1</span></span><br><span class="line"><span class="keyword">val</span> e = mMap(<span class="string">"Alice"</span>)</span><br><span class="line"><span class="keyword">val</span> e2 = mMap(<span class="string">"Alice~"</span>) <span class="comment">// 抛出异常</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 方式2</span></span><br><span class="line"><span class="keyword">if</span> (mMap.contains(<span class="string">"Alice"</span>))&#123; <span class="comment">// 判断</span></span><br><span class="line">    <span class="keyword">val</span> e3 = mMap(<span class="string">"Alice"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方式3</span></span><br><span class="line"><span class="comment">// mMap.get("Alice")，如果存在，获取的是Some，它是Object的一个子类；</span></span><br><span class="line"><span class="comment">// 如果不存在，则返回的是None</span></span><br><span class="line"><span class="comment">// 要取得真正的值，还需要再一次调用get</span></span><br><span class="line"><span class="keyword">val</span> e4 = mMap.get(<span class="string">"Alice"</span>).get </span><br><span class="line"></span><br><span class="line"><span class="comment">// 方式4：第二个参数是默认值</span></span><br><span class="line"><span class="keyword">val</span> e5 = mMap.getOrElse(<span class="string">"Alice"</span>, <span class="string">"&lt;・)))&gt;&lt;&lt;"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 遍历</span></span><br><span class="line"><span class="keyword">for</span>((k, v) &lt;- mMap) &#123;&#125;</span><br><span class="line"><span class="keyword">for</span>(k &lt;- mMap.keys) &#123;&#125;</span><br><span class="line"><span class="keyword">for</span>(k &lt;- mMap.values) &#123;&#125;</span><br><span class="line"><span class="keyword">for</span>(t &lt;- mMap)&#123;&#125; <span class="comment">// t是Tuple2</span></span><br></pre></td></tr></table></figure>
+<h1 id="set集合">Set集合</h1>
+<p>也有可变和不可变两个版本，默认是不可变。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> imSet1 = <span class="type">Set</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> scala.collection.mutable</span><br><span class="line"><span class="keyword">val</span> mSet1 = mutable.<span class="type">Set</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 添加元素</span></span><br><span class="line">mSet1.add(<span class="number">4</span>)</span><br><span class="line">mSet1 += <span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//删除元素</span></span><br><span class="line">mSet1.remove(<span class="number">4</span>)</span><br><span class="line">mSet -= <span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 遍历</span></span><br><span class="line"><span class="keyword">for</span>(e &lt;- mSet)&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zuiqiangiron.xyz/2020/04/01/Scala%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" title="Scala数据结构">https://www.zuiqiangiron.xyz/2020/04/01/Scala数据结构/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Scala/" rel="tag"># Scala</a>
+              <a href="/tags/Scala%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag"># Scala数据结构</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/29/LeetCode%201079.%E6%B4%BB%E5%AD%97%E5%8D%B0%E5%88%B7/" rel="prev" title="LeetCode 1079.活字印刷">
+      <i class="fa fa-chevron-left"></i> LeetCode 1079.活字印刷
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#scala数据结构基本概念"><span class="nav-text">Scala数据结构基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#可变集合继承关系"><span class="nav-text">可变集合继承关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不可变集合继承关系"><span class="nav-text">不可变集合继承关系</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数组"><span class="nav-text">数组</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#定长数组array"><span class="nav-text">定长数组Array</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#变长数组arraybuffer"><span class="nav-text">变长数组ArrayBuffer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多维数组"><span class="nav-text">多维数组</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定长变长数组的相互转换"><span class="nav-text">定长变长数组的相互转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#scala数组与java数组的互换"><span class="nav-text">Scala数组与Java数组的互换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#scala数组转java"><span class="nav-text">Scala数组转Java</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#java数组转scala"><span class="nav-text">Java数组转Scala</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#元组tuple"><span class="nav-text">元组Tuple</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#遍历元组"><span class="nav-text">遍历元组</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#list"><span class="nav-text">List</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#可变listlistbuffer"><span class="nav-text">可变List：ListBuffer</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#队列queue"><span class="nav-text">队列Queue</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#map集合"><span class="nav-text">Map集合</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#不可变map"><span class="nav-text">不可变Map</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可变map"><span class="nav-text">可变Map</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#map的使用"><span class="nav-text">Map的使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#set集合"><span class="nav-text">Set集合</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="嘴强黑铁"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">66</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://www.zuiqiangiron.xyz/2020/04/01/Scala%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/";
+    this.page.identifier = "2020/04/01/Scala数据结构/";
+    this.page.title = "Scala数据结构";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>
