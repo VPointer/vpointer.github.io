@@ -7,6 +7,7 @@
 <p>Scala数据结构。</p>
 <p>未完待续。</p>
 </blockquote>
+<a id="more"></a>
 <h1 id="scala数据结构基本概念">Scala数据结构基本概念</h1>
 <p>同时支持<strong>可变集合</strong>和<strong>不可变集合（并发安全）</strong>：</p>
 <ul>
