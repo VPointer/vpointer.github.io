@@ -1,6 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>R语言学习</title>
+    <url>/2020/04/05/R%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<blockquote>
+<p>R语言学习</p>
+<p>未完待续</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="r语言基础命令">0. R语言基础命令</h1>
+<p><strong>安装第三方库的命令</strong></p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">install.packages(<span class="string">"ggplot2"</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>导入第三方库的命令</strong></p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">library</span>(ggplot2)</span><br></pre></td></tr></table></figure>
+<p><strong>更新所有第三方库的命令</strong></p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">update.packages()</span><br></pre></td></tr></table></figure>
+<h1 id="r语言基础语法">1. R语言基础语法</h1>
+<ol type="1">
+<li>R语言的下标从1开始</li>
+<li>R语言使用<code>#</code>号作为注释</li>
+<li>R语言中标识符中可以有小数点，也就是说，如果看到一个变量名为<code>a.b</code>，并不是像其他语言那样，表示访问对象<code>a</code>中的属性<code>b</code>，而是这个变量就叫做<code>a.b</code></li>
+</ol>
+<h2 id="关于向量的操作">1.1 关于向量的操作</h2>
+<p><strong>创建一个向量</strong>：R使用<code>c()</code>来创建向量。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">v = c(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>提取向量中元素的三种方法</strong>：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">v[<span class="number">2</span>]    <span class="comment"># 提取单个元素</span></span><br><span class="line">v[<span class="number">2</span>:<span class="number">4</span>]  <span class="comment"># 截取元素，闭区间，包括第4个元素，区别于Python</span></span><br><span class="line">v[c(<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>)] <span class="comment"># 提取第2，3，4个元素</span></span><br><span class="line">v[c(<span class="number">2</span>,<span class="number">4</span>,<span class="number">3</span>,<span class="number">4</span>)]   <span class="comment"># 可以重复，也可以指定顺序</span></span><br></pre></td></tr></table></figure>
+<p><strong>删除向量中的元素</strong></p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">v[-<span class="number">2</span>]   <span class="comment"># 删除单个元素，删除第2个元素</span></span><br><span class="line">v[-<span class="number">2</span>:-<span class="number">4</span>]    <span class="comment"># 删除第2个到第4个元素</span></span><br><span class="line">v[-c(<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>)]    <span class="comment"># 删除指定位置的元素</span></span><br></pre></td></tr></table></figure>
+<p><strong>按值提取向量中的元素</strong></p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">v[v&lt;<span class="number">3</span>]  <span class="comment"># 提取出值小于3的元素，返回的是一个向量</span></span><br><span class="line">v == <span class="number">3</span>  <span class="comment"># 将返回一个和v等长的布尔向量，值为3位置的元素为TRUE，其余位置为FALSE</span></span><br><span class="line">which(v == <span class="number">3</span>)   <span class="comment"># 也是返回一个向量，内容是v中值为3的坐标</span></span><br><span class="line">which.max(v)    <span class="comment"># 返回第一个最大值在向量中的坐标！注意是返回坐标！</span></span><br><span class="line">which.min(v)    <span class="comment"># 第一个最小值的坐标</span></span><br></pre></td></tr></table></figure>
+<h2 id="数">1.2 数</h2>
+<h3 id="随机数">1.2.1 随机数</h3>
+<p>一般在使用随机数之前，需要设置随机数种子：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">set.seed(<span class="number">12312312</span>)</span><br><span class="line"><span class="comment"># 表示在[0, 100]的区间内创建一个包含3个随机数的向量</span></span><br><span class="line">a = runif(<span class="number">3</span>, min=<span class="number">0</span>, max=<span class="number">100</span>)</span><br></pre></td></tr></table></figure>
+<p>目前所有的随机算法其实都是伪随机算法，现在人类还没有在计算机上实现真正的随机算法。</p>
+<p>再次设置种子，它将产生一样的随机数。</p>
+<p><code>runif()</code>是均匀分布，此外还有<code>rnorm()</code>, <code>rexp()</code>等其他分布方式产生随机数。</p>
+<h3 id="保留小数位">1.2.2 保留小数位</h3>
+<p>主要是<code>floor</code>，<code>ceiling</code>和<code>round</code>三个函数，分别对应截断法，进一法和我们常用的逢五进一法。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">floor(<span class="number">12.34</span>)    <span class="comment"># 返回12</span></span><br><span class="line">ceiling(<span class="number">12.34</span>)  <span class="comment"># 返回13</span></span><br><span class="line">round(<span class="number">12.34</span>)    <span class="comment"># 返回12</span></span><br></pre></td></tr></table></figure>
+<p>这里需要注意<code>round()</code>：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">round(<span class="number">12.85</span>, <span class="number">1</span>) <span class="comment"># 返回的是12.8，而不是12.9</span></span><br><span class="line">round(<span class="number">12.8500000001</span>, <span class="number">1</span>)    <span class="comment"># 返回的是12.9</span></span><br></pre></td></tr></table></figure>
+<h2 id="读入数据">1.3 读入数据</h2>
+<p>主要是<code>read.csv()</code>和<code>read.table()</code>，主要区别就是前者会去掉<code>.csv</code>文件的表头，后者不会去掉。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">data = read.csv(<span class="string">"test.csv"</span>)</span><br><span class="line">data2 = read.csv(<span class="string">"test2.txt"</span>)   <span class="comment"># 主要文件内是csv结构，即使是txt后缀名，它也会按照csv文件来读取</span></span><br></pre></td></tr></table></figure>
+<p>他们都可以直接读取网上的数据文件，传入相应的<code>url</code>即可。 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">data3 = read.csv(<span class="string">"https://www.zuiqiangiron.xyz/test.csv"</span>)   <span class="comment"># 并没有该文件，只是举个例子</span></span><br></pre></td></tr></table></figure></p>
+<p>这里还需要介绍一个<code>attach()</code>函数。通常如果想要获取读入数据中某一列的数据，需要使用<code>$</code>操作符： <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">data$name   <span class="comment"># 访问某列数据</span></span><br></pre></td></tr></table></figure></p>
+<p>而使用<code>attach()</code>函数，则可以将数据集中的列名当做变量直接访问：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">attach</span>(data)</span><br><span class="line">name    <span class="comment"># 直接访问data中的name</span></span><br></pre></td></tr></table></figure>
+<p>但并不推荐这种用法，因为会很容易引起命名冲突，而且也不便于代码阅读（突然看到一个之前没有声明过的变量，调试半天结果发现是<code>attach()</code>从某个数据集里面带出来的）。</p>
+<h2 id="画图">1.4 画图</h2>
+]]></content>
+      <categories>
+        <category>R</category>
+      </categories>
+      <tags>
+        <tag>R</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Scala数据结构操作</title>
     <url>/2020/04/01/Scala%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%93%8D%E4%BD%9C/</url>
     <content><![CDATA[<blockquote>
@@ -752,11 +811,63 @@
 <li><strong>编译器首先会在当前代码作用域中去查找隐式实体；</strong></li>
 <li><strong>如果没找到，会继续在隐式参数的类型的作用域中查找。</strong>（该情况范围广且复杂，应该尽量避免）</li>
 </ol>
-<h1 id="模式匹配switch">模式匹配switch</h1>
-<p>对应于Java中的switch，例子：</p>
+<h1 id="模式匹配">模式匹配</h1>
+<h2 id="match模式匹配">match模式匹配</h2>
+<p>对应于Java中的<code>switch</code>，例子：</p>
 <figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> opt = '#'</span><br><span class="line"><span class="keyword">val</span> left = <span class="number">1</span></span><br><span class="line"><span class="keyword">val</span> right = <span class="number">2</span></span><br><span class="line"><span class="keyword">val</span> rst = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">opt <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> '+' =&gt; rst = left + right	<span class="comment">// 不需要break</span></span><br><span class="line">    <span class="keyword">case</span> '-' =&gt; </span><br><span class="line">    	rst = left - right</span><br><span class="line">	    println(<span class="string">"减号"</span>) <span class="comment">// 虽然可以这样写，但推荐使用大括号</span></span><br><span class="line">    <span class="keyword">case</span> '*' =&gt; rst = left * right</span><br><span class="line">    <span class="keyword">case</span> '/' =&gt; rst = left / right</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span> =&gt; println(<span class="string">"匹配到1"</span>)</span><br><span class="line">    <span class="keyword">case</span> _ <span class="keyword">if</span> 条件 =&gt; println(<span class="string">"条件守卫"</span>)</span><br><span class="line">    <span class="keyword">case</span> _ =&gt; println(<span class="string">"没有匹配到相应的操作符！"</span>)	<span class="comment">// 默认</span></span><br><span class="line">    <span class="keyword">case</span> _ =&gt; println(<span class="string">"永远不会被匹配到这一行，但是并不会有提示，需要自行检查"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>如果没有匹配到，且也没有写默认匹配，则会抛出异常（Java中不会抛出异常）。</p>
 <p>虽然每一个<code>case</code>可以多行且不被大括号括起来，但并不推荐这样。</p>
+<h3 id="match中的变量">match中的变量</h3>
+<p>可以将输入的变量赋值给<code>match</code>中的<code>case</code>，但这样的话，永远只会匹配到一个，如下：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> ch = <span class="string">"test"</span></span><br><span class="line">ch <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">"+"</span> =&gt; println(<span class="string">"ok, +"</span>)</span><br><span class="line">    <span class="keyword">case</span> mychar = println(<span class="string">"OK, "</span> + mychar)</span><br><span class="line">    <span class="keyword">case</span> _ =&gt; println(<span class="string">"default"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码将<code>ch</code>的值赋值给了<code>mychar</code>，并且这种匹配永远只会匹配到<code>mychar</code>那一个<code>case</code>。</p>
+<h3 id="match返回值">match返回值</h3>
+<p>Scala中，<code>match</code>是有返回值的，它的返回值是匹配到的<code>case</code>块中的最后一行代码的值。</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> ch = <span class="string">"test"</span></span><br><span class="line"><span class="keyword">val</span> rst = ch <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">"test"</span> =&gt; ch + <span class="string">" hello"</span></span><br><span class="line">    <span class="keyword">case</span> _ =&gt; println(<span class="string">"default"</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// "test hello"</span></span><br><span class="line">println(rst)</span><br></pre></td></tr></table></figure>
+<h3 id="match匹配">match匹配</h3>
+<h4 id="match类型匹配">match类型匹配</h4>
+<p>可以根据变量的类型来匹配。</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> rst = obj <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> a:<span class="type">Int</span> =&gt; a</span><br><span class="line">    <span class="keyword">case</span> b:<span class="type">Map</span>[<span class="type">String</span>, <span class="type">Int</span>] =&gt; <span class="string">"这是一个Map[String, Int]类型的对象！"</span></span><br><span class="line">    <span class="comment">// 和case b并不是同一个类型！</span></span><br><span class="line">    <span class="keyword">case</span> c:<span class="type">Map</span>[<span class="type">Int</span>, <span class="type">String</span>] =&gt; <span class="string">"这是一个Map[Int, String]类型的对象！"</span></span><br><span class="line">    <span class="keyword">case</span> _:<span class="type">BigInt</span> =&gt; <span class="type">Int</span>.<span class="type">MaxValue</span> <span class="comment">// 这并不是默认匹配！而是表示后续用不到obj对象</span></span><br><span class="line">    <span class="keyword">case</span> _ =&gt; <span class="string">"没有匹配到"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意上述的<code>case _:BigInt</code>这个匹配，它并不是默认匹配！而是表示对应的<code>case</code>代码块中不会用到输入的对象，故在此隐藏变量名。</p>
+<h4 id="match数组匹配">match数组匹配</h4>
+<p><code>match</code>还可以根据数组结构匹配数组<code>Array</code>：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> arr = <span class="type">Array</span>(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line"><span class="keyword">val</span> result = arr <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="type">Array</span>(<span class="number">0</span>) =&gt; <span class="number">0</span> <span class="comment">// 匹配只有一个元素0的数组</span></span><br><span class="line">    <span class="keyword">case</span> <span class="type">Array</span>(x, y, z) =&gt; <span class="type">Array</span>(y, x) <span class="comment">// 匹配有3个元素的数组，并且x,y,z会被赋值！</span></span><br><span class="line">    <span class="keyword">case</span> <span class="type">Array</span>(<span class="number">0</span>, _*) =&gt; <span class="string">"以0开头的数组"</span></span><br><span class="line">    <span class="keyword">case</span> _ =&gt; <span class="string">"什么都没有匹配到"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="match列表匹配">match列表匹配</h4>
+<p>上述是匹配索引序列<code>Array</code> ，match还可以匹配有序序列<code>List</code>：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> list = <span class="type">List</span>(<span class="number">0</span>)</span><br><span class="line"><span class="keyword">val</span> rst = list <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">0</span>::<span class="type">Nil</span> =&gt; <span class="string">"0"</span></span><br><span class="line">    <span class="keyword">case</span> x::<span class="type">Nil</span> =&gt; x <span class="comment">// 原值返回</span></span><br><span class="line">    <span class="keyword">case</span> x::y::<span class="type">Nil</span> =&gt; <span class="string">"该列表只有两个元素"</span> + x + <span class="string">" "</span> + y</span><br><span class="line">    <span class="comment">// rest将会是一个List，用于保留剩余的元素</span></span><br><span class="line">    <span class="keyword">case</span> first::second::rest =&gt; println(rest.length)</span><br><span class="line">    <span class="keyword">case</span> <span class="number">0</span>::tail =&gt; <span class="string">"0, ..."</span></span><br><span class="line">    <span class="keyword">case</span> _ =&gt; <span class="string">"Nothing to match"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="match元组匹配">match元组匹配</h4>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> tuple = (<span class="number">1</span>, <span class="number">0</span>)</span><br><span class="line"><span class="keyword">val</span> rst = tuple <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> (<span class="number">0</span>, _) =&gt; <span class="string">"(0, x)"</span></span><br><span class="line">    <span class="keyword">case</span> (y, <span class="number">0</span>) =&gt; y</span><br><span class="line">    <span class="keyword">case</span> (x, y) =&gt; x * y</span><br><span class="line">    <span class="keyword">case</span> _ =&gt; <span class="string">"Other"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="match对象匹配">match对象匹配</h4>
+<p><code>case</code>中对象的<code>unapply</code>方法（对象提取器）返回<code>some</code>集合则为匹配成功，返回<code>None</code>集合则匹配失败：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">apply</span></span>(z:<span class="type">Double</span>):<span class="type">Double</span> = z * z</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">unapply</span></span>(z:<span class="type">Double</span>):<span class="type">Option</span>[<span class="type">Double</span>] = <span class="type">Some</span>(math.sqrt(z))</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">unapplySeq</span></span>(str:<span class="type">String</span>):<span class="type">Option</span>[<span class="type">Seq</span>[<span class="type">String</span>]] = &#123;</span><br><span class="line">        <span class="keyword">if</span> (seq.contains(<span class="string">","</span>)) </span><br><span class="line">        	<span class="type">Some</span>(str.split(<span class="string">","</span>))</span><br><span class="line">        <span class="keyword">else</span> </span><br><span class="line">        	<span class="type">None</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> num = <span class="number">36.0</span></span><br><span class="line">num <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="comment">// 会调用unapply方法去解析出当初构造对象时传入的参数，而不是apply方法！</span></span><br><span class="line">    <span class="comment">// 如果匹配成功，它将返回Some(x)，并且，它还会将其中的x赋值给下方Square(n)中的n</span></span><br><span class="line">    <span class="keyword">case</span> <span class="type">Test</span>(n) =&gt; println(n)</span><br><span class="line">    <span class="keyword">case</span> <span class="type">Test</span>(first, second, third) =&gt;</span><br><span class="line">    <span class="keyword">case</span> _ =&gt; <span class="string">"Other"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当上述的<code>num</code>进入<code>case Square(n)</code>时，<code>match</code>会去调用<code>Square</code>的<code>unapply(对应单参数构造器)</code>或者<code>unapplySeq(对应多参数构造器)</code>方法去解析出当初构造对象时传入的参数，不过这个机制由用户决定，而不是去真的倒推当初真正传入的参数。</p>
+<p>这种情景常用于根据已知对象，反推当初对象是怎么构建的，尤其是对象构建时的初始值。</p>
+<h2 id="变量声明中的模式">变量声明中的模式</h2>
+<p>这里有点类似于Python中的解包：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> (x, y) = (<span class="number">1</span>, <span class="number">2</span>)	<span class="comment">// x = 1, y = 2</span></span><br><span class="line"><span class="keyword">val</span> (q, r) = <span class="type">BigInt</span>(<span class="number">10</span>) /% <span class="number">3</span>	<span class="comment">// q = 3, r = 1</span></span><br><span class="line"><span class="keyword">val</span> <span class="type">Array</span>(first, second, _*) = <span class="type">Array</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)	<span class="comment">// first = 1, second = 2</span></span><br></pre></td></tr></table></figure>
+<h2 id="for表达式中的模式">for表达式中的模式</h2>
+<p>除了之前已经提到过的遍历<code>Map</code>：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> map = <span class="type">Map</span>(<span class="string">"A"</span> -&gt; <span class="number">1</span>, <span class="string">"B"</span> -&gt; <span class="number">2</span>, <span class="string">"C"</span> -&gt; <span class="number">3</span>)</span><br><span class="line"><span class="keyword">for</span> ((k, v) &lt;- map) &#123;</span><br><span class="line">    println(k + <span class="string">"-&gt;"</span> + v)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>还可以直接筛选满足条件的值，例如，只输出<code>value</code>为0的值：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> ((k, <span class="number">0</span>) &lt;- map) &#123;</span><br><span class="line">    println(k + <span class="string">"-&gt;"</span> + v)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 等价于</span></span><br><span class="line"><span class="keyword">for</span> ((k, v) &lt;- map <span class="keyword">if</span> v == <span class="number">0</span>) &#123;</span><br><span class="line">    println(k + <span class="string">"-&gt;"</span> + v)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="样例类">样例类</h2>
+<ul>
+<li>样例类任然是类</li>
+<li>样例类使用case关键字进行声明</li>
+<li>样例类是为模式匹配而优化的类</li>
+<li>构造器中的每一个参数都将成为该类的一个<code>val</code>属性（也可以显式的声明为<code>var</code>，但不建议这样做）</li>
+<li>提供<code>unapply</code>方法让模式匹配可以工作</li>
+<li>将自动生成<code>toString</code>，<code>equals</code>，<code>hashCode</code>和<code>copy</code>等方法（有点类似于模板类）</li>
+<li>除上述外，样例类和普通类完全一样，可以添加方法和字段对其进行扩展</li>
+</ul>
+<p>以下是样例类的声明方式：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTestCaseClass</span>(<span class="params">name: <span class="type">String</span></span>)</span></span><br><span class="line"><span class="class"><span class="title">abstract</span> <span class="title">class</span> <span class="title">Amount</span></span></span><br><span class="line"><span class="class"><span class="title">case</span> <span class="title">class</span> <span class="title">Dollar</span>(<span class="params">value: <span class="type">Double</span></span>) <span class="keyword">extends</span> <span class="title">Amount</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="样例类的用途">样例类的用途</h3>
+<ol type="1">
+<li>样例类的主要用途之一就是前方的<code>match</code>对象匹配，将对象中的属性值提取到变量中。</li>
+<li>通过样例类自带的<code>copy</code>方法赋值对象，同时还可以在copy时修改某些属性 <figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> dollar = <span class="type">Dollar</span>(<span class="number">100</span>)</span><br><span class="line"><span class="keyword">val</span> otherDollar = dollar.copy(value = <span class="number">1000</span>)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="匹配嵌套结构">匹配嵌套结构</h2>
 ]]></content>
       <categories>
         <category>Scala</category>
