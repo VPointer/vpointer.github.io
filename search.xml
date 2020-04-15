@@ -6,6 +6,7 @@
     <content><![CDATA[<blockquote>
 <p>Maven学习笔记</p>
 </blockquote>
+<a id="more"></a>
 <h1 id="maven概述">Maven概述</h1>
 <p>一个对Maven比较正式的定义是：它是一个项目管理工具，它包含了一个<strong>项目对象模型(POM：Project Object Model)</strong>，一组标准集合，一个项目<strong>生命周期(Project Lifecycle)</strong>，一个<strong>依赖管理系统(Dependency Management System)</strong>，和用来运行定义在生命周期阶段中插件目标的逻辑。</p>
 <p>通俗的讲，Maven解决的问题就是以下3点：</p>
