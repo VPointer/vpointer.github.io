@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="Y0-gFMBzGnbrueUrh8PjkmnvCGItjob2oR3HjG9SVnE">
+  <meta name="msvalidate.01" content="97A49017D4D536B99438C4EE0E9FBA3F">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zuiqiangiron.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《R语言实战》笔记。 R语言入门内容。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R语言入门">
+<meta property="og:url" content="https://www.zuiqiangiron.xyz/2020/04/16/R%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《R语言实战》笔记。 R语言入门内容。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-16T10:30:00.000Z">
+<meta property="article:modified_time" content="2020-04-18T12:33:05.570Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="R语言">
+<meta property="article:tag" content="R语言入门">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://www.zuiqiangiron.xyz/2020/04/16/R%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>R语言入门 | 嘴强黑铁</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161480657-1"></script>
+    <script pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161480657-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">天下事以难而废者十之一，以惰而废者十之九</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zuiqiangiron.xyz/2020/04/16/R%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          R语言入门
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-16 18:30:00" itemprop="dateCreated datePublished" datetime="2020-04-16T18:30:00+08:00">2020-04-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-18 20:33:05" itemprop="dateModified" datetime="2020-04-18T20:33:05+08:00">2020-04-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">R语言</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/04/16/R%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/04/16/R语言入门/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《R语言实战》笔记。</p>
+<p>R语言入门内容。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="写在最前的零散要点">写在最前的零散要点：</h1>
+<p>可以看完后面的内容再回头来看这些要点。</p>
+<ol type="1">
+<li>R语言不推荐用等号<code>=</code>来赋值，它会在某些情况下出错，R语言更推荐用<code>&lt;-</code>来表示赋值（它在RStudio和Jupyter Notebook中的快捷键是<code>command + -</code>。</li>
+<li>R语言下标从1开始计数，而不像其他语言那样从0开始计数。</li>
+<li>变量名称中的句点(<code>.</code>)没有特殊意义，但美元符号(<code>$</code>)却有着和其他语言中的句点类似的含义，即指定一个数据框或列表中的某些部分。例如，<code>A$x</code>是指数据框<code>A</code>中的变量<code>x</code>。</li>
+</ol>
+<h1 id="新手函数">新手函数</h1>
+<p>以下是新手函数的整理。</p>
+<p><strong>帮助相关的函数</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th>函数</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>help.start()</code></td>
+<td>打开帮助文档首页</td>
+</tr>
+<tr class="even">
+<td><code>help("foo”)</code>或<code>?foo</code></td>
+<td>查看函数 <code>foo</code> 的帮助(引号可以省略)</td>
+</tr>
+<tr class="odd">
+<td><code>help.search("foo")</code>或<code>??foo</code></td>
+<td>以 <code>foo</code> 为关键词搜索本地帮助文档</td>
+</tr>
+<tr class="even">
+<td><code>example("foo")</code></td>
+<td>函数 <code>foo</code> 的使用示例(引号可以省略)</td>
+</tr>
+<tr class="odd">
+<td><code>RSiteSearch("foo")</code></td>
+<td>以 <code>foo</code> 为关键词搜索在线文档和邮件列表存档</td>
+</tr>
+<tr class="even">
+<td><code>apropos("foo", mode="function")</code></td>
+<td>列出名称中含有 <code>foo</code> 的所有可用函数</td>
+</tr>
+<tr class="odd">
+<td><code>data()</code></td>
+<td>列出当前已加载包中所含的所有可用示例数据集</td>
+</tr>
+<tr class="even">
+<td><code>vignette()</code></td>
+<td>列出当前已安装包中所有可用的 vignette文档</td>
+</tr>
+<tr class="odd">
+<td><code>vignette("foo")</code></td>
+<td>为主题 <code>foo</code> 显示指定的 vignette 文档</td>
+</tr>
+</tbody>
+</table>
+<p>说明：</p>
+<blockquote>
+<p>大多数软件包中包含的另一个非常有用的帮助来源是<strong>小品文（Vignettes）</strong>，这些小文件是作者以更详细的方式显示其软件包的一些功能的文档。</p>
+</blockquote>
+<p><strong>工作空间相关的函数</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th>函数</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>getwd()</code></td>
+<td>查看当前的工作目录</td>
+</tr>
+<tr class="even">
+<td><code>setwd()</code></td>
+<td>设定当前的工作目录。反斜杠<code>\</code>转义</td>
+</tr>
+<tr class="odd">
+<td><code>dir.create()</code></td>
+<td>创建新目录</td>
+</tr>
+<tr class="even">
+<td><code>ls()</code></td>
+<td>列出当前工作空间中的对象</td>
+</tr>
+<tr class="odd">
+<td><code>rm(objectlist)</code></td>
+<td>移除(删除)一个或多个对象</td>
+</tr>
+<tr class="even">
+<td><code>help(options)</code></td>
+<td>显示可用选项的说明</td>
+</tr>
+<tr class="odd">
+<td><code>options()</code></td>
+<td>显示或设置当前选项，例如设置输出图像的长宽，设置小数点的输出位数</td>
+</tr>
+<tr class="even">
+<td><code>history(#)</code></td>
+<td>显示最近使用过的<code>#</code>个命令(默认值为 <code>25</code>)</td>
+</tr>
+<tr class="odd">
+<td><code>savehistory("myfile")</code></td>
+<td>保存命令历史到文件 <code>myfile</code> 中(默认值为<code>.Rhistory</code>)</td>
+</tr>
+<tr class="even">
+<td><code>loadhistory("myfile")</code></td>
+<td>载入一个命令历史文件(默认值为<code>.Rhistory</code>)</td>
+</tr>
+<tr class="odd">
+<td><code>save.image("myfile")</code></td>
+<td>保存工作空间到文件 <code>myfile</code> 中(默认值为<code>.RData</code>)</td>
+</tr>
+<tr class="even">
+<td><code>save(objectlist, file="myfile")</code></td>
+<td>保存指定对象到一个文件中</td>
+</tr>
+<tr class="odd">
+<td><code>load("myfile")</code></td>
+<td>读取一个工作空间到当前会话中(默认值为<code>.RData</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>说明：</p>
+<blockquote>
+<ol type="1">
+<li><strong>当前的工作目录(working directory)</strong>是R用来读取文件和保存结果的默认目录。</li>
+<li><strong>工作空间(workspace)</strong>就是当前R的工作环境，它存储着所有用户定义的对象(向量、矩阵、 函数、数据框、列表)。</li>
+</ol>
+</blockquote>
+<p><strong>输入输出：</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 66%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>函数</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>source(“filename.R”)</code></td>
+<td>执行一个R语言脚本（R语言脚本以<code>.R</code>为后缀，但并非必须）</td>
+</tr>
+<tr class="even">
+<td><code>sink(“filename”)</code></td>
+<td>将文本输出重定向到文件，默认覆盖原文。<br>参数<code>append=TRUE</code>将输出追加到文件末尾；<br>参数<code>split=TRUE</code>可将输出同时输出到终端和文本。<br>不带任何参数时<code>sink()</code>表示将文本输出重定向回终端。</td>
+</tr>
+<tr class="odd">
+<td><code>bmp("filename.bmp")</code></td>
+<td>将图像输出成BMP文件</td>
+</tr>
+<tr class="even">
+<td><code>jpeg("filename.jpg")</code></td>
+<td>JPEG 文件</td>
+</tr>
+<tr class="odd">
+<td><code>pdf("filename.pdf")</code></td>
+<td>PDF 文件</td>
+</tr>
+<tr class="even">
+<td><code>png("filename.png")</code></td>
+<td>PNG 文件</td>
+</tr>
+<tr class="odd">
+<td><code>postscript("filename.ps")</code></td>
+<td>PostScript 文件</td>
+</tr>
+<tr class="even">
+<td><code>svg("filename.svg")</code></td>
+<td>SVG 文件</td>
+</tr>
+<tr class="odd">
+<td><code>win.metafile("filename.wmf")</code></td>
+<td>Windows 图元文件</td>
+</tr>
+<tr class="even">
+<td><code>dev.off()</code></td>
+<td>将图片输出重定向到终端</td>
+</tr>
+</tbody>
+</table>
+<p>以下是代码示例：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sink(<span class="string">"myoutput"</span>, append=<span class="literal">TRUE</span>, split=<span class="literal">TRUE</span>)	<span class="comment"># 重定向文本输出到终端和文件</span></span><br><span class="line">pdf(<span class="string">"mygraphs.pdf"</span>)	<span class="comment"># 将图像输出重定向到文件</span></span><br><span class="line"><span class="keyword">source</span>(<span class="string">"script2.R"</span>)	<span class="comment"># 执行R语言脚本</span></span><br><span class="line">sink()	<span class="comment"># 将文本输出重定向到终端</span></span><br><span class="line">dev.off()	<span class="comment"># 将图像输出重定向到终端</span></span><br></pre></td></tr></table></figure>
+<p><strong>包相关函数：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>函数</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>install.packages(“package_name”)</code></td>
+<td>安装第三方包，<strong>参数需要带引号</strong></td>
+</tr>
+<tr class="even">
+<td><code>update.packages()</code></td>
+<td>更新所有已安装的包</td>
+</tr>
+<tr class="odd">
+<td><code>installed. packages()</code></td>
+<td>列出已安装的包</td>
+</tr>
+<tr class="even">
+<td><code>library(package_name)</code></td>
+<td>加载第三方包，<strong>参数不能带引号</strong></td>
+</tr>
+</tbody>
+</table>
+<h1 id="r语言数据结构">R语言数据结构</h1>
+<p>R可以处理的数据类型(模式)包括数值型、字符型、逻辑型(<code>TRUE/FALSE</code>，也就是其他语言中的布尔型)、复数型(虚 数)、原生型(字节)以及因子(factor)。</p>
+<blockquote>
+<p>对于逻辑型，<code>TRUE</code>可简写为<code>T</code>，<code>FALSE</code>可简写为<code>F</code>。</p>
+</blockquote>
+<p>在R中，对象(object)是指可以赋值给变量的任何事物，包括常量、数据结构、函数， 甚至图形。</p>
+<p>R拥有许多用于存储数据的对象类型，包括标量、向量、矩阵、数组、数据框和列表等。</p>
+<h2 id="标量">标量</h2>
+<p>标量是只含一个元素的向量，例如<code>f &lt;- 3</code>、<code>g &lt;- "US"</code>和<code>h &lt;- TRUE</code>。它们用于保存常量。相当于其他语言中的一般变量。</p>
+<h2 id="向量vector">向量vector</h2>
+<p>向量是用于存储数值型、字符型或逻辑型数据的一维数组。执行组合功能的函数<code>c()</code>可用来创建向量：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a &lt;- c(<span class="number">1</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">6</span>, -<span class="number">2</span>, <span class="number">4</span>)</span><br><span class="line">b &lt;- c(<span class="string">"one"</span>, <span class="string">"two"</span>, <span class="string">"three"</span>)</span><br><span class="line">c &lt;- c(<span class="literal">TRUE</span>, <span class="literal">TRUE</span>, <span class="literal">TRUE</span>, <span class="literal">FALSE</span>, <span class="literal">TRUE</span>, <span class="literal">FALSE</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>单个向量中数据的类型必须相同。</strong></p>
+<p>访问向量中的元素：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt; a &lt;- c(<span class="string">"k"</span>, <span class="string">"j"</span>, <span class="string">"h"</span>, <span class="string">"a"</span>, <span class="string">"c"</span>, <span class="string">"m"</span>) </span><br><span class="line"><span class="comment"># 方式1</span></span><br><span class="line">&gt; a[<span class="number">3</span>]</span><br><span class="line">[<span class="number">1</span>] <span class="string">"h"</span></span><br><span class="line"><span class="comment"># 方式2</span></span><br><span class="line">&gt; a[c(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>)]</span><br><span class="line">[<span class="number">1</span>] <span class="string">"k"</span> <span class="string">"h"</span> <span class="string">"c"</span></span><br><span class="line"><span class="comment"># 方式3</span></span><br><span class="line">&gt; a[<span class="number">2</span>:<span class="number">6</span>]	<span class="comment"># 冒号生成了一个数值序列，等价于a &lt;- c(2, 3, 4, 5, 6)</span></span><br><span class="line">[<span class="number">1</span>]  <span class="string">"j"</span> <span class="string">"h"</span> <span class="string">"a"</span> <span class="string">"c"</span> <span class="string">"m"</span></span><br></pre></td></tr></table></figure>
+<p>给向量中的元素赋值：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; a[<span class="number">1</span>] &lt;- <span class="string">"asdf"</span></span><br><span class="line">&gt; a</span><br><span class="line">[<span class="number">1</span>] <span class="string">"asdf"</span> <span class="string">"j"</span>    <span class="string">"h"</span>    <span class="string">"a"</span>    <span class="string">"c"</span>    <span class="string">"m"</span>   </span><br><span class="line"><span class="comment"># 注意此处!</span></span><br><span class="line">&gt; a[<span class="number">10</span>] &lt;- <span class="string">"asdfg"</span></span><br><span class="line">&gt; a</span><br><span class="line"> [<span class="number">1</span>] <span class="string">"asdf"</span>  <span class="string">"j"</span>     <span class="string">"h"</span>     <span class="string">"a"</span>     <span class="string">"c"</span>     <span class="string">"m"</span>     <span class="literal">NA</span>      <span class="literal">NA</span>      <span class="literal">NA</span>      <span class="string">"asdfg"</span></span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<blockquote>
+<p>将一个值赋给某个向量中一个不存在的元素时，R将自动扩展这个数据结构以容纳新值。后面的矩阵、数组以及列表也一样。</p>
+</blockquote>
+<h2 id="矩阵matrix">矩阵matrix</h2>
+<p>矩阵是一个二维数组，只是每个元素都拥有相同的模式(数值型、字符型或逻辑型)。可通 过函数<code>matrix()</code>创建矩阵。一般使用格式为:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">myymatrix &lt;- matrix(vector, nrow=number_of_rows, ncol=number_of_columns,</span><br><span class="line">					byrow=logical_value, dimnames=list(char_vector_rownames, </span><br><span class="line">														char_vector_colnames))</span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<blockquote>
+<ol type="1">
+<li><code>vector</code>包含了矩阵的元素；</li>
+<li><code>nrow</code>和<code>ncol</code>用以指定行和列的维数；</li>
+<li><code>dimnames</code>包含了可选的、以字符型向量表示的行名和列名；</li>
+<li><code>byrow</code>则表明矩阵应当按行填充(<code>byrow=TRUE</code>) 还是按列填充(<code>byrow=FALSE</code>)，默认情况下按列填充。</li>
+</ol>
+</blockquote>
+<p>以下是创建矩阵和访问矩阵元素的例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&gt; rnames &lt;- c(<span class="string">"R1"</span>, <span class="string">"R2"</span>, <span class="string">"R3"</span>)</span><br><span class="line">&gt; cnames &lt;- c(<span class="string">"C1"</span>, <span class="string">"C2"</span>, <span class="string">"C3"</span>)</span><br><span class="line"><span class="comment"># 创建矩阵，可以只传入nrow和ncol中的一个，R语言会自动计算另一个。</span></span><br><span class="line">&gt; mymatrix &lt;- matrix(cells, nrow = <span class="number">3</span>, byrow = <span class="literal">T</span>, dimnames = list(rnames, cnames))</span><br><span class="line">&gt; mymatrix</span><br><span class="line">   C1 C2 C3</span><br><span class="line">R1  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span></span><br><span class="line">R2  <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span></span><br><span class="line">R3  <span class="number">7</span>  <span class="number">8</span>  <span class="number">9</span></span><br><span class="line"><span class="comment"># 访问某行</span></span><br><span class="line">&gt; mymatrix[<span class="number">1</span>,]</span><br><span class="line">C1 C2 C3 </span><br><span class="line"> <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span> </span><br><span class="line"><span class="comment"># 访问某列</span></span><br><span class="line">&gt; mymatrix[,<span class="number">1</span>]</span><br><span class="line">R1 R2 R3 </span><br><span class="line"> <span class="number">1</span>  <span class="number">4</span>  <span class="number">7</span> </span><br><span class="line"><span class="comment"># 访问多行。访问多列同理</span></span><br><span class="line">&gt; mymatrix[<span class="number">1</span>:<span class="number">2</span>,]</span><br><span class="line">   C1 C2 C3</span><br><span class="line">R1  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span></span><br><span class="line">R2  <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span></span><br><span class="line"><span class="comment"># 访问某个元素</span></span><br><span class="line">&gt; mymatrix[<span class="number">2</span>,<span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span>] <span class="number">4</span></span><br><span class="line"><span class="comment"># 访问多行多列</span></span><br><span class="line">&gt; mymatrix[<span class="number">1</span>:<span class="number">2</span>, c(<span class="number">2</span>, <span class="number">3</span>)]</span><br><span class="line">   C2 C3</span><br><span class="line">R1  <span class="number">2</span>  <span class="number">3</span></span><br><span class="line">R2  <span class="number">5</span>  <span class="number">6</span></span><br><span class="line"><span class="comment"># 按列序访问元素</span></span><br><span class="line">&gt; mymatrix[<span class="number">1</span>:<span class="number">5</span>]</span><br><span class="line">[<span class="number">1</span>] <span class="number">1</span> <span class="number">4</span> <span class="number">7</span> <span class="number">2</span> <span class="number">5</span></span><br></pre></td></tr></table></figure>
+<h2 id="数组array">数组array</h2>
+<p>这里的数组array并不同于其他语言中的数组，这里的数组与矩阵类似，但维度可大于2。通过<code>array</code>函数创建，一般形式如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">myarray &lt;- array(vector, dimensions, dimnames)</span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<blockquote>
+<ol type="1">
+<li><code>vector</code>包含了数组中的数据；</li>
+<li><code>dimensions</code>是一个<strong>数值型向量</strong>，给出了各个维度下标的最大值；</li>
+<li><code>dimnames</code>是可选的、各维度名称标签的列表；</li>
+<li><strong>数组依然要求所有的元素都是同一类型</strong>。</li>
+</ol>
+</blockquote>
+<p>以下是数组示例：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&gt; dim1 &lt;- c(<span class="string">"A1"</span>, <span class="string">"A2"</span>)</span><br><span class="line">&gt; dim2 &lt;- c(<span class="string">"B1"</span>, <span class="string">"B2"</span>, <span class="string">"B3"</span>)</span><br><span class="line">&gt; dim3 &lt;- c(<span class="string">"C1"</span>, <span class="string">"C2"</span>, <span class="string">"C3"</span>, <span class="string">"C4"</span>)</span><br><span class="line">&gt; z &lt;- array(<span class="number">1</span>:<span class="number">24</span>, c(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>), dimnames = list(dim1, dim2, dim3))</span><br><span class="line">&gt; z</span><br><span class="line">, , C1</span><br><span class="line"></span><br><span class="line">   B1 B2 B3</span><br><span class="line">A1  <span class="number">1</span>  <span class="number">3</span>  <span class="number">5</span></span><br><span class="line">A2  <span class="number">2</span>  <span class="number">4</span>  <span class="number">6</span></span><br><span class="line"></span><br><span class="line">, , C2</span><br><span class="line"></span><br><span class="line">   B1 B2 B3</span><br><span class="line">A1  <span class="number">7</span>  <span class="number">9</span> <span class="number">11</span></span><br><span class="line">A2  <span class="number">8</span> <span class="number">10</span> <span class="number">12</span></span><br><span class="line"></span><br><span class="line">, , C3</span><br><span class="line"></span><br><span class="line">   B1 B2 B3</span><br><span class="line">A1 <span class="number">13</span> <span class="number">15</span> <span class="number">17</span></span><br><span class="line">A2 <span class="number">14</span> <span class="number">16</span> <span class="number">18</span></span><br><span class="line"></span><br><span class="line">, , C4</span><br><span class="line"></span><br><span class="line">   B1 B2 B3</span><br><span class="line">A1 <span class="number">19</span> <span class="number">21</span> <span class="number">23</span></span><br><span class="line">A2 <span class="number">20</span> <span class="number">22</span> <span class="number">24</span></span><br></pre></td></tr></table></figure>
+<p><strong>数组取元素的方式和矩阵相同</strong>，只不过要加上其他维度。</p>
+<h2 id="数据框data.frame">数据框data.frame</h2>
+<p>数据框的概念较矩阵来说更为一般，它允许不同列的元素的数据类型可以不同，但列中元素的数据类型必须相同。</p>
+<p>数据框通过函数<code>data.frame()</code>创建：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mydata &lt;- data.frame(col1, col2, col3,<span class="keyword">...</span>, row.names=coln)</span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<blockquote>
+<p><code>row.names</code>用于将数据框中的某一列设置为<strong>实例标识符</strong>。</p>
+</blockquote>
+<p>以下是创建数据框和访问数据框中数据的例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">&gt; patientID &lt;- c(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)</span><br><span class="line">&gt; age &lt;- c(<span class="number">25</span>, <span class="number">34</span>, <span class="number">28</span>, <span class="number">52</span>)</span><br><span class="line">&gt; diabetes &lt;- c(<span class="string">"Type1"</span>, <span class="string">"Type2"</span>, <span class="string">"Type1"</span>, <span class="string">"Type1"</span>)</span><br><span class="line">&gt; status &lt;- c(<span class="string">"Poor"</span>, <span class="string">"Improved"</span>, <span class="string">"Excellent"</span>, <span class="string">"Poor"</span>)</span><br><span class="line"><span class="comment"># 创建数据框</span></span><br><span class="line">&gt; patientdata &lt;- data.frame(patientID, age, diabetes, status)</span><br><span class="line">&gt; patientdata</span><br><span class="line">  patientID age diabetes    status</span><br><span class="line"><span class="number">1</span>         <span class="number">1</span>  <span class="number">25</span>    Type1      Poor</span><br><span class="line"><span class="number">2</span>         <span class="number">2</span>  <span class="number">34</span>    Type2  Improved</span><br><span class="line"><span class="number">3</span>         <span class="number">3</span>  <span class="number">28</span>    Type1 Excellent</span><br><span class="line"><span class="number">4</span>         <span class="number">4</span>  <span class="number">52</span>    Type1      Poor</span><br><span class="line"><span class="comment"># 上述输出中，patientID前的那一列是R语言自动生成的实例标识符</span></span><br><span class="line"><span class="comment"># 以下语句用于自行制定实例标识符：</span></span><br><span class="line"><span class="comment"># patientdata &lt;- data.frame(patientID, age, diabetes, status, row.names = patientID)</span></span><br><span class="line"><span class="comment"># 访问单个元素</span></span><br><span class="line">&gt; patientdata[<span class="number">1</span>,<span class="number">2</span>]</span><br><span class="line">[<span class="number">1</span>] <span class="number">25</span></span><br><span class="line"><span class="comment"># 访问前两列</span></span><br><span class="line">&gt; patientdata[<span class="number">1</span>:<span class="number">2</span>]</span><br><span class="line">  patientID age</span><br><span class="line"><span class="number">1</span>         <span class="number">1</span>  <span class="number">25</span></span><br><span class="line"><span class="number">2</span>         <span class="number">2</span>  <span class="number">34</span></span><br><span class="line"><span class="number">3</span>         <span class="number">3</span>  <span class="number">28</span></span><br><span class="line"><span class="number">4</span>         <span class="number">4</span>  <span class="number">52</span></span><br><span class="line"><span class="comment"># 访问多列</span></span><br><span class="line">&gt; patientdata[c(<span class="string">"diabetes"</span>, <span class="string">"status"</span>)]</span><br><span class="line">  diabetes    status</span><br><span class="line"><span class="number">1</span>    Type1      Poor</span><br><span class="line"><span class="number">2</span>    Type2  Improved</span><br><span class="line"><span class="number">3</span>    Type1 Excellent</span><br><span class="line"><span class="number">4</span>    Type1      Poor</span><br><span class="line"><span class="comment"># 访问单列</span></span><br><span class="line">&gt; patientdata$age</span><br><span class="line">[<span class="number">1</span>] <span class="number">25</span> <span class="number">34</span> <span class="number">28</span> <span class="number">52</span></span><br></pre></td></tr></table></figure>
+<p>上述例子最后的<code>$</code>符号表示<strong>选取一个给定数据框中的某个特定变量(列)</strong>。</p>
+<h3 id="attachdetach和with"><strong>attach()</strong>、<strong>detach()</strong>和<strong>with()</strong></h3>
+<p>以上述例子为例，对于数据框，如果每次都用<code>patientdata$</code>来访问其中的变量未免太麻烦，此时就可以使用<code>attach()</code>，<code>detach()</code>和<code>with()</code>函数来简化操作。</p>
+<p>函数<code>attach()</code>可将数据框添加到R的搜索路径中。R在遇到一个变量名后，将检查搜索路径中的数据框。</p>
+<p>函数<code>detach()</code>将数据框从搜索路径中移除。<strong>这句通常被省略，但最好在处理完一个数据框后加上这句话，否则很容易造成名称冲突</strong>。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将数据框中的变量加入搜索路径</span></span><br><span class="line"><span class="keyword">attach</span>(mtcars)</span><br><span class="line">summary(mpg)</span><br><span class="line">plot(mpg, disp)</span><br><span class="line">plot(mpg, wt)</span><br><span class="line"><span class="comment"># 最好加上这句，否则很容易造成名称冲突</span></span><br><span class="line"><span class="keyword">detach</span>(mtcars)	<span class="comment"># 将数据框从搜索路径去除</span></span><br><span class="line"></span><br><span class="line">with(mtcars, &#123;</span><br><span class="line">	print(summary(mpg))</span><br><span class="line">	plot(mpg, disp)</span><br><span class="line">	plot(mpg, wt)</span><br><span class="line">    <span class="comment"># 只能在当前作用域内访问</span></span><br><span class="line">    nokeepstats &lt;- summary(mpg)</span><br><span class="line">    <span class="comment"># 可以在外部作用域内访问</span></span><br><span class="line">    keepstats &lt;&lt;- summary(mpg)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">keepstats <span class="comment"># 可以访问</span></span><br><span class="line">nokeepstats	<span class="comment"># 报错，全局作用域中没有该变量</span></span><br></pre></td></tr></table></figure>
+<p><code>with()</code>可以很好解决名称冲突的问题，更推荐使用这个函数。不过，<code>with()</code>内部的变量在外部无法访问，如果想要外部可以访问，需要使用<code>&lt;&lt;-</code>赋值语句。</p>
+<h2 id="因子factor">因子factor</h2>
+<p>首先需要介绍一下变量的类型：</p>
+<ul>
+<li>名义型变量：例如性别，只有类别之分，没有高低先后之分；</li>
+<li>有序型变量：表示了一种顺序关系，而非数量关系，例如年级；</li>
+<li>连续型变量：可以呈现出某个范围内的任意值，同时还表示了顺序和数量，例如年龄。</li>
+</ul>
+<p>名义型变量和有序型变量在R中则称为因子(factor)。</p>
+<p>它等价于其他语言里的枚举类型。</p>
+<p>函数<code>factor()</code>以一个整数向量的形式存储类别值，整数的取值范围是<code>[1,k]</code> (其中<code>k</code>是名义型变量中不同值的个数)，同时内部维护了一个映射表，将这些整数与类别字符串一一对应。</p>
+<p>默认情况下，<code>factor()</code>将按字母序赋值。</p>
+<p>以下是名义型变量的例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; diabetes &lt;- c(<span class="string">"Type1"</span>, <span class="string">"Type2"</span>, <span class="string">"Type1"</span>, <span class="string">"Type1"</span>)</span><br><span class="line">&gt; diabetes &lt;- factor(diabetes)</span><br><span class="line">&gt; diabetes</span><br><span class="line">[<span class="number">1</span>] Type1 Type2 Type1 Type1</span><br><span class="line">Levels: Type1 Type2</span><br><span class="line"><span class="comment"># diabetes只是一个普通的Factor</span></span><br><span class="line">&gt; str(diabetes)</span><br><span class="line"> Factor w/ <span class="number">2</span> levels <span class="string">"Type1"</span>,<span class="string">"Type2"</span>: <span class="number">1</span> <span class="number">2</span> <span class="number">1</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<blockquote>
+<ol type="1">
+<li>向量<code>diabetes</code>将被存储为<code>(1, 2, 1, 1)</code>，并在内部将其关联为<code>1=Type1</code>和<code>2=Type2</code>;</li>
+<li><code>str()</code>函数用于显示对象的结构。</li>
+</ol>
+</blockquote>
+<p>以下是有序型变量的例子，<code>factor()</code>将参数<code>ordered</code>设置为<code>TRUE</code>即可：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; status &lt;- c(<span class="string">"Poor"</span>, <span class="string">"Improved"</span>, <span class="string">"Excellent"</span>, <span class="string">"Poor"</span>)</span><br><span class="line"><span class="comment"># 根据字母序设置类别先后顺序: 1=Excellent, 2=Improved, 3=Poor</span></span><br><span class="line">&gt; status &lt;- factor(status, ordered=<span class="literal">TRUE</span>)</span><br><span class="line"><span class="comment"># status是一个Ord.factor</span></span><br><span class="line">&gt; str(status)</span><br><span class="line"> Ord.factor w/ <span class="number">3</span> levels <span class="string">"Excellent"</span>&lt;<span class="string">"Improved"</span>&lt;..: <span class="number">3</span> <span class="number">2</span> <span class="number">1</span> <span class="number">3</span></span><br></pre></td></tr></table></figure>
+<p>因子函数将按照字母序设置这三个类别的顺序。但很多时候我们想要自行指定先后顺序，此时需要设置<code>levels</code>参数：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自定义类别的先后顺序: 1=Poor, 2=Improved, 3=Excellent</span></span><br><span class="line">&gt; status &lt;- factor(status, order=<span class="literal">TRUE</span>, levels=c(<span class="string">"Poor"</span>, <span class="string">"Improved"</span>, <span class="string">"Excellent"</span>))</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：任何在数据中出现而未在<code>levels</code>中列举的数据都将被设为缺失值<code>NA</code>。</p>
+</blockquote>
+<p>以上例子都是将字符或字符串型数据因子话，数值型变量也可以因子化，并同时给数值设置标签，例如，原始数据中<code>sex</code>的值就是<code>1</code>或者<code>2</code>这样的数值，而不是<code>male</code>或者<code>female</code>这样的字符串，现在我们想将<code>sex</code>因子化，并同时将<code>1</code>替换成<code>male</code>，<code>2</code>替换成<code>female</code>，此时可以这样做：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt; sex &lt;- c(<span class="number">1</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">&gt; sex</span><br><span class="line">[<span class="number">1</span>] <span class="number">1</span> <span class="number">2</span> <span class="number">1</span> <span class="number">2</span> <span class="number">1</span> <span class="number">2</span></span><br><span class="line">&gt; sex &lt;- factor(sex, levels=c(<span class="number">1</span>, <span class="number">2</span>), labels=c(<span class="string">"Male"</span>, <span class="string">"Female"</span>))</span><br><span class="line">&gt; sex</span><br><span class="line">[<span class="number">1</span>] Male   Female Male   Female Male   Female</span><br><span class="line">Levels: Male Female</span><br><span class="line"><span class="comment"># sex也只是一个普通的Factor</span></span><br><span class="line">&gt; str(sex)</span><br><span class="line"> Factor w/ <span class="number">2</span> levels <span class="string">"Male"</span>,<span class="string">"Female"</span>: <span class="number">1</span> <span class="number">2</span> <span class="number">1</span> <span class="number">2</span> <span class="number">1</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<h2 id="列表">列表</h2>
+<p>类似于Python中的<code>List</code>类型，它就是一些对象(或成分 component)的有序集合。列表可以整合若干(可能无关的)对象到单个对象中。也就是说，列表中的对象的类型可以不同：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mylist &lt;- list(object1, object2, <span class="keyword">...</span>)</span><br><span class="line"><span class="comment"># 可以给列表中的元素命名，并且可以只命名一部分</span></span><br><span class="line">mylist &lt;- list(name1=object1, name2=object2, <span class="keyword">...</span>)</span><br></pre></td></tr></table></figure>
+<p>以下是列表创建和访问列表中元素的例子:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&gt; g &lt;- <span class="string">"My First List"</span></span><br><span class="line">&gt; h &lt;- c(<span class="number">25</span>, <span class="number">26</span>, <span class="number">18</span>, <span class="number">39</span>)</span><br><span class="line">&gt; j &lt;- matrix(<span class="number">1</span>:<span class="number">10</span>, nrow=<span class="number">5</span>)</span><br><span class="line"><span class="comment"># 只命名前两个元素</span></span><br><span class="line">&gt; mylist &lt;- list(title=g, ages=h, j)</span><br><span class="line">&gt; mylist</span><br><span class="line">$title</span><br><span class="line">[<span class="number">1</span>] <span class="string">"My First List"</span></span><br><span class="line"></span><br><span class="line">$ages</span><br><span class="line">[<span class="number">1</span>] <span class="number">25</span> <span class="number">26</span> <span class="number">18</span> <span class="number">39</span></span><br><span class="line"></span><br><span class="line">[[<span class="number">3</span>]]</span><br><span class="line">     [,<span class="number">1</span>] [,<span class="number">2</span>]</span><br><span class="line">[<span class="number">1</span>,]    <span class="number">1</span>    <span class="number">6</span></span><br><span class="line">[<span class="number">2</span>,]    <span class="number">2</span>    <span class="number">7</span></span><br><span class="line">[<span class="number">3</span>,]    <span class="number">3</span>    <span class="number">8</span></span><br><span class="line">[<span class="number">4</span>,]    <span class="number">4</span>    <span class="number">9</span></span><br><span class="line">[<span class="number">5</span>,]    <span class="number">5</span>   <span class="number">10</span></span><br><span class="line"><span class="comment"># 通过双中括号访问列表中的元素</span></span><br><span class="line">&gt; mylist[[<span class="string">"ages"</span>]]</span><br><span class="line">[<span class="number">1</span>] <span class="number">25</span> <span class="number">26</span> <span class="number">18</span> <span class="number">39</span></span><br><span class="line">&gt; mylist[[<span class="number">2</span>]]</span><br><span class="line">[<span class="number">1</span>] <span class="number">25</span> <span class="number">26</span> <span class="number">18</span> <span class="number">39</span></span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<blockquote>
+<ol type="1">
+<li>通过双中括号访问列表中的元素；</li>
+<li>可以通过设置的元素名访问元素，也可以通过下标访问元素。</li>
+</ol>
+</blockquote>
+<h2 id="一些处理数据对象的实用函数">一些处理数据对象的实用函数</h2>
+<table>
+<thead>
+<tr class="header">
+<th>函数</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>length(object)</code></td>
+<td>获取对象中元素/成分的数量</td>
+</tr>
+<tr class="even">
+<td><code>dim(object)</code></td>
+<td>显示某个对象的维度</td>
+</tr>
+<tr class="odd">
+<td><code>str(object)</code></td>
+<td>显示某个对象的结构</td>
+</tr>
+<tr class="even">
+<td><code>class(object)</code></td>
+<td>显示某个对象的类或类型</td>
+</tr>
+<tr class="odd">
+<td><code>typeof(object)</code></td>
+<td>详细显示某个对象的模式</td>
+</tr>
+<tr class="even">
+<td><code>names(object)</code></td>
+<td>显示某对象中各成分的名称</td>
+</tr>
+<tr class="odd">
+<td><code>c(object, object,...)</code></td>
+<td>将对象合并入一个向量</td>
+</tr>
+<tr class="even">
+<td><code>cbind(object, object, ...)</code></td>
+<td>按列合并对象</td>
+</tr>
+<tr class="odd">
+<td><code>rbind(object, object, ...)</code></td>
+<td>按行合并对象</td>
+</tr>
+<tr class="even">
+<td><code>head(object)</code></td>
+<td>列出某个对象的开始部分</td>
+</tr>
+<tr class="odd">
+<td><code>tail(object)</code></td>
+<td>列出某个对象的最后部分</td>
+</tr>
+<tr class="even">
+<td><code>ls()</code></td>
+<td>显示当前的对象列表</td>
+</tr>
+<tr class="odd">
+<td><code>rm(object, object, ...)</code></td>
+<td>删除一个或更多个对象。<br>语句<code>rm(list = ls())</code>将 删除当前工作环境中的几乎所有对象</td>
+</tr>
+</tbody>
+</table>
+<p>这里有一个关于<code>class()</code>和<code>typeof()</code>区别的<a href="https://stackoverflow.com/questions/8855589/a-comprehensive-survey-of-the-types-of-things-in-r-mode-and-class-and-type" target="_blank" rel="noopener">介绍</a>，简单来说，<code>typeof()</code>返回对象的数据类型（就像Python中的<code>type()</code>函数函数），而<code>class()</code>只是检查某个对象里有没有<code>class</code>这个属性，如果有就返回这个属性的值，如果没有这个属性，则根据对象的类型和维度来确定。</p>
+<h1 id="数据的输入">数据的输入</h1>
+<p>R可从键盘、文本文件、Microsoft Excel和Access、流行的统计软件、特殊格 式的文件、多种关系型数据库管理系统、专业数据库、网站和在线服务中导入数据。</p>
+<p>这里将详细说明如何从文本文件中读取数据，以及简要介绍如何从键盘和Excel中读入数据。</p>
+<h2 id="从带分隔符的文件读入数据">从带分隔符的文件读入数据</h2>
+<p>主要是两个函数：<code>read.table()</code>和<code>read.csv()</code>。</p>
+<p><code>read.table()</code>是通用的读取带分隔符文本的函数，后者主要用于读取以逗号分隔的<code>.csv</code>文件。</p>
+<p><code>read.table()</code>的调用方式如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mydataframe &lt;- read.table(file, options)</span><br></pre></td></tr></table></figure>
+<p>主要的<code>options</code>如下表所示：</p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 76%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>选项</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>header</code></td>
+<td>一个表示文件是否在第一行包含了变量名的逻辑型变量</td>
+</tr>
+<tr class="even">
+<td><code>sep</code></td>
+<td>分开数据值的分隔符。默认是<code>sep=""</code>，这表示了一个或多个空格、制表符、换行或回车。使用<code>sep=","</code>来读取用逗号来分隔行内数据的文件，使用<code>sep="\t"</code>来读取使用制表符来分割行内数据的文件</td>
+</tr>
+<tr class="odd">
+<td><code>row.names</code></td>
+<td>一个用于指定一个或多个行标记符的可选参数</td>
+</tr>
+<tr class="even">
+<td><code>col.names</code></td>
+<td>如果数据文件的第一行不包括变量名(<code>header=FASLE</code>)，可以用 <code>col.names</code> 去指定一个包含变量名的字符向量。如果 <code>header=FALSE</code> 以及 <code>col.names</code> 选项被省略了，变量会被分别命名为 <code>V1</code>、<code>V2</code>，以此类推</td>
+</tr>
+<tr class="odd">
+<td><code>na.strings</code></td>
+<td>可选的用于表示缺失值的字符向量。比如说，<code>na.strings=c("-9", "?")</code>把<code>-9</code> 和<code>?</code>值在读取数据的时候转换成<code>NA</code></td>
+</tr>
+<tr class="even">
+<td><code>colClasses</code></td>
+<td>可选的分配到每一列的类向量。比如说，<code>colClasses=c("numeric", "numeric", "character", "NULL", "numeric")</code>把前两列读取为数值型变量，把第三列读取为字符型向量，跳过第四列，把第五列读取为数值型向量。如果数据有多余五列，<code>colClasses</code> 的值会被循环。当读取大文件时，加上 <code>colClasses</code> 选项可以明显提升读取速度</td>
+</tr>
+<tr class="odd">
+<td><code>quote</code></td>
+<td>默认情况下，字符串可以被 <code>"</code> 或 <code>'</code> 括起，并且两种情况下，引号内部的字符都作为字符串的一部分。有效的引用字符（可能没有）的设置由参数 <code>quote</code> 控制。对于<code>sep = "\n"</code>，默认值改为 <code>quote = ""</code>。</td>
+</tr>
+<tr class="even">
+<td><code>skip</code></td>
+<td>读取数据前跳过的行的数目。这个选项在跳过头注释的时候比较有用</td>
+</tr>
+<tr class="odd">
+<td><code>stringsAsFactors</code></td>
+<td>一个逻辑变量，标记处字符向量是否需要转化成因子。默认值是 <code>TRUE</code>，除非它被 <code>colClases</code> 所覆盖。当处理大文件时，置为 <code>FALSE</code> 可以提升读取速度</td>
+</tr>
+<tr class="even">
+<td><code>text</code></td>
+<td>它的值是一个字符串，表示将从该字符串中读取数据。如果 <code>text</code> 被设置了，<code>file</code>参数必须置为空。</td>
+</tr>
+</tbody>
+</table>
+<p>以下是<code>read.table()</code>的一个例子，假设数据文件中的内容人如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">StudentID,First,Last,Math,Science,Social Studies</span><br><span class="line"><span class="number">011</span>,Bob,Smith,<span class="number">90</span>,<span class="number">80</span>,<span class="number">67</span></span><br><span class="line"><span class="number">012</span>,Jane,Weary,<span class="number">75</span>,,<span class="number">80</span></span><br><span class="line"><span class="number">010</span>,Dan,<span class="string">"Thornton, III"</span>,<span class="number">65</span>,<span class="number">75</span>,<span class="number">70</span> <span class="comment"># 这里就体现了quote参数的作用，否则这条数据将会被读取为7列</span></span><br><span class="line"><span class="number">040</span>,Mary,<span class="string">"O'Leary"</span>,<span class="number">90</span>,<span class="number">95</span>,<span class="number">92</span></span><br></pre></td></tr></table></figure>
+<p>以下是读取代码：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&gt; grades &lt;- read.table(<span class="string">"studentgrades.csv"</span>, header=<span class="literal">TRUE</span>, row.names=<span class="string">"StudentID"</span>, sep=<span class="string">","</span>)</span><br><span class="line">&gt; grades</span><br><span class="line">   First          Last Math Science Social.Studies</span><br><span class="line"><span class="number">11</span>   Bob         Smith   <span class="number">90</span>      <span class="number">80</span>             <span class="number">67</span></span><br><span class="line"><span class="number">12</span>  Jane         Weary   <span class="number">75</span>      <span class="literal">NA</span>             <span class="number">80</span></span><br><span class="line"><span class="number">10</span>   Dan Thornton, III   <span class="number">65</span>      <span class="number">75</span>             <span class="number">70</span></span><br><span class="line"><span class="number">40</span>  Mary       O<span class="string">'Leary   90      95             92</span></span><br><span class="line"><span class="string"># R语言会自动判断每列的数据类型</span></span><br><span class="line"><span class="string">&gt; str(grades)</span></span><br><span class="line"><span class="string">'</span>data.frame<span class="string">':	4 obs. of  5 variables:</span></span><br><span class="line"><span class="string"> $ First         : Factor w/ 4 levels "Bob","Dan","Jane",..: 1 3 2 4</span></span><br><span class="line"><span class="string"> $ Last          : Factor w/ 4 levels "O'</span>Leary<span class="string">","</span>Smith<span class="string">",..: 2 4 3 1</span></span><br><span class="line"><span class="string"> $ Math          : int  90 75 65 90</span></span><br><span class="line"><span class="string"> $ Science       : int  80 NA 75 95</span></span><br><span class="line"><span class="string"> $ Social.Studies: int  67 80 70 92</span></span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<blockquote>
+<ol type="1">
+<li>由于设置了<code>row.names</code>，数据中并没有显示<code>StudentID</code>这一列；</li>
+<li>由于没有设置<code>colClasses</code>，<code>StudentID</code>这一列被判断成了数值型，原数据中最前面的0被去除了；</li>
+<li>默认情况下，字符变量将被转换成因子，例如上述的<code>First</code>和<code>Last</code>；</li>
+<li><code>read.table()</code>函数会自动判断每列的数据类型，但有时候自动判断出的类型并不一定是我们想要的。</li>
+</ol>
+</blockquote>
+<p>以下通过设置<code>colClasses</code>参数来设置每列的数据类型：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&gt; grades &lt;- read.table(<span class="string">"studentgrades.csv"</span>, header=<span class="literal">TRUE</span>, row.names=<span class="string">"StudentID"</span>, sep=<span class="string">","</span>, colClasses=c(<span class="string">"character"</span>, <span class="string">"character"</span>, <span class="string">"character"</span>, <span class="string">"numeric"</span>, <span class="string">"numeric"</span>, <span class="string">"numeric"</span>))</span><br><span class="line"></span><br><span class="line">&gt; grades</span><br><span class="line">    First          Last Math Science Social.Studies</span><br><span class="line"><span class="number">011</span>   Bob         Smith   <span class="number">90</span>      <span class="number">80</span>             <span class="number">67</span></span><br><span class="line"><span class="number">012</span>  Jane         Weary   <span class="number">75</span>      <span class="literal">NA</span>             <span class="number">80</span></span><br><span class="line"><span class="number">010</span>   Dan Thornton, III   <span class="number">65</span>      <span class="number">75</span>             <span class="number">70</span></span><br><span class="line"><span class="number">040</span>  Mary       O<span class="string">'Leary   90      95             92</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&gt; str(grades)</span></span><br><span class="line"><span class="string">'</span>data.frame<span class="string">':	4 obs. of  5 variables:</span></span><br><span class="line"><span class="string"> $ First         : chr  "Bob" "Jane" "Dan" "Mary"</span></span><br><span class="line"><span class="string"> $ Last          : chr  "Smith" "Weary" "Thornton, III" "O'</span>Leary<span class="string">"</span></span><br><span class="line"><span class="string"> $ Math          : num  90 75 65 90</span></span><br><span class="line"><span class="string"> $ Science       : num  80 NA 75 95</span></span><br><span class="line"><span class="string"> $ Social.Studies: num  67 80 70 92</span></span><br></pre></td></tr></table></figure>
+<p>可以看到，行标识符变成了三位数，保留了最高位的0。<code>First</code>和<code>Last</code>的类型也变成了字符型。</p>
+<h3 id="read.csv函数">read.csv()函数</h3>
+<p>该函数主要用于读取<code>.csv</code>文件。它的参数和<code>read.table()</code>的参数几乎相同，只是改变了其中某些参数的默认值，例如<code>seq</code>的默认值变成了逗号<code>,</code>，<code>quote</code>的默认值变成了<code>\”</code>，因此在调用该函数时，某些参数可以省略，除此之外，它的用法几乎和<code>read.table()</code>一样，这里不再赘述。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; grades &lt;- read.csv(<span class="string">"studentgrades.csv"</span>, row.names=<span class="string">"StudentID"</span>, colClasses=c(<span class="string">"character"</span>, <span class="string">"character"</span>, <span class="string">"character"</span>, <span class="string">"numeric"</span>, <span class="string">"numeric"</span>, <span class="string">"numeric"</span>))</span><br></pre></td></tr></table></figure>
+<h2 id="从键盘读入数据">从键盘读入数据</h2>
+<p>主要是调用<code>edit()</code>和<code>fix()</code>函数。调用这两个函数需要安装第三方库<code>XQuartz</code>。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; mydata &lt;- data.frame(age=numeric(<span class="number">0</span>), gender=character(<span class="number">0</span>), weight=numeric(<span class="number">0</span>))</span><br><span class="line">&gt; mydata &lt;- edit(mydata)</span><br><span class="line"><span class="comment"># 等价写法</span></span><br><span class="line">&gt; fix(mydata)</span><br></pre></td></tr></table></figure>
+<p>调用<code>edit()</code>函数将会弹出一个列表编辑器，在其中输入值即可。</p>
+<h2 id="读取excel文件">读取Excel文件</h2>
+<p>读取Excel文件最好的方法其实是将其导出为<code>.csv</code>文件，然后调用<code>read.csv()</code>。</p>
+<p>如果要直接读取Excel文件，需要安装第三方库，例如<code>xlsx</code>。用法如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(xlsx)</span><br><span class="line">workbook &lt;- <span class="string">"c:/myworkbook.xlsx"</span></span><br><span class="line"><span class="comment"># 表示读取文件中的第1个工作表</span></span><br><span class="line">mydataframe &lt;- read.xlsx(workbook, <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<h1 id="reference">Reference</h1>
+<ol type="1">
+<li><a href="https://zhuanlan.zhihu.com/p/46210816" target="_blank" rel="noopener">Vignette介绍</a></li>
+<li><a href="https://stackoverflow.com/questions/8855589/a-comprehensive-survey-of-the-types-of-things-in-r-mode-and-class-and-type" target="_blank" rel="noopener"><code>class()</code>和<code>typeof()</code>函数的区别</a></li>
+<li></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zuiqiangiron.xyz/2020/04/16/R%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8/" title="R语言入门">https://www.zuiqiangiron.xyz/2020/04/16/R语言入门/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R%E8%AF%AD%E8%A8%80/" rel="tag"># R语言</a>
+              <a href="/tags/R%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8/" rel="tag"># R语言入门</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/15/Maven%20Notes/" rel="prev" title="Maven笔记">
+      <i class="fa fa-chevron-left"></i> Maven笔记
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#写在最前的零散要点"><span class="nav-text">写在最前的零散要点：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#新手函数"><span class="nav-text">新手函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#r语言数据结构"><span class="nav-text">R语言数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#标量"><span class="nav-text">标量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#向量vector"><span class="nav-text">向量vector</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#矩阵matrix"><span class="nav-text">矩阵matrix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数组array"><span class="nav-text">数组array</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据框data.frame"><span class="nav-text">数据框data.frame</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#attachdetach和with"><span class="nav-text">attach()、detach()和with()</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#因子factor"><span class="nav-text">因子factor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#列表"><span class="nav-text">列表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些处理数据对象的实用函数"><span class="nav-text">一些处理数据对象的实用函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据的输入"><span class="nav-text">数据的输入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#从带分隔符的文件读入数据"><span class="nav-text">从带分隔符的文件读入数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#read.csv函数"><span class="nav-text">read.csv()函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从键盘读入数据"><span class="nav-text">从键盘读入数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读取excel文件"><span class="nav-text">读取Excel文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#reference"><span class="nav-text">Reference</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="嘴强黑铁"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">69</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">70</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://www.zuiqiangiron.xyz/2020/04/16/R%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8/";
+    this.page.identifier = "2020/04/16/R语言入门/";
+    this.page.title = "R语言入门";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>
