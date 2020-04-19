@@ -15,7 +15,42 @@
 <li>R语言下标从1开始计数，而不像其他语言那样从0开始计数。</li>
 <li>变量名称中的句点(<code>.</code>)没有特殊意义，但美元符号(<code>$</code>)却有着和其他语言中的句点类似的含义，即指定一个数据框或列表中的某些部分。例如，<code>A$x</code>是指数据框<code>A</code>中的变量<code>x</code>。</li>
 </ol>
-<h1 id="新手函数">新手函数</h1>
+<h1 id="新手须知">新手须知</h1>
+<p>运算符：</p>
+<table>
+<thead>
+<tr class="header">
+<th>运算符</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>^</code>或<code>**</code></td>
+<td>求幂</td>
+</tr>
+<tr class="even">
+<td><code>x%%y</code></td>
+<td>求余。<code>5%%2</code>的结果是1</td>
+</tr>
+<tr class="odd">
+<td><code>x%/%y</code></td>
+<td>整数除法。<code>5%/%2</code>的结果是2</td>
+</tr>
+<tr class="even">
+<td><code>x | y</code></td>
+<td>或运算</td>
+</tr>
+<tr class="odd">
+<td><code>x &amp; y</code></td>
+<td>与运算</td>
+</tr>
+<tr class="even">
+<td><code>isTRUE(x)</code></td>
+<td>判断<code>x</code>是否为<code>TRUE</code></td>
+</tr>
+</tbody>
+</table>
 <p>以下是新手函数的整理。</p>
 <p><strong>帮助相关的函数</strong>：</p>
 <table>
@@ -862,6 +897,197 @@
 </blockquote>
 <p>以下是结果图：</p>
 <p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587281302/R/par_fig.png" /></p>
+<h1 id="基本数据处理">基本数据处理</h1>
+<p>以下包含了对缺失值，日期值等数据的处理。</p>
+<h2 id="缺失值处理">缺失值处理</h2>
+<p><code>is.na()</code>函数用于检测缺失值，根据输入值的类型，返回一个布尔向量或者矩阵，<code>TRUE</code>表示该位置上的元素为<code>NA</code>。</p>
+<p><code>na.omit()</code>函数可以删除所有含有缺失数据的行。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; y &lt;- c(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="literal">NA</span>)</span><br><span class="line">&gt; is.na(y)	<span class="comment"># 返回一个向量，因为输入是一个向量</span></span><br><span class="line"><span class="literal">FALSE</span>, <span class="literal">FALSE</span>, <span class="literal">FALSE</span>, <span class="literal">TRUE</span></span><br><span class="line"><span class="comment"># 删除leadership中所有函数缺失值的行</span></span><br><span class="line">&gt; leadership &lt;- na.omit(leadership)</span><br></pre></td></tr></table></figure>
+<p>关于缺失值还需要注意的是：</p>
+<blockquote>
+<ol type="1">
+<li><p>缺失值被认为是不可比较的，即便是与缺失值自身比较；</p></li>
+<li><p>R 并不把无限的或者不可能出现的数值标记成缺失值。</p>
+<p>正负无穷分别用<code>Inf</code>和<code>-Inf</code>表示，用<code>is.infinite()</code>函数来判断；</p>
+<p>不可能值用<code>NaN</code>（Not a Number）表示，用<code>is.nan()</code>判断；</p></li>
+<li><p>含有缺失值的算术表达式和函数的计算结果也是缺失值：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">x &lt;- c(<span class="number">1</span>, <span class="number">2</span>, <span class="literal">NA</span>, <span class="number">3</span>)</span><br><span class="line">y &lt;- x[<span class="number">1</span>] + x[<span class="number">2</span>] + x[<span class="number">3</span>] + x[<span class="number">4</span>] <span class="comment"># 结果是缺失值</span></span><br><span class="line">z &lt;- sum(x)	<span class="comment"># 结果依然是缺失值</span></span><br><span class="line">zz &lt;- sum(x, na.rm = <span class="literal">TRUE</span>)	<span class="comment"># zz = 6</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</blockquote>
+<h2 id="日期值处理">日期值处理</h2>
+<p>主要就是<code>Date</code>数据与字符串的相互转换。</p>
+<p>这里只是一些简单的日期处理方法，功能更强大的日期处理函数可以下载lubridate包和timeDate包。</p>
+<p>字符串到<code>Date</code>需要调用<code>as.Date()</code>函数，它预先定义了一些符号：</p>
+<table>
+<thead>
+<tr class="header">
+<th>符号</th>
+<th>含义</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>%d</code></td>
+<td>数字表示的日期(0~31)</td>
+<td>01~31</td>
+</tr>
+<tr class="even">
+<td><code>%a</code></td>
+<td>缩写的星期名</td>
+<td>Mon</td>
+</tr>
+<tr class="odd">
+<td><code>%A</code></td>
+<td>非缩写星期名</td>
+<td>Monday</td>
+</tr>
+<tr class="even">
+<td><code>%m</code></td>
+<td>月份(01~12)</td>
+<td>01~12</td>
+</tr>
+<tr class="odd">
+<td><code>%b</code></td>
+<td>缩写的月份</td>
+<td>Jan</td>
+</tr>
+<tr class="even">
+<td><code>%B</code></td>
+<td>非缩写月份</td>
+<td>January</td>
+</tr>
+<tr class="odd">
+<td><code>%y</code></td>
+<td>两位数的年份</td>
+<td>20</td>
+</tr>
+<tr class="even">
+<td><code>%Y</code></td>
+<td>四位数的年份</td>
+<td>2020</td>
+</tr>
+</tbody>
+</table>
+<p><strong>日期默认的格式为：<code>yyyy-mm-dd</code></strong></p>
+<p><code>Sys.Date()</code>返回当天日期，<code>date()</code>以字符串形式返回当前的日期和时间。</p>
+<h3 id="字符串转date">字符串转Date</h3>
+<p>示例：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; mydates &lt;- as.Date(c(<span class="string">"2007-06-22"</span>, <span class="string">"2004-02-13"</span>))</span><br><span class="line">&gt; mydates</span><br><span class="line">[<span class="number">1</span>] <span class="string">"2007-06-22"</span> <span class="string">"2004-02-13"</span></span><br><span class="line">&gt; class(mydates)</span><br><span class="line">[<span class="number">1</span>] <span class="string">"Date"</span></span><br><span class="line">&gt; strDates &lt;- c(<span class="string">"01/05/1965"</span>, <span class="string">"08/16/1975"</span>)</span><br><span class="line">&gt; dates &lt;- as.Date(strDates, <span class="string">"%m/%d/%Y"</span>)</span><br><span class="line"></span><br><span class="line">&gt; Sys.Date()</span><br><span class="line">[<span class="number">1</span>] <span class="string">"2020-04-19"</span></span><br><span class="line">&gt; date()</span><br><span class="line">[<span class="number">1</span>] <span class="string">"Sun Apr 19 18:50:19 2020"</span></span><br></pre></td></tr></table></figure>
+<h3 id="date转字符串">Date转字符串</h3>
+<p>这里主要介绍两种方法：<code>format()</code>函数和<code>as.character()</code>函数，非常简单，以下是它们的用法：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; format(Sys.Date(), format = <span class="string">"%B %d %Y"</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="string">"四月 19 2020"</span></span><br><span class="line">&gt; format(Sys.Date(), format=<span class="string">"%A"</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="string">"星期日"</span></span><br><span class="line">&gt; as.character(Sys.Date())</span><br><span class="line">[<span class="number">1</span>] <span class="string">"2020-04-19"</span></span><br></pre></td></tr></table></figure>
+<h3 id="日期间的运算">日期间的运算</h3>
+<p>两个Date对象可以通过相减来计算两者之间的时间差，也可以通过<code>difftime()</code>函数来计算日期间的差：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; strDates &lt;- c(<span class="string">"01/05/1965"</span>, <span class="string">"08/16/1975"</span>)</span><br><span class="line">&gt; dates &lt;- as.Date(strDates, <span class="string">"%m/%d/%Y"</span>)</span><br><span class="line">&gt; dates[<span class="number">2</span>] - dates[<span class="number">1</span>]</span><br><span class="line">Time difference of <span class="number">3875</span> days</span><br><span class="line"><span class="comment"># units支持："auto", "secs", "mins", "hours", "days", "weeks"，默认为"</span></span><br><span class="line">&gt; difftime(dates[<span class="number">2</span>], dates[<span class="number">1</span>], units = <span class="string">"weeks"</span>)</span><br><span class="line">Time difference of <span class="number">553.5714</span> weeks</span><br></pre></td></tr></table></figure>
+<p>和其他语言一样，R语言的内部起始时间也是1970年1月1日，更早的事件需要表示为负数。</p>
+<h2 id="类型转换">类型转换</h2>
+<p>R中提供了一系列用 来判断某个对象的数据类型和将其转换为另一种数据类型的函数：</p>
+<table>
+<thead>
+<tr class="header">
+<th>判断(返回<code>TRUE</code>或<code>FALSE</code>)</th>
+<th>转换</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>is.numeric()</code></td>
+<td><code>as.numeric()</code></td>
+</tr>
+<tr class="even">
+<td><code>is.character()</code></td>
+<td><code>as.character()</code></td>
+</tr>
+<tr class="odd">
+<td><code>is.vector()</code></td>
+<td><code>as.vector()</code></td>
+</tr>
+<tr class="even">
+<td><code>is.matrix()</code></td>
+<td><code>as.matrix()</code></td>
+</tr>
+<tr class="odd">
+<td><code>is.data.frame()</code></td>
+<td><code>as.data.frame()</code></td>
+</tr>
+<tr class="even">
+<td><code>is.factor()</code></td>
+<td><code>as.factor()</code></td>
+</tr>
+<tr class="odd">
+<td><code>is.logical()</code></td>
+<td><code>as.logical()</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="数据排序">数据排序</h2>
+<p><code>order()</code>函数对一个数据框进行排序。默认的排序顺序是升序。在排序变量的 前边加一个减号即可得到降序的排序结果：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 按年龄升序排序</span></span><br><span class="line">newdata &lt;- leadership[order(leadership$age),]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 先按性别升序排序，同性别按年龄降序排序</span></span><br><span class="line">newdata &lt;-leadership[order(leadership$gender, -leadership$age),]</span><br></pre></td></tr></table></figure>
+<h2 id="数据集的合并">数据集的合并</h2>
+<p>数据集的合并分为横向合并和纵向合并。</p>
+<h3 id="横向合并合并列">横向合并：合并列</h3>
+<p>形象的说，横向合并就是将两个数据集左右拼接在一起。</p>
+<p>横向合并又分为<strong>按列（或者按某几列）合并</strong>与<strong>直接合并</strong>。</p>
+<p><strong>按列合并</strong>类似于数据库查询中的多表查询，比如按<code>ID</code>和<code>Country</code>这两列合并数据框，调用的是<code>merge()</code>函数：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">total &lt;- merge(dataframeA, dataframeB, by=c(<span class="string">"ID"</span>, <span class="string">"Country"</span>))</span><br></pre></td></tr></table></figure>
+<p><strong>直接合并</strong>就相当于直接将两张表左右拼接在一起，调用的是<code>cbind()</code>函数：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">total &lt;- cbind(dataframeA, dataframeB)</span><br></pre></td></tr></table></figure>
+<h3 id="纵向合并">纵向合并</h3>
+<p>其实就相当于两张结构相同的表合成一张大表，形象的说就是上下拼接，调用的是<code>rbind()</code>函数：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">total &lt;- rbind(dataframeA, dataframeB)</span><br></pre></td></tr></table></figure>
+<p>两个数据框必须拥有相同的变量，但变量顺序不必相同。</p>
+<p>如果<code>dataframeA</code>中有 <code>dataframeB</code>中没有的变量，需做一定的处理：</p>
+<ul>
+<li>删除<code>dataframeA</code>中的多余变量；</li>
+<li>在<code>dataframeB</code>中创建追加的变量并将其值设为<code>NA</code>。</li>
+</ul>
+<h2 id="数据框data.frame中的操作">数据框<code>data.frame</code>中的操作</h2>
+<h3 id="两列相加并创建一个新列">两列相加并创建一个新列</h3>
+<p>常用的两种方法，假设变量<code>mydata</code>是一个数据框，它只有<code>x1</code>和<code>x2</code>这两列：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 方法1：直接相加</span></span><br><span class="line">mydata$sumx &lt;- mydata$x1 + mydata$x2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法2：使用transform()函数</span></span><br><span class="line">mydata &lt;- transform(mydata, sumx = x1 + x2)</span><br></pre></td></tr></table></figure>
+<p>更使用<code>transform()</code>函数。</p>
+<h3 id="变量重编码">变量重编码</h3>
+<p>以以下三种操作为例：</p>
+<ol type="1">
+<li>将一个连续型变量修改为一组类别值;</li>
+<li>将误编码的值替换为正确值;</li>
+<li>基于一组临界值创建一个分类变量。</li>
+</ol>
+<p>例如<code>leadership</code>是一个数据框，它有一个<code>age</code>变量（列），现在需要将年龄为99的元素设置为缺失值，并根据年龄来分组，具体操作如下：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将99岁这个元素设置为NA</span></span><br><span class="line">leadership$age[leadership$age == <span class="number">99</span>] &lt;- <span class="literal">NA</span></span><br><span class="line">leadership$agecat[leadership$age &gt; <span class="number">75</span>] &lt;- <span class="string">"Elder"</span></span><br><span class="line">leadership$agecat[leadership$age &gt;= <span class="number">55</span> &amp; leadership$age &lt;= <span class="number">75</span>] &lt;- <span class="string">"Middle Aged"</span> </span><br><span class="line">leadership$agecat[leadership$age &lt; <span class="number">55</span>] &lt;- <span class="string">"Young"</span></span><br></pre></td></tr></table></figure>
+<p>语句<code>variable[condition] &lt;- expression</code>将仅在<code>condition</code>的值为<code>TRUE</code>时执行赋值。</p>
+<p>以上代码还可以使用<code>within()</code>函数来简化：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">leadership$age[leadership$age == <span class="number">99</span>] &lt;- <span class="literal">NA</span></span><br><span class="line"></span><br><span class="line">leadership &lt;- within(leadership, &#123;</span><br><span class="line">    agecat &lt;- <span class="literal">NA</span></span><br><span class="line">    agecat[age &gt; <span class="number">75</span>] &lt;- <span class="string">"Elder"</span></span><br><span class="line">    agecat[age &gt;= <span class="number">55</span> &amp; age &lt;= <span class="number">75</span>] &lt;- <span class="string">"Middle Aged"</span></span><br><span class="line">    agecat[age &lt; <span class="number">55</span>] &lt;- <span class="string">"Young"</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>提示：car包中的<code>recode()</code>函数，doBy包中的<code>recodevar()</code>函数以及R自带的<code>cut()</code>都可以用来重编码。</p>
+</blockquote>
+<h3 id="重命名列">重命名列</h3>
+<p>使用<code>names()</code>函数重命名数据框中的列：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 第2列被重命名为了testDate</span></span><br><span class="line">names(leadership)[<span class="number">2</span>] &lt;- <span class="string">"testDate"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 批量重命名列</span></span><br><span class="line">names(leadership)[<span class="number">6</span>:<span class="number">10</span>] &lt;- c(<span class="string">"item1"</span>, <span class="string">"item2"</span>, <span class="string">"item3"</span>, <span class="string">"item4"</span>, <span class="string">"item5"</span>)</span><br></pre></td></tr></table></figure>
+<p>提示：</p>
+<blockquote>
+<p>plyr包中的<code>rename()</code>函数更方便，只不过这个包并不是自带的：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 模板</span></span><br><span class="line">rename(dataframe, c(oldname=<span class="string">"newname"</span>, oldname=<span class="string">"newname"</span>,<span class="keyword">...</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 示例：</span></span><br><span class="line"><span class="keyword">library</span>(plyr)</span><br><span class="line"><span class="comment"># manager列被重命名为了managerID，data列被重命名为了testDate列</span></span><br><span class="line">leadership &lt;- rename(leadership, c(manager=<span class="string">"managerID"</span>, date=<span class="string">"testDate"</span>))</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="选择某几列生成子集">选择某几列生成子集</h3>
+<p>从原数据框中选择特定的列生成子集：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 选择第6到10列，以及所有的行作为子集</span></span><br><span class="line">newdata &lt;- dataframeA[, c(<span class="number">6</span>:<span class="number">10</span>)]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 等价代码：</span></span><br><span class="line">myvars &lt;- c(<span class="string">"col1"</span>, <span class="string">"col2"</span>, <span class="string">"col3"</span>, <span class="string">"col4"</span>, <span class="string">"col5"</span>) </span><br><span class="line">newdata &lt;-dataframeA[myvars]</span><br></pre></td></tr></table></figure>
+<h3 id="删除数据框中的某些列">删除数据框中的某些列</h3>
+<p>有些时候并不一定所有的列都是需要的，例如，可能某列的缺失值太多，需要删除该列：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 方法1：当你知道你要删的是第几列时</span></span><br><span class="line">newdata &lt;- dataframeA[, -c(<span class="number">1</span>, <span class="number">2</span>)]</span><br><span class="line">newdata &lt;- dataframeA[c(-<span class="number">1</span>, -<span class="number">2</span>)]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法2：</span></span><br><span class="line">myvars &lt;- names(dataframeA) %<span class="keyword">in</span>% c(<span class="string">"colx"</span>, <span class="string">"coly"</span>) </span><br><span class="line">newdata &lt;- dataframeA[!myvars]	<span class="comment"># 感叹号：取非运算</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法3：就不需要的列设置为NULL</span></span><br><span class="line">dataframeA$colx &lt;- dataframeA$coly &lt;- <span class="literal">NULL</span></span><br></pre></td></tr></table></figure>
+<h3 id="选择或删除某些行">选择或删除某些行</h3>
+<p>明确知道所需的数据在第几行，可以直接用下标；也可以通过条件判断：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 方法1</span></span><br><span class="line">newdata &lt;- dataframeA[<span class="number">1</span>:<span class="number">3</span>,]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法2</span></span><br><span class="line">newdata &lt;- dataframeA[dataframeA$gender==<span class="string">"M"</span> &amp; dataframeA$age &gt; <span class="number">30</span>,]</span><br></pre></td></tr></table></figure>
+<h3 id="subset函数">subset()函数</h3>
+<p>这个函数能非常方便的提取子集：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 根据age选择行，根据select参数保留列</span></span><br><span class="line">newdata &lt;- subset(dataframeA, age &gt;= <span class="number">35</span> | age &lt; <span class="number">24</span>, select=c(q1, q2, q3, q4))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 根据age选择行，同时删除q1到q4之间所有的列</span></span><br><span class="line">newdata &lt;- subset(dataframeA, age &gt;= <span class="number">35</span> | age &lt; <span class="number">24</span>, select=-c(q1, q2, q3, q4))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 根据gender和age选择行，保留gender到q4之间所有的列</span></span><br><span class="line">newdata &lt;- subset(dataframeA, gender==<span class="string">"M"</span> &amp; age &gt; <span class="number">25</span>, select=gender:q4)</span><br></pre></td></tr></table></figure>
+<h3 id="随机抽样">随机抽样</h3>
+<p>其实就是利用随机抽样函数<code>sample()</code>来从数据框中取行：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">mysample &lt;- leadership[sample(<span class="number">1</span>:nrow(leadership), <span class="number">3</span>, replace=<span class="literal">FALSE</span>),]</span><br></pre></td></tr></table></figure>
+<p><code>sample()</code>函数的声明如下：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">sample(range, k, replace=<span class="literal">FALSE</span>, prob=probility.vector)</span><br></pre></td></tr></table></figure>
+<p>它表示从<code>range</code>这个数据集中随机抽取<code>k</code>个样本。<code>replace</code>参数表示是否为有放回抽样，<code>prob</code>表示每个样本被抽到的概率，如果没有设置则表示是等概率抽样。</p>
 <h1 id="reference">Reference</h1>
 <ol type="1">
 <li>R语言实战.第2版</li>
