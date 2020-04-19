@@ -2362,8 +2362,8 @@
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>二叉树</tag>
         <tag>算法题</tag>
+        <tag>二叉树</tag>
         <tag>二叉搜索树</tag>
       </tags>
   </entry>
@@ -2445,8 +2445,8 @@
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>二叉树</tag>
         <tag>算法题</tag>
+        <tag>二叉树</tag>
       </tags>
   </entry>
   <entry>
@@ -2485,8 +2485,8 @@
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>二叉树</tag>
         <tag>算法题</tag>
+        <tag>二叉树</tag>
       </tags>
   </entry>
   <entry>
@@ -2525,8 +2525,8 @@
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>二叉树</tag>
         <tag>算法题</tag>
+        <tag>二叉树</tag>
       </tags>
   </entry>
   <entry>
@@ -2570,8 +2570,8 @@
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>二叉树</tag>
         <tag>算法题</tag>
+        <tag>二叉树</tag>
       </tags>
   </entry>
   <entry>
@@ -2614,8 +2614,8 @@
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>数据结构</tag>
         <tag>算法题</tag>
+        <tag>数据结构</tag>
         <tag>桶</tag>
         <tag>ArrayList</tag>
         <tag>HashMap</tag>
@@ -2748,8 +2748,8 @@
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>切比雪夫距离</tag>
         <tag>算法题</tag>
+        <tag>切比雪夫距离</tag>
       </tags>
   </entry>
   <entry>
@@ -2778,8 +2778,8 @@
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>二叉树</tag>
         <tag>算法题</tag>
+        <tag>二叉树</tag>
       </tags>
   </entry>
   <entry>
@@ -2815,9 +2815,9 @@
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
+        <tag>数据结构</tag>
         <tag>Python</tag>
         <tag>Arrays</tag>
-        <tag>数据结构</tag>
       </tags>
   </entry>
   <entry>
@@ -2866,9 +2866,9 @@
       <tags>
         <tag>LeetCode</tag>
         <tag>Java</tag>
-        <tag>算法</tag>
         <tag>Python</tag>
         <tag>排序</tag>
+        <tag>算法</tag>
       </tags>
   </entry>
   <entry>
@@ -3380,10 +3380,10 @@
         <category>Python进阶</category>
       </categories>
       <tags>
-        <tag>算法</tag>
-        <tag>Python</tag>
-        <tag>Python进阶</tag>
         <tag>数据结构</tag>
+        <tag>Python</tag>
+        <tag>算法</tag>
+        <tag>Python进阶</tag>
       </tags>
   </entry>
   <entry>
