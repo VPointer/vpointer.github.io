@@ -1088,12 +1088,251 @@
 <p><code>sample()</code>函数的声明如下：</p>
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">sample(range, k, replace=<span class="literal">FALSE</span>, prob=probility.vector)</span><br></pre></td></tr></table></figure>
 <p>它表示从<code>range</code>这个数据集中随机抽取<code>k</code>个样本。<code>replace</code>参数表示是否为有放回抽样，<code>prob</code>表示每个样本被抽到的概率，如果没有设置则表示是等概率抽样。</p>
+<h1 id="高级数据处理">高级数据处理</h1>
+<p>本节主要介绍数据处理的基石函数，它们可分为两大类：<strong>数值函数</strong>（数学、统计、概率）和<strong>字符处理函数</strong>。</p>
+<h2 id="数学函数">数学函数</h2>
+<p>以下是常用的数学处理函数：</p>
+<table>
+<thead>
+<tr class="header">
+<th>函数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>abs(x)</code></td>
+<td>绝对值</td>
+</tr>
+<tr class="even">
+<td><code>sqrt(x)</code></td>
+<td>平方根</td>
+</tr>
+<tr class="odd">
+<td><code>ceiling(x)</code></td>
+<td>不小于 <code>x</code>的最小整数</td>
+</tr>
+<tr class="even">
+<td><code>floor(x)</code></td>
+<td>不大于 <code>x</code>的最大整数</td>
+</tr>
+<tr class="odd">
+<td><code>trunc(x)</code></td>
+<td>向 0 的方向截取的 <code>x</code> 中的整数部分</td>
+</tr>
+<tr class="even">
+<td><code>round(x, digits=n)</code></td>
+<td>将 <code>x</code> 舍入为指定位的小数（四舍五入）</td>
+</tr>
+<tr class="odd">
+<td><code>signif(x, digits=n)</code></td>
+<td>将 <code>x</code>舍入为指定的有效数字位数<br /><code>signif(3.475, digits=2)</code>返回值为 3.5</td>
+</tr>
+<tr class="even">
+<td><code>cos(x)</code>、<code>sin(x)</code>、<code>tan(x)</code></td>
+<td>余弦、正弦和正切</td>
+</tr>
+<tr class="odd">
+<td><code>acos(x)</code>、<code>asin(x)</code>、<code>atan(x)</code></td>
+<td>反余弦、反正弦和反正切</td>
+</tr>
+<tr class="even">
+<td><code>log(x,base=n)</code></td>
+<td>对<code>x</code>取以<code>n</code>为底的对数</td>
+</tr>
+<tr class="odd">
+<td><code>log(x)</code></td>
+<td>自然对数函数</td>
+</tr>
+<tr class="even">
+<td><code>log10(x)</code></td>
+<td>以10为底的对数函数</td>
+</tr>
+<tr class="odd">
+<td><code>exp(x)</code></td>
+<td>指数函数</td>
+</tr>
+</tbody>
+</table>
+<h2 id="统计函数">统计函数</h2>
+<p>常用的统计函数：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>函数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>mean(x)</code></td>
+<td>平均数</td>
+</tr>
+<tr class="even">
+<td><code>median(x)</code></td>
+<td>中位数</td>
+</tr>
+<tr class="odd">
+<td><code>sd(x)</code></td>
+<td>标准差</td>
+</tr>
+<tr class="even">
+<td><code>var(x)</code></td>
+<td>方差</td>
+</tr>
+<tr class="odd">
+<td><code>mad(x)</code></td>
+<td>绝对中位差(median absolute deviation)<br /><code>mad(c(1,2,3,4))</code>返回值为 1.48</td>
+</tr>
+<tr class="even">
+<td><code>quantile(x,probs)</code></td>
+<td>求分位数。其中<code>x</code> 为待求分位数的数值型向量，<code>probs</code> 为一个由<code>[0,1]</code>之间的概率值组成 的数值向量<br />例如，求<code>x</code>的30%和84%分位点：<code>y &lt;- quantile(x, c(.3,.84))</code></td>
+</tr>
+<tr class="odd">
+<td><code>range(x)</code></td>
+<td>求值域<br /><code>x &lt;- c(1,2,3,4)</code><br /><code>range(x)</code>返回值为 <code>c(1,4)</code><br /><code>diff(range(x))</code>返回值为 3</td>
+</tr>
+<tr class="even">
+<td><code>sum(x)</code></td>
+<td>求和</td>
+</tr>
+<tr class="odd">
+<td><code>diff(x, lag=n)</code></td>
+<td>滞后差分，<code>lag</code>用以指定滞后几项。默认的 <code>lag</code> 值为 1<br /><code>x&lt;- c(1, 5, 23, 29)</code><br /><code>diff(x)</code>返回值为 <code>c(4, 18, 6)</code></td>
+</tr>
+<tr class="even">
+<td><code>min(x)</code></td>
+<td>最小值</td>
+</tr>
+<tr class="odd">
+<td><code>max(x)</code></td>
+<td>最大值</td>
+</tr>
+<tr class="even">
+<td><code>scale(x,center=TRUE,scale=TRUE)</code></td>
+<td>为数据对象 <code>x</code> 按列进行中心化(<code>center=TRUE</code>)或标准化(<code>center=TRUE,scale=TRUE</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>对于标准化函数<code>scala()</code>需要说明一下几点：</p>
+<blockquote>
+<ol type="1">
+<li><p>默认<code>scala()</code>对矩阵或数据框中的每一列都进行均值为0，标准差为1的标准化；</p></li>
+<li><p>如果要对每一列指定标准差和均值，需要如下调用：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># SD是你指定的标准差，M是指定的均值</span></span><br><span class="line">newdata &lt;- scale(mydata)*SD + M</span><br></pre></td></tr></table></figure></li>
+<li><p>要对指定列而不是整个矩阵或数据框进行标准化，可以调用<code>transform()</code>函数：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">newdata &lt;- transform(mydata, myvar = scale(myvar)*<span class="number">10</span>+<span class="number">50</span>)</span><br></pre></td></tr></table></figure></li>
+</ol>
+</blockquote>
+<h2 id="概率函数">概率函数</h2>
+<p>概率函数的命名规则如下：</p>
+<p><code>[dpqr]distribution_abbreviation()</code></p>
+<p>方括号中每个字母的含义如下：</p>
+<ul>
+<li>d：密度函数（density）</li>
+<li>p：分布函数（distribution function）</li>
+<li>q：分位数函数（quantile function）</li>
+<li>r：生成随机数（随机偏差）</li>
+</ul>
+<p>常见概率函数如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587354607/R/常见概率分布.png" /></p>
+<p>以正态分布分布<code>norm()</code>为例，结合之前那4个字母<code>[dpqr]</code>，对于正态分布，在R中，它的密度函数为<code>dnorm()</code>，分布函数为<code>pnorm()</code>，分位数函数为<code>qnorm()</code>，随机数生成函数则为<code>rnorm()</code>，以下是它们的例子：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587354940/R/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E5%87%BD%E6%95%B0%E7%A4%BA%E4%BE%8B.png" /></p>
+<blockquote>
+<p>在每次生成伪随机数的时候，函数都会使用一个不同的种子，因此也会产生不同的结果。你 可以通过函数<code>set.seed()</code>显式指定这个种子，让结果可以重现(reproducible)。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; runif(<span class="number">5</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="number">0.8725344</span> <span class="number">0.3962501</span> <span class="number">0.6826534</span> <span class="number">0.3667821</span> <span class="number">0.9255909</span> </span><br><span class="line">&gt; runif(<span class="number">5</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="number">0.4273903</span> <span class="number">0.2641101</span> <span class="number">0.3550058</span> <span class="number">0.3233044</span> <span class="number">0.6584988</span> </span><br><span class="line">&gt; set.seed(<span class="number">1234</span>)</span><br><span class="line">&gt; runif(<span class="number">5</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="number">0.1137034</span> <span class="number">0.6222994</span> <span class="number">0.6092747</span> <span class="number">0.6233794</span> <span class="number">0.8609154</span> </span><br><span class="line">&gt; set.seed(<span class="number">1234</span>)</span><br><span class="line">&gt; runif(<span class="number">5</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="number">0.1137034</span> <span class="number">0.6222994</span> <span class="number">0.6092747</span> <span class="number">0.6233794</span> <span class="number">0.8609154</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="字符处理函数">字符处理函数</h2>
+<p>以下是一些使用的字符串处理函数：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587356066/R/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86%E5%87%BD%E6%95%B0.png" /></p>
+<h2 id="其他常用函数">其他常用函数</h2>
+<p>以下函数不好将其归为某一类：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587356385/R/%E5%85%B6%E4%BB%96%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0.png" /></p>
+<h2 id="将函数用于矩阵和数据框">将函数用于矩阵和数据框</h2>
+<p>此处主要介绍<code>apply()</code>函数，它可以将任意函数”应用“到到矩阵、数组、数据框的任何维 度上。<code>apply()</code>函数的使用格式为:</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">apply(x, MARGIN, FUN, <span class="keyword">...</span>)</span><br></pre></td></tr></table></figure>
+<p>说明： &gt; 1. <code>x</code>: 数据对象 &gt; 2. <code>MARGIN</code>: 维度的下标。对于数据框和矩阵，<code>MARGIN=1</code>表示行，<code>MARGIN=2</code>表示列 &gt; 3. <code>FUN</code>: 传入的函数 &gt; 4. <code>...</code>: 任何想传递给<code>FUN</code>的参数</p>
+<p><code>lapply()</code>和<code>sapply()</code>可将函数应用到列表(list)上。</p>
+<p>一个值得注意的例子，<code>name</code>是一个<code>list</code>：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; name</span><br><span class="line">[[<span class="number">1</span>]]</span><br><span class="line">[<span class="number">1</span>] <span class="string">"John"</span>  <span class="string">"Davis"</span></span><br><span class="line"></span><br><span class="line">[[<span class="number">2</span>]]</span><br><span class="line">[<span class="number">1</span>] <span class="string">"Angela"</span>   <span class="string">"Williams"</span></span><br><span class="line"></span><br><span class="line">[[<span class="number">3</span>]]</span><br><span class="line">[<span class="number">1</span>] <span class="string">"Bullwinkle"</span> <span class="string">"Moose"</span>     </span><br><span class="line"></span><br><span class="line"><span class="comment"># 取得第2列</span></span><br><span class="line">&gt; Lastname &lt;- sapply(name, <span class="string">"["</span>, <span class="number">2</span>)</span><br><span class="line">&gt; Lastname</span><br></pre></td></tr></table></figure>
+<p>作为一个程序员，不得不吐槽R语言的语法，<code>"["</code>居然是一个可以提取某个对象的一部分的函数。</p>
+<h2 id="数据的聚合与重塑">数据的聚合与重塑</h2>
+<p>本节主要针对矩阵和数据框。</p>
+<h3 id="转置">转置</h3>
+<p>矩阵或数据框的转置直接调用函数<code>t()</code>即可。</p>
+<h3 id="聚合aggregate">聚合aggregate</h3>
+<p>类似于MongoDB，ElasticSearch中的聚合，例如分组统计均值、求和等。</p>
+<p>以下例子使用R自带的数据集mtcars。根据<code>cyl</code>和<code>gear</code>对数据进行分组，同时计算组内数据中每一项指标（也就是每一列）的均值：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; options(digits=<span class="number">3</span>)</span><br><span class="line">&gt; <span class="keyword">attach</span>(mtcars)</span><br><span class="line">&gt; aggdata &lt;- aggregate(mtcars, by=list(cyl, gear), FUN = mean, na.rm = <span class="literal">TRUE</span>)</span><br><span class="line">&gt; aggdata</span><br><span class="line">  Group.1 Group.2  mpg cyl disp  hp drat   wt qsec  vs   am gear carb</span><br><span class="line"><span class="number">1</span>       <span class="number">4</span>       <span class="number">3</span> <span class="number">21.5</span>   <span class="number">4</span>  <span class="number">120</span>  <span class="number">97</span> <span class="number">3.70</span> <span class="number">2.46</span> <span class="number">20.0</span> <span class="number">1.0</span> <span class="number">0.00</span>    <span class="number">3</span> <span class="number">1.00</span></span><br><span class="line"><span class="number">2</span>       <span class="number">6</span>       <span class="number">3</span> <span class="number">19.8</span>   <span class="number">6</span>  <span class="number">242</span> <span class="number">108</span> <span class="number">2.92</span> <span class="number">3.34</span> <span class="number">19.8</span> <span class="number">1.0</span> <span class="number">0.00</span>    <span class="number">3</span> <span class="number">1.00</span></span><br><span class="line"><span class="number">3</span>       <span class="number">8</span>       <span class="number">3</span> <span class="number">15.1</span>   <span class="number">8</span>  <span class="number">358</span> <span class="number">194</span> <span class="number">3.12</span> <span class="number">4.10</span> <span class="number">17.1</span> <span class="number">0.0</span> <span class="number">0.00</span>    <span class="number">3</span> <span class="number">3.08</span></span><br><span class="line"><span class="number">4</span>       <span class="number">4</span>       <span class="number">4</span> <span class="number">26.9</span>   <span class="number">4</span>  <span class="number">103</span>  <span class="number">76</span> <span class="number">4.11</span> <span class="number">2.38</span> <span class="number">19.6</span> <span class="number">1.0</span> <span class="number">0.75</span>    <span class="number">4</span> <span class="number">1.50</span></span><br><span class="line"><span class="number">5</span>       <span class="number">6</span>       <span class="number">4</span> <span class="number">19.8</span>   <span class="number">6</span>  <span class="number">164</span> <span class="number">116</span> <span class="number">3.91</span> <span class="number">3.09</span> <span class="number">17.7</span> <span class="number">0.5</span> <span class="number">0.50</span>    <span class="number">4</span> <span class="number">4.00</span></span><br><span class="line"><span class="number">6</span>       <span class="number">4</span>       <span class="number">5</span> <span class="number">28.2</span>   <span class="number">4</span>  <span class="number">108</span> <span class="number">102</span> <span class="number">4.10</span> <span class="number">1.83</span> <span class="number">16.8</span> <span class="number">0.5</span> <span class="number">1.00</span>    <span class="number">5</span> <span class="number">2.00</span></span><br><span class="line"><span class="number">7</span>       <span class="number">6</span>       <span class="number">5</span> <span class="number">19.7</span>   <span class="number">6</span>  <span class="number">145</span> <span class="number">175</span> <span class="number">3.62</span> <span class="number">2.77</span> <span class="number">15.5</span> <span class="number">0.0</span> <span class="number">1.00</span>    <span class="number">5</span> <span class="number">6.00</span></span><br><span class="line"><span class="number">8</span>       <span class="number">8</span>       <span class="number">5</span> <span class="number">15.4</span>   <span class="number">8</span>  <span class="number">326</span> <span class="number">300</span> <span class="number">3.88</span> <span class="number">3.37</span> <span class="number">14.6</span> <span class="number">0.0</span> <span class="number">1.00</span>    <span class="number">5</span> <span class="number">6.00</span></span><br></pre></td></tr></table></figure>
+<p><code>Group.1</code>表示汽缸数量(4、6或8)，<code>Group.2</code>代表挡位数(3、4或5)。举例来说， 拥有4个汽缸和3个挡位车型的每加仑汽油行驶英里数(<code>mpg</code>)均值为21.5。</p>
+<p>在使用<code>aggregate()</code>函数的时候，<code>by</code>中的变量必须在一个列表中(即使只有一个变量)。可以在列表中为各组声明自定义的名称，例如<code>by=list(Group.cyl=cyl, Group. gears=gear)</code>。</p>
+<h3 id="reshape2包">reshape2包</h3>
+<p>第三方包reshape2是一套重塑和整合数据集的万能工具。</p>
+<p>使用该包大致分为两个步骤：首先将数据融合(melt)，以使每一行都是唯一的标识符变量组合。然后将数据重铸(cast)为想要的任何结构。在重铸过程中，可以使用任何函数对数据进行整合。</p>
+<p>数据集的融合是将它重构为这样一种格式：每个测量变量独占一行，行中带有要唯一确定这个测量所需的标识符变量。调用的是<code>melt()</code>函数： <figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将col1和col2作为唯一标识符</span></span><br><span class="line">meltdata &lt;- melt(data, id=c(<span class="string">"col1"</span>, <span class="string">"col2"</span>))</span><br></pre></td></tr></table></figure></p>
+<p><code>dcast()</code>函数读取已融合的数据，并使用传入的公式和一个(可选的)用于整合数据的函数将其重塑。调用格式为:</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">newdata &lt;- dcast(md, formula, fun.aggregate)</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<blockquote>
+<ol type="1">
+<li><code>md</code>: 已融合的数据</li>
+<li><code>formula</code>: 想要的最后结果，形式如下： <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">rowvar1 + rowvar2 + <span class="keyword">...</span> ~ colvar1 + colvar2 + <span class="keyword">...</span></span><br></pre></td></tr></table></figure> <code>rowvar1 + rowvar2 + ...</code>定义了要划掉的变量集合，以确定各行的内容，而<code>colvar1 + colvar2 + ...</code>则定义了要划掉的、确定各列内容的变量集合</li>
+<li><code>fun.aggregate</code>: 可选的数据整合函数</li>
+</ol>
+</blockquote>
+<p>融合与重铸的例子如下图所示（注意上方的代码）：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587366667/R/%E8%9E%8D%E5%90%88%E4%B8%8E%E9%87%8D%E9%93%B8.png" /></p>
+<p>需要提醒的是，不管有没有传入聚合函数，<strong>针对的都是<code>value</code>那一列中的值</strong>。</p>
+<h1 id="r语言的控制流">R语言的控制流</h1>
+<p>虽然以下概念对程序员并不陌生，但有些点还是需要注意：</p>
+<ul>
+<li>语句(statement)是一条单独的R语句或一组复合语句(包含在花括号<code>{}</code>中的一组R语句，如果要写在同一行，需要使用分号分隔，最好是换行);</li>
+<li>条件(cond)是一条最终被解析为真(TRUE)或假(FALSE)的表达式;</li>
+<li>表达式(expr)是一条数值或字符串的求值语句;</li>
+<li>序列(seq)是一个数值或字符串序列。</li>
+</ul>
+<h2 id="循环">循环</h2>
+<p>包括<code>for</code>循环和<code>while</code>循环，R里面没有<code>do...while</code>循环。</p>
+<h3 id="for循环">for循环</h3>
+<p>语法： <code>for (var in seq) statement</code></p>
+<p>例子：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># print默认换行</span></span><br><span class="line"><span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1</span>:<span class="number">10</span>)  print(<span class="string">"Hello"</span>) <span class="comment"># Hello会被输出10遍</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1</span>:<span class="number">10</span>) &#123;</span><br><span class="line">   print(<span class="string">"Hello"</span>)</span><br><span class="line">   print(<span class="string">"World"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在处理大数据集中的行和列时，R中的循环可能比较低效费时。只要可能，最好联用R中的内建数值/字符处理函数和<code>apply</code>族函数。</p>
+<h3 id="while循环">while循环</h3>
+<p>语法： <code>while (cond) statement</code></p>
+<p>例子：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">i &lt;- <span class="number">10</span></span><br><span class="line"><span class="keyword">while</span> (i &gt; <span class="number">0</span>) &#123;print(<span class="string">"Hello"</span>); i &lt;- i - <span class="number">1</span>&#125;</span><br><span class="line"></span><br><span class="line">i &lt;- <span class="number">10</span></span><br><span class="line"><span class="keyword">while</span>(i &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    print(<span class="string">"Hello"</span>)</span><br><span class="line">    i &lt;- i - <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="条件控制">条件控制</h2>
+<p>包括<code>if-else</code>，<code>ifelse</code>和<code>switch</code>结构。</p>
+<h3 id="if-else">if-else</h3>
+<p>语法：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (cond) statement</span><br><span class="line"><span class="keyword">if</span> (cond) statement1 <span class="keyword">else</span> statement2</span><br><span class="line"><span class="keyword">if</span> (cond1) statement1 <span class="keyword">else</span> <span class="keyword">if</span> statement2 <span class="keyword">else</span> statement3</span><br></pre></td></tr></table></figure>
+<p>例子：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 正确写法1：全部写到一行，不推荐</span></span><br><span class="line"><span class="keyword">if</span> (!is.factor(grade)) grade &lt;- as.factor(grade) <span class="keyword">else</span> print(<span class="string">"Grade already is a factor"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 花括号</span></span><br><span class="line"><span class="keyword">if</span> (!is.factor(grade)) &#123;</span><br><span class="line">    grade &lt;- as.factor(grade) </span><br><span class="line">&#125; <span class="keyword">else</span> &#123; <span class="comment"># 不要换行！</span></span><br><span class="line">    print(<span class="string">"Grade already is a factor"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 以下写法均会报错：</span></span><br><span class="line"><span class="comment"># 错误写法1：</span></span><br><span class="line"><span class="keyword">if</span> (!is.factor(grade)) </span><br><span class="line">    grade &lt;- as.factor(grade) </span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    print(<span class="string">"Grade already is a factor"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 错误写法2</span></span><br><span class="line"><span class="keyword">if</span> (!is.factor(grade)) &#123;</span><br><span class="line">    grade &lt;- as.factor(grade) </span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123; <span class="comment"># else不能换行</span></span><br><span class="line">    print(<span class="string">"Grade already is a factor"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="ifelse结构">ifelse结构</h3>
+<p><code>ifelse</code>结构是<code>if-else</code>结构比较紧凑的向量化版本，其语法为:</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">ifelse(cond, statement1, statement2)</span><br></pre></td></tr></table></figure>
+<p>例子：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">ifelse(score &gt; <span class="number">0.5</span>, print(<span class="string">"Passed"</span>), print(<span class="string">"Failed"</span>)) </span><br><span class="line">outcome &lt;- ifelse (score &gt; <span class="number">0.5</span>, <span class="string">"Passed"</span>, <span class="string">"Failed"</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="switch结构">switch结构</h3>
+<p>语法：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">switch</span>(expr, </span><br><span class="line">    case1 = statement1,</span><br><span class="line">    case2 = statement2,</span><br><span class="line">    <span class="keyword">...</span></span><br><span class="line">    default_statement <span class="comment"># 未匹配到时</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>例子：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; feelings &lt;- c(<span class="string">"sad"</span>, <span class="string">"afraid"</span>)</span><br><span class="line">&gt; <span class="keyword">for</span> (i <span class="keyword">in</span> feelings) </span><br><span class="line">    print(</span><br><span class="line">        <span class="keyword">switch</span>(i, </span><br><span class="line">            happy = <span class="string">"I am glad you are happy"</span>, </span><br><span class="line">            afraid = <span class="string">"There is nothing to fear"</span>, </span><br><span class="line">            sad = <span class="string">"Cheer up"</span>, </span><br><span class="line">            angry = <span class="string">"Calm down now"</span></span><br><span class="line">            print(<span class="string">"failed to recognize the feeling"</span>) <span class="comment"># 未匹配到时</span></span><br><span class="line">        )</span><br><span class="line">    )</span><br><span class="line">[<span class="number">1</span>] <span class="string">"Cheer up"</span></span><br><span class="line">[<span class="number">1</span>] <span class="string">"There is nothing to fear"</span></span><br></pre></td></tr></table></figure>
+<h1 id="自定义函数">自定义函数</h1>
+<p>函数的大致结构如下：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">function_name &lt;- <span class="keyword">function</span>(arg1, arg2=默认值, <span class="keyword">...</span> ) &#123; <span class="comment"># 参数可以有默认值</span></span><br><span class="line">    statements</span><br><span class="line">    <span class="keyword">return</span>(object) <span class="comment"># 也可以去掉return，直接写object，同样可以返回object</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以下是两个自定义函数的例子：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 函数1</span></span><br><span class="line">mystats &lt;- <span class="keyword">function</span>(x, parametric = <span class="literal">TRUE</span>, print = <span class="literal">FALSE</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (parametric) &#123;</span><br><span class="line">        center &lt;- mean(x)</span><br><span class="line">        spread &lt;- sd(x)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        center &lt;- median(x)</span><br><span class="line">        spread &lt;- mad(x)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (print &amp; parametric) &#123;</span><br><span class="line">        cat(<span class="string">"Mean="</span>, center, <span class="string">"\n"</span>, <span class="string">"SD="</span>, spread, <span class="string">"\n"</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (print &amp; !parametric) &#123;</span><br><span class="line">        cat(<span class="string">"Median="</span>, center, <span class="string">"\n"</span>, <span class="string">"MAD="</span>, spread, <span class="string">"\n"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    result &lt;- list(center = center, spread = spread)</span><br><span class="line">    <span class="keyword">return</span>(result)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 函数2</span></span><br><span class="line">mydate &lt;- <span class="keyword">function</span>(type = <span class="string">"long"</span>) &#123;</span><br><span class="line">    <span class="keyword">switch</span>(type, </span><br><span class="line">        long = format(Sys.time(), <span class="string">"%A %B %d %Y"</span>), </span><br><span class="line">        short = format(Sys.time(), <span class="string">"%m-%d-%y"</span>), </span><br><span class="line">        cat(type, <span class="string">"is not a recognized type\n"</span>)</span><br><span class="line">    )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h1 id="reference">Reference</h1>
 <ol type="1">
 <li>R语言实战.第2版</li>
 <li><a href="https://zhuanlan.zhihu.com/p/46210816" target="_blank" rel="noopener">Vignette介绍</a></li>
 <li><a href="https://stackoverflow.com/questions/8855589/a-comprehensive-survey-of-the-types-of-things-in-r-mode-and-class-and-type" target="_blank" rel="noopener"><code>class()</code>和<code>typeof()</code>函数的区别</a></li>
-<li></li>
 </ol>
 ]]></content>
       <categories>
