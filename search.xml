@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>R语言基本方法</title>
+    <url>/2020/04/20/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E6%9C%AC%E6%96%B9%E6%B3%95/</url>
+    <content><![CDATA[<blockquote>
+<p>《R语言实战》笔记。</p>
+<p>R语言统计基本方法。</p>
+</blockquote>
+<a id="more"></a>
+]]></content>
+      <categories>
+        <category>R语言</category>
+      </categories>
+      <tags>
+        <tag>R语言</tag>
+        <tag>R语言基本方法</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>R语言入门</title>
     <url>/2020/04/16/R%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8/</url>
     <content><![CDATA[<blockquote>
@@ -1255,7 +1272,15 @@
 <h2 id="将函数用于矩阵和数据框">将函数用于矩阵和数据框</h2>
 <p>此处主要介绍<code>apply()</code>函数，它可以将任意函数”应用“到到矩阵、数组、数据框的任何维 度上。<code>apply()</code>函数的使用格式为:</p>
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">apply(x, MARGIN, FUN, <span class="keyword">...</span>)</span><br></pre></td></tr></table></figure>
-<p>说明： &gt; 1. <code>x</code>: 数据对象 &gt; 2. <code>MARGIN</code>: 维度的下标。对于数据框和矩阵，<code>MARGIN=1</code>表示行，<code>MARGIN=2</code>表示列 &gt; 3. <code>FUN</code>: 传入的函数 &gt; 4. <code>...</code>: 任何想传递给<code>FUN</code>的参数</p>
+<p>说明：</p>
+<blockquote>
+<ol type="1">
+<li><code>x</code>：数据对象；</li>
+<li><code>MARGIN</code>：维度的下标。对于数据框和矩阵，<code>MARGIN=1</code>表示行，<code>MARGIN=2</code>表示列；</li>
+<li><code>FUN</code>：传入的函数；</li>
+<li><code>...</code>：任何想传递给<code>FUN</code>的参数</li>
+</ol>
+</blockquote>
 <p><code>lapply()</code>和<code>sapply()</code>可将函数应用到列表(list)上。</p>
 <p>一个值得注意的例子，<code>name</code>是一个<code>list</code>：</p>
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; name</span><br><span class="line">[[<span class="number">1</span>]]</span><br><span class="line">[<span class="number">1</span>] <span class="string">"John"</span>  <span class="string">"Davis"</span></span><br><span class="line"></span><br><span class="line">[[<span class="number">2</span>]]</span><br><span class="line">[<span class="number">1</span>] <span class="string">"Angela"</span>   <span class="string">"Williams"</span></span><br><span class="line"></span><br><span class="line">[[<span class="number">3</span>]]</span><br><span class="line">[<span class="number">1</span>] <span class="string">"Bullwinkle"</span> <span class="string">"Moose"</span>     </span><br><span class="line"></span><br><span class="line"><span class="comment"># 取得第2列</span></span><br><span class="line">&gt; Lastname &lt;- sapply(name, <span class="string">"["</span>, <span class="number">2</span>)</span><br><span class="line">&gt; Lastname</span><br></pre></td></tr></table></figure>
@@ -1330,7 +1355,7 @@
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 函数1</span></span><br><span class="line">mystats &lt;- <span class="keyword">function</span>(x, parametric = <span class="literal">TRUE</span>, print = <span class="literal">FALSE</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (parametric) &#123;</span><br><span class="line">        center &lt;- mean(x)</span><br><span class="line">        spread &lt;- sd(x)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        center &lt;- median(x)</span><br><span class="line">        spread &lt;- mad(x)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (print &amp; parametric) &#123;</span><br><span class="line">        cat(<span class="string">"Mean="</span>, center, <span class="string">"\n"</span>, <span class="string">"SD="</span>, spread, <span class="string">"\n"</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (print &amp; !parametric) &#123;</span><br><span class="line">        cat(<span class="string">"Median="</span>, center, <span class="string">"\n"</span>, <span class="string">"MAD="</span>, spread, <span class="string">"\n"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    result &lt;- list(center = center, spread = spread)</span><br><span class="line">    <span class="keyword">return</span>(result)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 函数2</span></span><br><span class="line">mydate &lt;- <span class="keyword">function</span>(type = <span class="string">"long"</span>) &#123;</span><br><span class="line">    <span class="keyword">switch</span>(type, </span><br><span class="line">        long = format(Sys.time(), <span class="string">"%A %B %d %Y"</span>), </span><br><span class="line">        short = format(Sys.time(), <span class="string">"%m-%d-%y"</span>), </span><br><span class="line">        cat(type, <span class="string">"is not a recognized type\n"</span>)</span><br><span class="line">    )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h1 id="reference">Reference</h1>
 <ol type="1">
-<li>R语言实战.第2版</li>
+<li>《R语言实战第2版》</li>
 <li><a href="https://zhuanlan.zhihu.com/p/46210816" target="_blank" rel="noopener">Vignette介绍</a></li>
 <li><a href="https://stackoverflow.com/questions/8855589/a-comprehensive-survey-of-the-types-of-things-in-r-mode-and-class-and-type" target="_blank" rel="noopener"><code>class()</code>和<code>typeof()</code>函数的区别</a></li>
 </ol>

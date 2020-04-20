@@ -43,7 +43,7 @@
 <meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1587356385/R/%E5%85%B6%E4%BB%96%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0.png">
 <meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1587366667/R/%E8%9E%8D%E5%90%88%E4%B8%8E%E9%87%8D%E9%93%B8.png">
 <meta property="article:published_time" content="2020-04-16T10:30:00.000Z">
-<meta property="article:modified_time" content="2020-04-20T07:14:19.753Z">
+<meta property="article:modified_time" content="2020-04-20T12:03:21.763Z">
 <meta property="article:author" content="嘴强黑铁">
 <meta property="article:tag" content="R语言">
 <meta property="article:tag" content="R语言入门">
@@ -245,7 +245,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-20 15:14:19" itemprop="dateModified" datetime="2020-04-20T15:14:19+08:00">2020-04-20</time>
+                <time title="修改时间：2020-04-20 20:03:21" itemprop="dateModified" datetime="2020-04-20T20:03:21+08:00">2020-04-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1541,7 +1541,15 @@
 <h2 id="将函数用于矩阵和数据框">将函数用于矩阵和数据框</h2>
 <p>此处主要介绍<code>apply()</code>函数，它可以将任意函数”应用“到到矩阵、数组、数据框的任何维 度上。<code>apply()</code>函数的使用格式为:</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apply(x, MARGIN, FUN, <span class="keyword">...</span>)</span><br></pre></td></tr></table></figure>
-<p>说明： &gt; 1. <code>x</code>: 数据对象 &gt; 2. <code>MARGIN</code>: 维度的下标。对于数据框和矩阵，<code>MARGIN=1</code>表示行，<code>MARGIN=2</code>表示列 &gt; 3. <code>FUN</code>: 传入的函数 &gt; 4. <code>...</code>: 任何想传递给<code>FUN</code>的参数</p>
+<p>说明：</p>
+<blockquote>
+<ol type="1">
+<li><code>x</code>：数据对象；</li>
+<li><code>MARGIN</code>：维度的下标。对于数据框和矩阵，<code>MARGIN=1</code>表示行，<code>MARGIN=2</code>表示列；</li>
+<li><code>FUN</code>：传入的函数；</li>
+<li><code>...</code>：任何想传递给<code>FUN</code>的参数</li>
+</ol>
+</blockquote>
 <p><code>lapply()</code>和<code>sapply()</code>可将函数应用到列表(list)上。</p>
 <p>一个值得注意的例子，<code>name</code>是一个<code>list</code>：</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt; name</span><br><span class="line">[[<span class="number">1</span>]]</span><br><span class="line">[<span class="number">1</span>] <span class="string">"John"</span>  <span class="string">"Davis"</span></span><br><span class="line"></span><br><span class="line">[[<span class="number">2</span>]]</span><br><span class="line">[<span class="number">1</span>] <span class="string">"Angela"</span>   <span class="string">"Williams"</span></span><br><span class="line"></span><br><span class="line">[[<span class="number">3</span>]]</span><br><span class="line">[<span class="number">1</span>] <span class="string">"Bullwinkle"</span> <span class="string">"Moose"</span>     </span><br><span class="line"></span><br><span class="line"><span class="comment"># 取得第2列</span></span><br><span class="line">&gt; Lastname &lt;- sapply(name, <span class="string">"["</span>, <span class="number">2</span>)</span><br><span class="line">&gt; Lastname</span><br></pre></td></tr></table></figure>
@@ -1616,7 +1624,7 @@
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 函数1</span></span><br><span class="line">mystats &lt;- <span class="keyword">function</span>(x, parametric = <span class="literal">TRUE</span>, print = <span class="literal">FALSE</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (parametric) &#123;</span><br><span class="line">        center &lt;- mean(x)</span><br><span class="line">        spread &lt;- sd(x)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        center &lt;- median(x)</span><br><span class="line">        spread &lt;- mad(x)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (print &amp; parametric) &#123;</span><br><span class="line">        cat(<span class="string">"Mean="</span>, center, <span class="string">"\n"</span>, <span class="string">"SD="</span>, spread, <span class="string">"\n"</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (print &amp; !parametric) &#123;</span><br><span class="line">        cat(<span class="string">"Median="</span>, center, <span class="string">"\n"</span>, <span class="string">"MAD="</span>, spread, <span class="string">"\n"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    result &lt;- list(center = center, spread = spread)</span><br><span class="line">    <span class="keyword">return</span>(result)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 函数2</span></span><br><span class="line">mydate &lt;- <span class="keyword">function</span>(type = <span class="string">"long"</span>) &#123;</span><br><span class="line">    <span class="keyword">switch</span>(type, </span><br><span class="line">        long = format(Sys.time(), <span class="string">"%A %B %d %Y"</span>), </span><br><span class="line">        short = format(Sys.time(), <span class="string">"%m-%d-%y"</span>), </span><br><span class="line">        cat(type, <span class="string">"is not a recognized type\n"</span>)</span><br><span class="line">    )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h1 id="reference">Reference</h1>
 <ol type="1">
-<li>R语言实战.第2版</li>
+<li>《R语言实战第2版》</li>
 <li><a href="https://zhuanlan.zhihu.com/p/46210816" target="_blank" rel="noopener">Vignette介绍</a></li>
 <li><a href="https://stackoverflow.com/questions/8855589/a-comprehensive-survey-of-the-types-of-things-in-r-mode-and-class-and-type" target="_blank" rel="noopener"><code>class()</code>和<code>typeof()</code>函数的区别</a></li>
 </ol>
@@ -1664,7 +1672,10 @@
     <a href="/2020/04/15/Maven%20Notes/" rel="prev" title="Maven笔记">
       <i class="fa fa-chevron-left"></i> Maven笔记
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/20/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E6%9C%AC%E6%96%B9%E6%B3%95/" rel="next" title="R语言基本方法">
+      R语言基本方法 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -1747,7 +1758,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">69</span>
+          <span class="site-state-item-count">70</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1760,7 +1771,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">70</span>
+        <span class="site-state-item-count">71</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
