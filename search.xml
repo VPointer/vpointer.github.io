@@ -1,6 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>R语言基本图形</title>
+    <url>/2020/04/21/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E6%9C%AC%E5%9B%BE%E5%BD%A2/</url>
+    <content><![CDATA[<blockquote>
+<p>《R语言实战》笔记。</p>
+<p>各种基本统计图在R语言中的构建方法，包括条形图，饼图，直方图，核密度图，箱线图，点图等。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="条形图-barplot">条形图 barplot()</h1>
+<p>函数<code>barplot(height)</code>用于构建条形图，<code>height</code>是一个向量或者矩阵。</p>
+<h2 id="简单条形图">简单条形图</h2>
+<p>以下是一个展示均值的条形图示例：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; states &lt;- data.frame(state.region, state.x77)</span><br><span class="line">&gt; means &lt;- aggregate(states$Illiteracy, by=list(state.region), FUN=mean)</span><br><span class="line">&gt; means</span><br><span class="line">        Group.1        x</span><br><span class="line"><span class="number">1</span>     Northeast <span class="number">1.000000</span></span><br><span class="line"><span class="number">2</span>         South <span class="number">1.737500</span></span><br><span class="line"><span class="number">3</span> North Central <span class="number">0.700000</span></span><br><span class="line"><span class="number">4</span>          West <span class="number">1.023077</span></span><br><span class="line">&gt; means &lt;- means[order(means$x),]</span><br><span class="line">&gt; barplot(means$x, names.arg = means$Group.1, cex.names=<span class="number">0.8</span>, horiz=<span class="literal">TRUE</span>, las = <span class="number">2</span>)</span><br><span class="line">&gt; title(<span class="string">"Mean Illiteracy Rate"</span>)</span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<blockquote>
+<p>参数<code>cex.names</code>用于指定字体大小，用标准值的倍数表示。</p>
+<p>参数<code>names.arg</code>指定一个字符向量作为条形的标签名。</p>
+<p>参数<code>horiz</code>表示图形是横向还是纵向，默认为<code>FALSE</code>。</p>
+<p>参数<code>las=2</code>表示标签方向与水平方向平行。</p>
+</blockquote>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587437766/R/mean_barplot.png" style="zoom:70%;" /></p>
+<p>如果传入的变量是<strong>因子类型</strong>的，还可以直接用<code>plot()</code>函数快速创建条形图：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">plot(Arthritis$Improved, main=<span class="string">"Simple Bar Plot"</span>, xlab=<span class="string">"Improved"</span>, ylab=<span class="string">"Frequency"</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="堆砌条形图和分组条形图">堆砌条形图和分组条形图</h2>
+<p>如果<code>height</code>是一个矩阵而不是一个向量，则绘图结果将是一幅堆砌条形图或分组条形图。 若<code>beside=FALSE</code>(默认值)，则图形中每一个大分类中的子类将会像累积木那样堆叠起来；若<code>beside=TRUE</code>，则图形中每一个大分类中的子类将并列展示：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(vcd)</span><br><span class="line">&gt; counts &lt;- table(Arthritis$Improved, Arthritis$Treatment)</span><br><span class="line">&gt; counts</span><br><span class="line">        </span><br><span class="line">         Placebo Treated</span><br><span class="line">  None        <span class="number">29</span>      <span class="number">13</span></span><br><span class="line">  Some         <span class="number">7</span>       <span class="number">7</span></span><br><span class="line">  Marked       <span class="number">7</span>      <span class="number">21</span></span><br><span class="line">&gt; barplot(counts,</span><br><span class="line">+         main=<span class="string">"Stacked Bar Plot"</span>,</span><br><span class="line">+         xlab=<span class="string">"Treatment"</span>, ylab=<span class="string">"Frequency"</span>,</span><br><span class="line">+         col=c(<span class="string">"red"</span>, <span class="string">"yellow"</span>,<span class="string">"green"</span>),</span><br><span class="line">+         legend=rownames(counts))</span><br><span class="line">&gt; barplot(counts,</span><br><span class="line">+         main=<span class="string">"Grouped Bar Plot"</span>,</span><br><span class="line">+         xlab=<span class="string">"Treatment"</span>, ylab=<span class="string">"Frequency"</span>,</span><br><span class="line">+         col=c(<span class="string">"red"</span>, <span class="string">"yellow"</span>, <span class="string">"green"</span>),</span><br><span class="line">+         legend=rownames(counts), beside=<span class="literal">TRUE</span>)</span><br></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587432864/R/barplot2.png" /></p>
+<h2 id="棘状图spinogram">棘状图Spinogram</h2>
+<p>棘状图对堆砌条形图进行了重缩放，每个条柱的高度均为1，每一段的高度表示比例。棘状图可由<code>vcd</code>包中的函数<code>spine()</code>创建：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">library</span>(vcd)</span><br><span class="line"><span class="keyword">attach</span>(Arthritis)</span><br><span class="line">counts &lt;- table(Treatment, Improved)</span><br><span class="line">spine(counts, main=<span class="string">"Spinogram Example"</span>)</span><br><span class="line"><span class="keyword">detach</span>(Arthritis)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587434355/R/image-20200421095849489.png" style="zoom:70%;"/></p>
+<h1 id="饼图-pie">饼图 pie()</h1>
+<p>它由<code>pie(x, labels)</code>函数创建，<code>x</code>是一个非负数值向量，表示每个扇形的面积，而<code>labels</code>则是表示各扇形标签的字符型向量。</p>
+<h2 id="基础饼状图">基础饼状图</h2>
+<p>示例：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">slices &lt;- c(<span class="number">10</span>, <span class="number">12</span>, <span class="number">4</span>, <span class="number">16</span>, <span class="number">8</span>)</span><br><span class="line">pct &lt;- round(slices/sum(slices) * <span class="number">100</span>)	<span class="comment"># 为了在说明后面显示比例</span></span><br><span class="line">lbls &lt;- paste(c(<span class="string">"US"</span>, <span class="string">"UK"</span>, <span class="string">"Australia"</span>, <span class="string">"Germany"</span>, <span class="string">"France"</span>), <span class="string">" "</span>, pct, <span class="string">"%"</span>, sep = <span class="string">""</span>)</span><br><span class="line">pie(slices, labels = lbls, col = rainbow(length(lbls)), main = <span class="string">"Pie Chart with Percentages"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587439068/R/pie.png" style="zoom:70%;" /></p>
+<p>R语言自带的<code>pie()</code>函数不会自动添加比例，需要自行添加。</p>
+<h2 id="扇形图">扇形图</h2>
+<p>上方饼状图有一个问题：如果不标注比例大小，大家是否能一眼看出US和UK谁更大？为了解决这个问题，大家创建了一种叠加的扇形图，它需要<code>plotrix</code>这个第三方库：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">slices &lt;- c(<span class="number">10</span>, <span class="number">12</span>, <span class="number">4</span>, <span class="number">16</span>, <span class="number">8</span>)</span><br><span class="line">lbls &lt;- c(<span class="string">"US"</span>, <span class="string">"UK"</span>, <span class="string">"Australia"</span>, <span class="string">"Germany"</span>, <span class="string">"France"</span>)</span><br><span class="line">fan.plot(slices, labels = lbls, main = <span class="string">"Fan Plot"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587439068/R/fan_pie.png" style="zoom:70%;" /></p>
+<p>此外，<code>plotrix</code>这个包还可以画3D饼状图。</p>
+<h1 id="直方图-hist">直方图 hist()</h1>
+<p>R自带的直方图绘制函数：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">hist(x, freq, breaks)</span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<blockquote>
+<p><code>x</code>是一个由数据值组成的数值向量。</p>
+<p>参数<code>freq=FALSE</code>表示根据<strong>概率密度</strong>而不是<strong>频数</strong>绘制 图形。</p>
+<p>参数<code>breaks</code>用于控制组的数量。</p>
+<p>函数默认等距分割。</p>
+</blockquote>
+<p>以下是一个添加了正态密度曲线，轴须（x轴）和外框的示例：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">x &lt;- mtcars$mpg</span><br><span class="line">h &lt;- hist(x, breaks = <span class="number">12</span>, col = <span class="string">"red"</span>, xlab = <span class="string">"Miles Per Gallon"</span>, main = <span class="string">"Histogram with normal curve and box"</span>)</span><br><span class="line">xfit &lt;- seq(min(x), max(x), length = <span class="number">40</span>)</span><br><span class="line">yfit &lt;- dnorm(xfit, mean = mean(x), sd = sd(x))</span><br><span class="line">yfit &lt;- yfit * diff(h$mids[<span class="number">1</span>:<span class="number">2</span>]) * length(x)</span><br><span class="line">lines(xfit, yfit, col = <span class="string">"blue"</span>, lwd = <span class="number">2</span>)</span><br><span class="line">rug(jitter(mtcars$mpg, amount=<span class="number">0.01</span>))</span><br><span class="line">box()</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587443277/R/hist.png" style="zoom:50%;" /></p>
+<h1 id="核密度图">核密度图</h1>
+<p>核密度估计是用于估计随机变量概率密度函数的一种非参数方法。核密度图不失为一种用来观察连续型变量分布的有效方法：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">plot(density(x))</span><br></pre></td></tr></table></figure>
+<p><code>density()</code>是核密度估计函数。</p>
+<p>以下是代码示例：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">d &lt;- density(mtcars$mpg)</span><br><span class="line">plot(d, main=<span class="string">"Kernel Density of Miles Per Gallon"</span>)</span><br><span class="line"><span class="comment"># 将曲线置为蓝色，并用红色填充曲线下方区域</span></span><br><span class="line">polygon(d, col=<span class="string">"red"</span>, border=<span class="string">"blue"</span>)</span><br><span class="line">rug(mtcars$mpg, col=<span class="string">"brown"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587443796/R/core.png" /></p>
+<p>说明：</p>
+<blockquote>
+<p><code>polygon()</code>函数根据顶点的<code>x</code>和<code>y</code>坐标(本例中由<code>density()</code>函数提供)绘制了多边形。</p>
+</blockquote>
+<p><strong>核密度图可用于比较组间差异</strong>。</p>
+<p><code>sm</code>包中的<code>sm.density.compare()</code>函数可向图形叠加两组或更多的核密度图。</p>
+<h1 id="箱线图-boxplot">箱线图 boxplot()</h1>
+<p>箱线图(又称盒须图)通过绘制连续型变量的五数总括，即最小值、下四分位数<code>Q1</code>(第25百分位数)、中位数<code>Q2</code>(第50百分位数)、上四分位数<code>Q3</code>(第75百分位数)以及最大值，描述了连续型变量的分布。</p>
+<p>可能的离群点：范围<code>[Q1 - 1.5IQR, Q3 + 1.5IQR]</code>之外的值，<code>IQR = Q3 - Q1</code>。</p>
+<p><img src="https://lsc.studysixsigma.com/wp-content/uploads/sites/6/2015/12/1435.png" /></p>
+<p>画箱线图的函数为<code>boxplot()</code>。</p>
+<p>函数<code>boxplot.stats()</code>可查看箱线图中的统计量。</p>
+<h2 id="使用并列箱线图进行跨组比较">使用并列箱线图进行跨组比较</h2>
+<p>箱线图可以展示单个变量或分组变量。使用格式为:</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">boxplot(formula, data=dataframe, varwidth, horizontal)</span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<blockquote>
+<ol type="1">
+<li><p><code>formula</code>：公式</p>
+<p><code>y ~ A</code>将为类别型变量<code>A</code>的每个值并列地生成数值型变量<code>y</code>的箱线图；</p>
+<p><code>y ~ A*B</code>将为类别型变量<code>A</code>和<code>B</code>所有水平的两两组合生成数值型变量<code>y</code>的箱线图。</p></li>
+<li><p><code>dataframe</code>：数据来源</p></li>
+<li><p><code>varwidth</code>：<code>varwidth=TRUE</code>将使箱线图的宽度与其样本大小的平方根成正比</p></li>
+<li><p><code>horizontal</code>：<code>horizontal=TRUE</code>可以反转坐标轴的方向</p></li>
+</ol>
+</blockquote>
+<p>示例：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">mtcars$cyl.f &lt;- factor(mtcars$cyl, levels = c(<span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>), labels = c(<span class="string">"4"</span>, <span class="string">"6"</span>, <span class="string">"8"</span>))</span><br><span class="line">mtcars$am.f &lt;- factor(mtcars$am, levels = c(<span class="number">0</span>, <span class="number">1</span>), labels = c(<span class="string">"auto"</span>, <span class="string">"standard"</span>))</span><br><span class="line">boxplot(mpg ~ am.f * cyl.f, data = mtcars, varwidth = <span class="literal">TRUE</span>, col = c(<span class="string">"gold"</span>, <span class="string">"darkgreen"</span>), main = <span class="string">"MPG Distribution by Auto Type"</span>, xlab = <span class="string">"Auto Type"</span>, ylab = <span class="string">"Miles Per Gallon"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587446027/R/boxplotgroup.png" style="zoom:67%;" /></p>
+<h1 id="点图-dotchart">点图 dotchart()</h1>
+<p>点图提供了一种在简单水平刻度上绘制大量有标签值的方法。</p>
+<p>通常来说，点图 在经过排序并且分组变量被不同的符号和颜色区分开的时候最有用。</p>
+<p>示例：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">x &lt;- mtcars[order(mtcars$mpg), ]</span><br><span class="line"></span><br><span class="line">x$cyl &lt;- factor(x$cyl)</span><br><span class="line"></span><br><span class="line">x$color[x$cyl == <span class="number">4</span>] &lt;- <span class="string">"red"</span></span><br><span class="line">x$color[x$cyl == <span class="number">6</span>] &lt;- <span class="string">"blue"</span></span><br><span class="line">x$color[x$cyl == <span class="number">8</span>] &lt;- <span class="string">"darkgreen"</span></span><br><span class="line">dotchart(x$mpg, </span><br><span class="line">         labels = row.names(x), </span><br><span class="line">         cex = <span class="number">0.7</span>, </span><br><span class="line">         groups = x$cyl, <span class="comment"># 根据cyl分组</span></span><br><span class="line">         gcolor = <span class="string">"black"</span>, <span class="comment"># 下图中数字4,6,8的颜色</span></span><br><span class="line">         color = x$color, <span class="comment"># 点和标签的颜色</span></span><br><span class="line">         pch = <span class="number">19</span>, </span><br><span class="line">         main = <span class="string">"Gas Mileage for Car Models\ngrouped by cylinder"</span>, </span><br><span class="line">         xlab = <span class="string">"Miles Per Gallon"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587447109/R/dotchart.png" /></p>
+<h1 id="reference">Reference</h1>
+<ol type="1">
+<li><a href="https://www.leansigmacorporation.com/box-plot-with-minitab/" target="_blank" rel="noopener">箱线图插图</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>R语言</category>
+      </categories>
+      <tags>
+        <tag>R语言</tag>
+        <tag>R语言基本图形</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>R语言入门</title>
     <url>/2020/04/16/R%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8/</url>
     <content><![CDATA[<blockquote>
@@ -8,7 +120,7 @@
 <p>R语言入门内容。</p>
 </blockquote>
 <a id="more"></a>
-<h1 id="写在最前的零散要点">写在最前的零散要点：</h1>
+<h1 id="写在最前的零散要点">写在最前的零散要点</h1>
 <p>可以看完后面的内容再回头来看这些要点。</p>
 <ol type="1">
 <li>R语言不推荐用等号<code>=</code>来赋值，它会在某些情况下出错，R语言更推荐用<code>&lt;-</code>来表示赋值（它在RStudio和Jupyter Notebook中的快捷键是<code>command + -</code>。</li>
