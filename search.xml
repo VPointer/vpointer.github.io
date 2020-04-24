@@ -1,6 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>R语言基本统计分析</title>
+    <url>/2020/04/24/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E6%9C%AC%E7%BB%9F%E8%AE%A1%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<blockquote>
+<p>《R语言实战》笔记。</p>
+<p>主要介绍如何用R语言进行一些基本的统计</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="描述性统计分析">描述性统计分析</h1>
+<p>R语言中描述性统计分析相关的方法多如牛毛，以下是一些主要函数的介绍。</p>
+<h2 id="非分组统计方法">非分组统计方法</h2>
+<h3 id="r自带方法">R自带方法</h3>
+<p>包括<code>summary()</code>，<code>mean()</code>、<code>sd()</code>、<code>var()</code>、<code>min()</code>、<code>max()</code>、<code>median()</code>、<code>length()</code>、<code>range()</code>、<code>quantile()</code>和<code>fivenum()</code>等。其中<code>fivenum()</code>可返回<strong>图基五数总括</strong>(Tukey’s five-number summary，即最小值、下四分位数、中位数、上四分位数和最大值)。</p>
+<p>这些函数通常配合<code>apply()</code>或者<code>sapple()</code>函数作用于数据框或者矩阵。</p>
+<h3 id="第三方包">第三方包</h3>
+<p>提醒一点：后载入的包会覆盖之前载入的包中的同名函数，可以使用如下语法访问特定包中的函数：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">Hmisc::describe(mt)</span><br></pre></td></tr></table></figure>
+<h4 id="hmisc包">Hmisc包</h4>
+<p>Hmisc包中的<code>describe()</code>函数可返回变量和观测的数量、缺失值和唯一值的数目、平均值、 分位数，以及五个最大的值和五个最小的值。</p>
+<h4 id="pastecs">pastecs</h4>
+<p>pastecs包中有一个名为<code>stat.desc()</code>的函数，它可以计算种类繁多的描述性统计量。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">stat.desc(x, basic=<span class="literal">TRUE</span>, desc=<span class="literal">TRUE</span>, norm=<span class="literal">FALSE</span>, p=<span class="number">0.95</span>)</span><br></pre></td></tr></table></figure>
+<p>其中的x是一个数据框或时间序列。若<code>basic=TRUE</code>(默认值)，则计算其中所有值、空值、缺失 值的数量，以及最小值、最大值、值域，还有总和。若<code>desc=TRUE</code>(同样也是默认值)，则计算中位数、平均数、平均数的标准误、平均数置信度为95%的置信区间、方差、标准差以及变异系数。最后，若<code>norm=TRUE</code>(不是默认的)，则返回正态分布统计量，包括偏度和峰度(以及它们的统计显著程度)和Shapiro-Wilk正态检验结果。这里使用了p值来计算平均数的置信区间(默认置信度为0.95)。</p>
+<h4 id="psych">psych</h4>
+<p>psych包也拥有一个名为<code>describe()</code>的函数，它可以计算非缺失值的数量、平均数、标准差、中位数、截尾均值、绝对中位差、最小值、最大值、值域、偏度、峰度和平均值的标准误。</p>
+<h2 id="分组统计">分组统计</h2>
+<h3 id="r语言自带">R语言自带</h3>
+<p>可以使用自带的<code>aggregate()</code>函数：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; myvars &lt;- c(<span class="string">"mpg"</span>, <span class="string">"hp"</span>, <span class="string">"wt"</span>)</span><br><span class="line"><span class="comment"># by=list(name1=groupvar1, name2=groupvar2, ... , nameN=groupvarN)</span></span><br><span class="line">&gt; aggregate(mtcars[myvars], by=list(am=mtcars$am), sd)</span><br><span class="line">  am      mpg       hp        wt</span><br><span class="line"><span class="number">1</span>  <span class="number">0</span> <span class="number">3.833966</span> <span class="number">53.90820</span> <span class="number">0.7774001</span></span><br><span class="line"><span class="number">2</span>  <span class="number">1</span> <span class="number">6.166504</span> <span class="number">84.06232</span> <span class="number">0.6169816</span></span><br></pre></td></tr></table></figure>
+<p><code>aggregate()</code>仅允许在每次调用中使用平均数、标准差这样的单返回值函数。 它无法一次返回若干个统计量。要完成这项任务，可以使用<code>by()</code>函数。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 函数签名：</span></span><br><span class="line"><span class="comment"># by(data, INDICES, FUN)</span></span><br><span class="line"></span><br><span class="line">&gt; dstats &lt;- <span class="keyword">function</span>(x)sapply(x, mystats)</span><br><span class="line">&gt; myvars &lt;- c(<span class="string">"mpg"</span>, <span class="string">"hp"</span>, <span class="string">"wt"</span>)</span><br><span class="line">&gt; by(mtcars[myvars], mtcars$am, dstats)</span><br><span class="line">mtcars$am: <span class="number">0</span></span><br><span class="line">                 mpg           hp         wt</span><br><span class="line">n        <span class="number">19.00000000</span>  <span class="number">19.00000000</span> <span class="number">19.0000000</span></span><br><span class="line">mean     <span class="number">17.14736842</span> <span class="number">160.26315789</span>  <span class="number">3.7688947</span></span><br><span class="line">stdev     <span class="number">3.83396639</span>  <span class="number">53.90819573</span>  <span class="number">0.7774001</span></span><br><span class="line">skew      <span class="number">0.01395038</span>  -<span class="number">0.01422519</span>  <span class="number">0.9759294</span></span><br><span class="line">kurtosis -<span class="number">0.80317826</span>  -<span class="number">1.20969733</span>  <span class="number">0.1415676</span></span><br><span class="line">------------------------------------------------------------------------------------------------------------- </span><br><span class="line">mtcars$am: <span class="number">1</span></span><br><span class="line">                 mpg          hp         wt</span><br><span class="line">n        <span class="number">13.00000000</span>  <span class="number">13.0000000</span> <span class="number">13.0000000</span></span><br><span class="line">mean     <span class="number">24.39230769</span> <span class="number">126.8461538</span>  <span class="number">2.4110000</span></span><br><span class="line">stdev     <span class="number">6.16650381</span>  <span class="number">84.0623243</span>  <span class="number">0.6169816</span></span><br><span class="line">skew      <span class="number">0.05256118</span>   <span class="number">1.3598859</span>  <span class="number">0.2103128</span></span><br><span class="line">kurtosis -<span class="number">1.45535200</span>   <span class="number">0.5634635</span> -<span class="number">1.1737358</span></span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<p>其中的<code>mystats()</code>是一个自定义的统计函数。</p>
+<h2 id="第三方包doby包中的summaryby函数">第三方包：doBy包中的summaryBy()函数</h2>
+<p>示例：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 函数声明：</span></span><br><span class="line"><span class="comment"># formula: var1 + var2 + var3 + ... + varN ~ groupvar1 + groupvar2 + ... + groupvarN</span></span><br><span class="line"><span class="comment"># 在~左侧的变量是需要分析的数值型变量，而右侧的变量是类别型的分组变量</span></span><br><span class="line"><span class="comment"># summaryBy(fo rmula, data=dataframe, FUN=function)</span></span><br><span class="line"></span><br><span class="line">&gt; <span class="keyword">library</span>(doBy)</span><br><span class="line">&gt; summaryBy(mpg+hp+wt~am, data=mtcars, FUN=mystats)</span><br><span class="line">  am mpg.n mpg.mean mpg.stdev   mpg.skew mpg.kurtosis hp.n  hp.mean hp.stdev     hp.skew hp.kurtosis wt.n  wt.mean  wt.stdev   wt.skew wt.kurtosis</span><br><span class="line"><span class="number">1</span>  <span class="number">0</span>    <span class="number">19</span> <span class="number">17.14737</span>  <span class="number">3.833966</span> <span class="number">0.01395038</span>   -<span class="number">0.8031783</span>   <span class="number">19</span> <span class="number">160.2632</span> <span class="number">53.90820</span> -<span class="number">0.01422519</span>  -<span class="number">1.2096973</span>   <span class="number">19</span> <span class="number">3.768895</span> <span class="number">0.7774001</span> <span class="number">0.9759294</span>   <span class="number">0.1415676</span></span><br><span class="line"><span class="number">2</span>  <span class="number">1</span>    <span class="number">13</span> <span class="number">24.39231</span>  <span class="number">6.166504</span> <span class="number">0.05256118</span>   -<span class="number">1.4553520</span>   <span class="number">13</span> <span class="number">126.8462</span> <span class="number">84.06232</span>  <span class="number">1.35988586</span>   <span class="number">0.5634635</span>   <span class="number">13</span> <span class="number">2.411000</span> <span class="number">0.6169816</span> <span class="number">0.2103128</span>  -<span class="number">1.1737358</span></span><br></pre></td></tr></table></figure>
+<h1 id="频数表与列联表">频数表与列联表</h1>
+<p>本节主要内容：频数表和列联表，以及相应的独立性检验、相关性的 度量、图形化展示结果的方法。</p>
+]]></content>
+      <categories>
+        <category>R语言</category>
+      </categories>
+      <tags>
+        <tag>R语言</tag>
+        <tag>R语言基本统计分析</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>R语言基本图形</title>
     <url>/2020/04/21/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E6%9C%AC%E5%9B%BE%E5%BD%A2/</url>
     <content><![CDATA[<blockquote>
