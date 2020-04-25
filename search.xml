@@ -115,7 +115,9 @@
 <h2 id="相关的类型">相关的类型</h2>
 <p>R可以计算多种相关系数，包括Pearson相关系数、Spearman相关系数、Kendall相关系数、偏相关系数、多分格(polychoric)相关系数和多系列(polyserial)相关系数。</p>
 <h3 id="pearsonspearman和kendall相关">Pearson、Spearman和Kendall相关</h3>
-<p>Pearson积差相关系数衡量了两个定量变量之间的线性相关程度。Spearman等级相关系数则衡量分级定序变量之间的相关程度。Kendall’s Tau相关系数也是一种非参数的等级相关度量。</p>
+<p>Pearson积差相关系数衡量了两个定量变量之间的线性相关程度。</p>
+<p>Spearman等级相关系数则衡量分级定序变量之间的相关程度。</p>
+<p>Kendall’s Tau相关系数也是一种非参数的等级相关度量。</p>
 <p><code>cor()</code>函数可以计算这三种相关系数，而<code>cov()</code>函数可用来计算协方差。两个函数的参数有很多，其中与相关系数的计算有关的参数可以简化为:</p>
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">cor(x, use=<span class="string">"everything"</span>, method=<span class="string">"pearson"</span>)</span><br></pre></td></tr></table></figure>
 <p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587800480/R/WX20200425-154103_2x.png" /></p>
@@ -252,6 +254,10 @@
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; states &lt;- data.frame(state.region, state.x77)</span><br><span class="line">&gt; kruskal.test(Illiteracy ~ state.region, data=states)</span><br><span class="line"></span><br><span class="line">	Kruskal-Wallis rank sum test</span><br><span class="line"></span><br><span class="line">data:  Illiteracy by state.region</span><br><span class="line">Kruskal-Wallis chi-squared = <span class="number">22.672</span>, df = <span class="number">3</span>, p-value = <span class="number">4.726e-05</span></span><br></pre></td></tr></table></figure>
 <p>显著性检验的结果意味着美国四个地区的文盲率各不相同(p&lt;0.001)。</p>
 <p><strong>这个检验只能表明可以拒绝不存在差异的原假设，但它并没有展示哪些组显著地与其他组不同。为了解决这个问题，可以使用Wilcoxon检验每次比较两组数据。</strong></p>
+<h1 id="思维导图">思维导图</h1>
+<figure>
+<img src="https://res.cloudinary.com/vpointer/image/upload/v1587827013/R/统计学R语言版.svg" alt="" /><figcaption>https://res.cloudinary.com/vpointer/image/upload/v1587827013/R/%E7%BB%9F%E8%AE%A1%E5%AD%A6R%E8%AF%AD%E8%A8%80%E7%89%88.svg</figcaption>
+</figure>
 ]]></content>
       <categories>
         <category>R语言</category>
