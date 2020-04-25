@@ -255,9 +255,7 @@
 <p>显著性检验的结果意味着美国四个地区的文盲率各不相同(p&lt;0.001)。</p>
 <p><strong>这个检验只能表明可以拒绝不存在差异的原假设，但它并没有展示哪些组显著地与其他组不同。为了解决这个问题，可以使用Wilcoxon检验每次比较两组数据。</strong></p>
 <h1 id="思维导图">思维导图</h1>
-<figure>
-<img src="https://res.cloudinary.com/vpointer/image/upload/v1587827013/R/统计学R语言版.svg" alt="" /><figcaption>https://res.cloudinary.com/vpointer/image/upload/v1587827013/R/%E7%BB%9F%E8%AE%A1%E5%AD%A6R%E8%AF%AD%E8%A8%80%E7%89%88.svg</figcaption>
-</figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587827013/R/统计学R语言版.svg" /></p>
 ]]></content>
       <categories>
         <category>R语言</category>
