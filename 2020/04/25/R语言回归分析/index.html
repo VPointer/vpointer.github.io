@@ -44,8 +44,9 @@
 <meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1587913038/R/hatvalues.png">
 <meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1587914726/R/cookd.png">
 <meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1587914985/R/avplots.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1587915753/R/influence.png">
 <meta property="article:published_time" content="2020-04-25T15:10:53.000Z">
-<meta property="article:modified_time" content="2020-04-26T15:35:09.086Z">
+<meta property="article:modified_time" content="2020-04-26T15:54:23.695Z">
 <meta property="article:author" content="嘴强黑铁">
 <meta property="article:tag" content="R语言">
 <meta property="article:tag" content="R语言回归分析">
@@ -247,7 +248,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-26 23:35:09" itemprop="dateModified" datetime="2020-04-26T23:35:09+08:00">2020-04-26</time>
+                <time title="修改时间：2020-04-26 23:54:23" itemprop="dateModified" datetime="2020-04-26T23:54:23+08:00">2020-04-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -485,10 +486,11 @@
 <p>一个全面的回归分析要覆盖对异常值的分析，包括离群点、高杠杆值点和强影响点，因为它们在一定程度上与其他观测点不同，可能对结果产生较大的负面影响。</p>
 <h2 id="离群点">离群点</h2>
 <p>离群点是指那些模型预测效果不佳的观测点。它们通常有很大的、或正或负的残差(<span class="math inline">\(Y_{i}-\hat{Y}_{i}\)</span>)。 正的残差说明模型低估了响应值，负的残差则说明高估了响应值。</p>
-<p>之前的内容已经展示了一种检测离群点的方法：正态Q-Q图。</p>
+<p>之前的内容已经展示了<strong>一种检测离群点的方法：正态Q-Q图</strong>。</p>
+<p>另外<strong>一个粗糙的判断准则：标准化残差值大于2或者小于–2的点可能是离群点</strong>。</p>
 <p>car包也提供了一种离群点的统计检验方法。<code>outlierTest()</code>函数可以求得最大标准化残差绝对值Bonferroni调整后的p值:</p>
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># fit依然是上一节中根据states拟合的模型</span></span><br><span class="line">&gt; outlierTest(fit)</span><br><span class="line">       rstudent unadjusted p-value Bonferroni p</span><br><span class="line">Nevada <span class="number">3.542929</span>         <span class="number">0.00095088</span>     <span class="number">0.047544</span></span><br></pre></td></tr></table></figure>
-<p>注意，该函数只是根据单个最大(或正或负)残差值的显著性来判断是否有离群点。<strong>若不显著，则说明数据集中没有离群点;若显著，必须删除该离群点，然后再检验是否还有其他离群点。</strong></p>
+<p>注意，该函数只是根据单个最大(或正或负)残差值的显著性来判断是否有离群点。<strong>若不显著，则说明数据集中没有离群点;若显著，必须删除该离群点，然后再检验是否还有其他离群点（相当于一次只判断一个，直到没有）。</strong></p>
 <h2 id="高杠杆点">高杠杆点</h2>
 <p>高杠杆值观测点，即<strong>与其他预测变量有关的离群点</strong>。换句话说，它们是<strong>由许多异常的预测变量值组合起来的，与响应变量值没有关系</strong>。</p>
 <p>高杠杆值的观测点可通过帽子统计量(hat statistic)判断。对于一个给定的数据集，帽子均值为<code>p/n</code>，其中<code>p</code>是模型估计的参数数目(包含截距项)，<code>n</code>是样本量。一般来说，若观测点的帽子值大于帽子均值的2或3倍，就可以认定为高杠杆值点。</p>
@@ -510,6 +512,37 @@
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">avPlots(fit)</span><br></pre></td></tr></table></figure>
 <p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587914985/R/avplots.png" /></p>
 <p><strong>图中的直线表示相应预测变量的实际回归系数</strong>。上述诸图就是方便大家想象删除某些强影响点后直线的变化，以此来估计它的影响效果。例如，对于左下角这幅图，如果删除Alaska和Nevada这两个，直线将变为负斜率。</p>
+<h2 id="综合分析异常值">综合分析异常值</h2>
+<p>car包中的<code>influencePlot()</code>函数可以将离群点、杠杆值和强影响点的信息整合到一幅图形中：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; influencePlot(fit, main = <span class="string">"Influence Plot"</span>, sub = <span class="string">"Circle size is proportional to Cook's distance"</span>)</span><br><span class="line">                StudRes        Hat       CookD</span><br><span class="line">Alaska        <span class="number">1.7536917</span> <span class="number">0.43247319</span> <span class="number">0.448050997</span></span><br><span class="line">California   -<span class="number">0.2761492</span> <span class="number">0.34087628</span> <span class="number">0.008052956</span></span><br><span class="line">Nevada        <span class="number">3.5429286</span> <span class="number">0.09508977</span> <span class="number">0.209915743</span></span><br><span class="line">Rhode Island -<span class="number">2.0001631</span> <span class="number">0.04562377</span> <span class="number">0.035858963</span></span><br></pre></td></tr></table></figure>
+<p>同时还会生成一张<strong>影响图</strong>：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587915753/R/influence.png" style="zoom:50%;" /></p>
+<p>说明：</p>
+<ul>
+<li>纵坐标超过+2或小于–2的州可被认为是离群点；</li>
+<li>水平轴超过0.2或0.3的州有高杠杆值(通常为预测值的组合)；</li>
+<li>圆圈大小与影响成比例，圆圈很大的点可能是对模型参数的估计造成的不成比例影响的强影响点。</li>
+</ul>
+<p>可以得出如下结论：</p>
+<ul>
+<li>离群点：Nevada和Rhode Island</li>
+<li>高杠杆点：New York、California、Hawaii和Washington</li>
+<li>强影响点：Nevada、Alaska和Hawaii</li>
+</ul>
+<h1 id="改进模型">改进模型</h1>
+<p>以上已经估计出了模型，然后也对模型进行了诊断，随后还分析了异常点，那么下一步就是根据前面的分析改进模型了。</p>
+<p>四种方式可以处理违背回归假设的问题：</p>
+<ol type="1">
+<li>删除观测点；</li>
+<li>变量变换；</li>
+<li>添加或删除变量；</li>
+<li>使用其他回归方法。</li>
+</ol>
+<h2 id="删除观测点">删除观测点</h2>
+<p>删除离群点通常可以提高数据集对于正态假设的拟合度；强影响点会干扰结果，通常也会被删除。</p>
+<p>删除最大的离群点或者强影响点后，模型需要重新拟合。</p>
+<p>若离群点或强影响点仍然存在， 重复以上过程直至获得比较满意的拟合。</p>
+<p>但<strong>删除观测点需谨慎</strong>：如果是人为因素造成的，比如记错了，那么删除是合理的；但如果这就是个正确的数据，那么删除它们可能就不太合适了，发掘为何该观测点不同于其他点，有助于更深刻地理解研究的主题，或者发现其他可能没有想过的问题。</p>
 
     </div>
 
@@ -621,7 +654,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#osl回归"><span class="nav-text">OSL回归</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#几种常用的osl回归模型"><span class="nav-text">几种常用的OSL回归模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线性模型与非线性模型"><span class="nav-text">线性模型与非线性模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lm函数拟合回归模型"><span class="nav-text">lm()函数拟合回归模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#简单线性回归"><span class="nav-text">简单线性回归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多项式回归"><span class="nav-text">多项式回归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更方便的函数scatterplot"><span class="nav-text">更方便的函数：scatterplot()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有交互项的多元线性回归"><span class="nav-text">有交互项的多元线性回归</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#回归诊断"><span class="nav-text">回归诊断</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#标准方法"><span class="nav-text">标准方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#改进的方法"><span class="nav-text">改进的方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#检验正态性"><span class="nav-text">检验正态性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检验误差的独立性"><span class="nav-text">检验误差的独立性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检验线性"><span class="nav-text">检验线性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检验同方差性"><span class="nav-text">检验同方差性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ncvtest"><span class="nav-text">ncvTest()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#spreadlevelplot"><span class="nav-text">spreadLevelPlot()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线性模型假设的综合验证"><span class="nav-text">线性模型假设的综合验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多重共线性"><span class="nav-text">多重共线性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异常值分析"><span class="nav-text">异常值分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#离群点"><span class="nav-text">离群点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#高杠杆点"><span class="nav-text">高杠杆点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#强影响点"><span class="nav-text">强影响点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#cook距离"><span class="nav-text">Cook距离</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#变量添加图"><span class="nav-text">变量添加图</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#osl回归"><span class="nav-text">OSL回归</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#几种常用的osl回归模型"><span class="nav-text">几种常用的OSL回归模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线性模型与非线性模型"><span class="nav-text">线性模型与非线性模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lm函数拟合回归模型"><span class="nav-text">lm()函数拟合回归模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#简单线性回归"><span class="nav-text">简单线性回归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多项式回归"><span class="nav-text">多项式回归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更方便的函数scatterplot"><span class="nav-text">更方便的函数：scatterplot()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有交互项的多元线性回归"><span class="nav-text">有交互项的多元线性回归</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#回归诊断"><span class="nav-text">回归诊断</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#标准方法"><span class="nav-text">标准方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#改进的方法"><span class="nav-text">改进的方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#检验正态性"><span class="nav-text">检验正态性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检验误差的独立性"><span class="nav-text">检验误差的独立性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检验线性"><span class="nav-text">检验线性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检验同方差性"><span class="nav-text">检验同方差性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ncvtest"><span class="nav-text">ncvTest()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#spreadlevelplot"><span class="nav-text">spreadLevelPlot()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线性模型假设的综合验证"><span class="nav-text">线性模型假设的综合验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多重共线性"><span class="nav-text">多重共线性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异常值分析"><span class="nav-text">异常值分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#离群点"><span class="nav-text">离群点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#高杠杆点"><span class="nav-text">高杠杆点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#强影响点"><span class="nav-text">强影响点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#cook距离"><span class="nav-text">Cook距离</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#变量添加图"><span class="nav-text">变量添加图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#综合分析异常值"><span class="nav-text">综合分析异常值</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#改进模型"><span class="nav-text">改进模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#删除观测点"><span class="nav-text">删除观测点</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
