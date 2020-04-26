@@ -1,6 +1,237 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>R语言回归分析</title>
+    <url>/2020/04/25/R%E8%AF%AD%E8%A8%80%E5%9B%9E%E5%BD%92%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<blockquote>
+<p>《R语言实战》笔记</p>
+<p>本篇主要介绍普通最小二乘(<em>ordinary least squares</em>，<em>OLS</em>)回归法，包括简单线性回归、多项式回归和多元线性回归</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="osl回归">OSL回归</h1>
+<p>OLS回归是通过预测变量的加权和来预测量化的因变量，其中权重是通过数据估计而得的参数。 OLS回归拟合模型的形式如下： <span class="math display">\[
+\hat{Y}_{i}=\hat{\beta}_{0}+\hat{\beta}_{1} X_{1 i}+\cdots+\hat{\beta}_{k} X_{k i} \quad i=1 \cdots n
+\]</span> 其中:</p>
+<ol type="1">
+<li><code>n</code>为观测的数目，<code>k</code>为预测变量的数目；</li>
+<li><span class="math inline">\(\hat{Y}_{i}\)</span>：第<code>i</code>次观测对应的因变量的预测值(具体来讲，它是在已知预测变量值的条件下，对<code>Y</code>分布估计的均值)；</li>
+<li><span class="math inline">\(X_{j i}\)</span>：第<code>i</code>次观测对应的第<code>j</code>个预测变量值；</li>
+<li><span class="math inline">\(\hat{\beta}_{0}\)</span>：截距项(当所有的预测变量都为0时，<code>Y</code>的预测值)；</li>
+<li><span class="math inline">\(\hat{\beta}_{j}\)</span>：预测变量<code>j</code>的回归系数(斜率表示<code>X</code>改变一个单位所引起的<code>Y</code>的改变量)。</li>
+</ol>
+<p>模型的目的是<strong>通过减少响应变量的真实值与预测值的差值来获得模型参数(截距项和斜率)。</strong> 具体而言，即<strong>使得残差平方和最小</strong>： <span class="math display">\[
+\sum_{i=1}^{n}\left(Y_{i}-\hat{Y}_{i}\right)^{2}=\sum_{i=1}^{n}\left(Y_{i}-\hat{\beta}_{0}+\hat{\beta}_{1} X_{1 i}+\cdots+\hat{\beta}_{k} X_{k i}\right)^{2}=\sum_{i=1}^{n} \varepsilon_{i}^{2}
+\]</span> 对于OSL模型来说，<strong>数据需要满足如下统计假设</strong>：</p>
+<ol type="1">
+<li><strong>正态性</strong>：对于固定的自变量值，因变量值成正态分布；</li>
+<li><strong>独立性</strong>：<span class="math inline">\(Y_{i}\)</span>值之间相互独立；</li>
+<li><strong>线性</strong>：因变量与自变量之间为线性相关；</li>
+<li><strong>同方差性（不变方差）</strong>：因变量的方差不随自变量的水平不同而变化；</li>
+</ol>
+<p>OLS回归还假定自变量是固定的且测量无误差，但在实践中通常都放松了这个假设。</p>
+<h2 id="几种常用的osl回归模型">几种常用的OSL回归模型</h2>
+<ul>
+<li><strong>简单线性回归</strong>：当回归模型包含一个因变量和一个自变量时；</li>
+<li><strong>多项式回归</strong>：当只有一个预测变量，但同时包含变量的幂时（比如<span class="math inline">\(X\)</span>，<span class="math inline">\(X^{2}\)</span>，<span class="math inline">\(X^{3}\)</span>）；</li>
+<li><strong>多元线性回归</strong>：当有不止一个预测变量时。</li>
+</ul>
+<h3 id="线性模型与非线性模型">线性模型与非线性模型</h3>
+<p>多项式等式仍可认为是线性回归模型，因为等式仍是预测变量的加权和形式。即使这样的模型： <span class="math display">\[
+\hat{Y}_{i}=\hat{\beta}_{0} \times \log X_{1}+\hat{\beta}_{2} \times \sin X_{2}
+\]</span> 仍可认为是线性模型(参数项是线性的)。相反，下面的例子才能算是真正的非线性模型： <span class="math display">\[
+\hat{Y}_{i}=\hat{\beta}_{0}+\hat{\beta}_{1} \mathrm{e}^{x / \beta_{2}}
+\]</span></p>
+<h2 id="lm函数拟合回归模型">lm()函数拟合回归模型</h2>
+<p><strong>调用形式</strong>：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">myfit &lt;- lm(formula, data)</span><br></pre></td></tr></table></figure>
+<p>其中，<code>formula</code>指要拟合的模型形式，<code>data</code>是一个数据框，包含了用于拟合模型的数据。结果对象存储在一个列表中，包含了所拟合模型的大量信息。</p>
+<p><strong><code>formula</code>的形式如下</strong>：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">Y ~ X1 + X2 + <span class="keyword">...</span> + Xk</span><br></pre></td></tr></table></figure>
+<p><code>~</code>左边为响应变量，右边为各个预测变量，更多形式如下表所示：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587876004/R/lm中常用符号.png" /></p>
+<p><strong>对拟合出的结果，可用以下函数分析</strong>：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587876189/R/lm拟合分析函数.png" /></p>
+<h3 id="简单线性回归">简单线性回归</h3>
+<p>以下是一个简单线性回归的示例：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; fit &lt;- lm(weight ~ height, data=women)</span><br><span class="line">&gt; summary(fit)</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">lm(formula = weight ~ height, data = women)</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line">    Min      1Q  Median      3Q     Max </span><br><span class="line">-<span class="number">1.7333</span> -<span class="number">1.1333</span> -<span class="number">0.3833</span>  <span class="number">0.7417</span>  <span class="number">3.1167</span> </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">             Estimate Std. Error t value Pr(&gt;|t|)    </span><br><span class="line">(Intercept) -<span class="number">87.51667</span>    <span class="number">5.93694</span>  -<span class="number">14.74</span> <span class="number">1.71e-09</span> ***</span><br><span class="line">height        <span class="number">3.45000</span>    <span class="number">0.09114</span>   <span class="number">37.85</span> <span class="number">1.09e-14</span> ***</span><br><span class="line">---</span><br><span class="line">Signif. codes:  <span class="number">0</span> ‘***’ <span class="number">0.001</span> ‘**’ <span class="number">0.01</span> ‘*’ <span class="number">0.05</span> ‘.’ <span class="number">0.1</span> ‘ ’ <span class="number">1</span></span><br><span class="line"></span><br><span class="line">Residual standard error: <span class="number">1.525</span> on <span class="number">13</span> degrees of freedom</span><br><span class="line">Multiple R-squared:  <span class="number">0.991</span>,	Adjusted R-squared:  <span class="number">0.9903</span> </span><br><span class="line"><span class="literal">F</span>-statistic:  <span class="number">1433</span> on <span class="number">1</span> and <span class="number">13</span> DF,  p-value: <span class="number">1.091e-14</span></span><br><span class="line"></span><br><span class="line">&gt; plot(women$height,women$weight,</span><br><span class="line">+      xlab=<span class="string">"Height (in inches)"</span>,</span><br><span class="line">+      ylab=<span class="string">"Weight (in pounds)"</span>)</span><br><span class="line">&gt; abline(fit)</span><br></pre></td></tr></table></figure>
+<p>从结果可以看出：</p>
+<ol type="1">
+<li><strong>回归系数(3.45)显著不为0(p&lt;0.001)</strong>，表明身高每增高1英寸，体重将预期增加 3.45磅1；</li>
+<li><strong>R平方项</strong>(0.991)表明模型可以解释体重99.1%的方差，它也是实际和预测值之间相关系数的平方(<span class="math inline">\(R^{2}=r^{2}_{\hat{Y} Y}\)</span>)；</li>
+<li><strong>残差标准误</strong>(1.53 lbs)则可认为是模型用身高预测体重的平均误差；</li>
+<li><strong>F统计量</strong>检验所有的预测变量预测响应变量是否都在某个几率水平之上。由于简单回归只有一个预 测变量，此处F检验等同于身高回归系数的t检验。</li>
+</ol>
+<p>以下是图示：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587878880/R/简单线性回归.png" style="zoom:50%;" /></p>
+<h3 id="多项式回归">多项式回归</h3>
+<p>从上图可以看出，或许可以通过添加一个二次项来提高回归的预测精度：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; fit2 &lt;- lm(weight ~ height + I(height^<span class="number">2</span>), data=women)</span><br><span class="line">&gt; summary(fit2)</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">lm(formula = weight ~ height + I(height^<span class="number">2</span>), data = women)</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line">     Min       1Q   Median       3Q      Max </span><br><span class="line">-<span class="number">0.50941</span> -<span class="number">0.29611</span> -<span class="number">0.00941</span>  <span class="number">0.28615</span>  <span class="number">0.59706</span> </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">             Estimate Std. Error t value Pr(&gt;|t|)    </span><br><span class="line">(Intercept) <span class="number">261.87818</span>   <span class="number">25.19677</span>  <span class="number">10.393</span> <span class="number">2.36e-07</span> ***</span><br><span class="line">height       -<span class="number">7.34832</span>    <span class="number">0.77769</span>  -<span class="number">9.449</span> <span class="number">6.58e-07</span> ***</span><br><span class="line">I(height^<span class="number">2</span>)   <span class="number">0.08306</span>    <span class="number">0.00598</span>  <span class="number">13.891</span> <span class="number">9.32e-09</span> ***</span><br><span class="line">---</span><br><span class="line">Signif. codes:  <span class="number">0</span> ‘***’ <span class="number">0.001</span> ‘**’ <span class="number">0.01</span> ‘*’ <span class="number">0.05</span> ‘.’ <span class="number">0.1</span> ‘ ’ <span class="number">1</span></span><br><span class="line"></span><br><span class="line">Residual standard error: <span class="number">0.3841</span> on <span class="number">12</span> degrees of freedom</span><br><span class="line">Multiple R-squared:  <span class="number">0.9995</span>,	Adjusted R-squared:  <span class="number">0.9994</span> </span><br><span class="line"><span class="literal">F</span>-statistic: <span class="number">1.139e+04</span> on <span class="number">2</span> and <span class="number">12</span> DF,  p-value: &lt; <span class="number">2.2e-16</span></span><br><span class="line"></span><br><span class="line">&gt; plot(women$height,women$weight,</span><br><span class="line">+      xlab=<span class="string">"Height (in inches)"</span>,</span><br><span class="line">+      ylab=<span class="string">"Weight (in lbs)"</span>)</span><br><span class="line">&gt; lines(women$height,fitted(fit2))</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587879332/R/多项式回归.png" style="zoom:50%;" /></p>
+<p>模型的方差解释率已经增加到了99.9%。二次项的显著性(t=13.89，p&lt;0.001)表明包含二次项提高了模型的拟合度。</p>
+<h3 id="更方便的函数scatterplot">更方便的函数：scatterplot()</h3>
+<p>第三方包car中的<code>scatterplot()</code>函数可以更方便的绘制二元关系图：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">library</span>(car)</span><br><span class="line">scatterplot(weight ~ height, data = women, pch = <span class="number">19</span>, smooth = list(spread = <span class="literal">F</span>), </span><br><span class="line">            main = <span class="string">"Women Age 30-39"</span>, </span><br><span class="line">            xlab = <span class="string">"Height (inches)"</span>, ylab = <span class="string">"Weight (lbs.)"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587883551/R/scatterplot.png" style="zoom:50%;" /></p>
+<h3 id="有交互项的多元线性回归">有交互项的多元线性回归</h3>
+<p><strong>多元回归分析中，第一步最好检查一下变量间的相关性。</strong>可以使用car包中的<code>scatterplotMatrix()</code>函数：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; cars &lt;- as.data.frame(mtcars[, c(<span class="string">"hp"</span>, <span class="string">"wt"</span>, <span class="string">"mpg"</span>)])</span><br><span class="line">&gt; <span class="keyword">library</span>(car)</span><br><span class="line">&gt; scatterplotMatrix(cars, smooth = list(spread = <span class="literal">F</span>), main = <span class="string">"Scatter Plot Matrix"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587884604/R/scatterplotMatrix.png" style="zoom:50%;" /></p>
+<p><code>scatterplotMatrix()</code>函数默认在非对角线区域绘制变量间的散点图，并添加平滑和线性拟合曲线。对角线区域绘制每个变量的密度图和轴须图。</p>
+<p>以下拟合一个带交互项的多元线性回归函数：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; fit &lt;- lm(mpg ~ hp + wt + hp:wt, data=mtcars)</span><br><span class="line">&gt; summary(fit)</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">lm(formula = mpg ~ hp + wt + hp:wt, data = mtcars)</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line">    Min      1Q  Median      3Q     Max </span><br><span class="line">-<span class="number">3.0632</span> -<span class="number">1.6491</span> -<span class="number">0.7362</span>  <span class="number">1.4211</span>  <span class="number">4.5513</span> </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">            Estimate Std. Error t value Pr(&gt;|t|)    </span><br><span class="line">(Intercept) <span class="number">49.80842</span>    <span class="number">3.60516</span>  <span class="number">13.816</span> <span class="number">5.01e-14</span> ***</span><br><span class="line">hp          -<span class="number">0.12010</span>    <span class="number">0.02470</span>  -<span class="number">4.863</span> <span class="number">4.04e-05</span> ***</span><br><span class="line">wt          -<span class="number">8.21662</span>    <span class="number">1.26971</span>  -<span class="number">6.471</span> <span class="number">5.20e-07</span> ***</span><br><span class="line">hp:wt        <span class="number">0.02785</span>    <span class="number">0.00742</span>   <span class="number">3.753</span> <span class="number">0.000811</span> ***</span><br><span class="line">---</span><br><span class="line">Signif. codes:  <span class="number">0</span> ‘***’ <span class="number">0.001</span> ‘**’ <span class="number">0.01</span> ‘*’ <span class="number">0.05</span> ‘.’ <span class="number">0.1</span> ‘ ’ <span class="number">1</span></span><br><span class="line"></span><br><span class="line">Residual standard error: <span class="number">2.153</span> on <span class="number">28</span> degrees of freedom</span><br><span class="line">Multiple R-squared:  <span class="number">0.8848</span>,	Adjusted R-squared:  <span class="number">0.8724</span> </span><br><span class="line"><span class="literal">F</span>-statistic: <span class="number">71.66</span> on <span class="number">3</span> and <span class="number">28</span> DF,  p-value: <span class="number">2.981e-13</span></span><br></pre></td></tr></table></figure>
+<p>当预测变量不止一个时，如果不带交互项，那么<strong>回归系数的含义很明显：当其他自变量不变时，一个自变量增加一个单位，因变量将要增加的数量。</strong>但是由于此处带了交互项，固定其他自变量时，需要加上交互项。</p>
+<p>当交互项显著时，说明因变量与其中一个自变量的关系依赖于另外一个自变量。</p>
+<h1 id="回归诊断">回归诊断</h1>
+<p>拟合模型只不过是分析的第一步，一旦拟合了回归模型，必须对方法中暗含的统计假设进行检验。</p>
+<p>回顾之前的过程，你可能先是做出了散点矩阵来观测各个变量之间的相关性，然后通过<code>lm()</code>函数拟合了一个线性函数，最后再用<code>summary()</code>函数获取了模型参数和相关统计量。</p>
+<p>然而，<code>summary()</code>函数并没有评价模型是否合适。<strong>对模型参数推断的信心依赖于它在多大程度上满足OLS模型统计假设</strong>，但是<code>summary()</code>也没有提供任何此方面的信息。</p>
+<p>回归诊断技术向你提供了评价回归模型适用性的必要工具，它能帮助发现并纠正问题。</p>
+<h2 id="标准方法">标准方法</h2>
+<p>最常见的方法就是对<code>lm()</code>函数返回的对象使用<code>plot()</code>函数，可以生成评价模型拟合情况的四幅图形：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">fit &lt;- lm(weight ~ height, data = women)</span><br><span class="line">par(mfrow = c(<span class="number">2</span>, <span class="number">2</span>))</span><br><span class="line">plot(fit)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587885966/R/lmplot.png" /></p>
+<p>为了解释上面的4张图，需要回顾OSL回归的统计假设：</p>
+<ul>
+<li>正态性：<strong>当自变量的值固定时，因变量成正态分布，则残差值也应该是一个均值为0的正态分布</strong>。“正态Q-Q图”(Normal Q-Q，右上)是在正态分布对应的值下，标准化残差的概率图。若满足正态假设，那么图上的点应该落在呈45度角的直线上；</li>
+<li>独立性：上述4图无法体现出因变量的值是否相互独立，可以根据收集数据的方式来验证；</li>
+<li>线性：<strong>若因变量与自变量线性相关，那么残差值与预测(拟合)值就没有任何系统关联</strong>。换句话说，除了白噪声，模型应该包含数据中所有的系统方差。在“残差图与拟合图” (Residuals vs Fitted，左上)中可以清楚地看到一个曲线关系，这暗示着你可能需要对回归模型加上一个二次项；</li>
+<li>同方差性：若满足不变方差假设，那么<strong>在“位置尺度图”中(Scale-Location Graph，左下)，水平线周围的点应该随机分布</strong>。</li>
+</ul>
+<p>总结： - 线性：残差图与拟合图 Residuals vs Fitted，曲线附近的点应该是随机的 - 正态性：正态Q-Q图 Normal Q-Q，所有点应该分布在45度角的斜线上 - 同方差性：位置尺度图 Scale-Location，曲线附近的点应该是随机的</p>
+<p>最后一幅“残差与杠杆图”(Residuals vs Leverage，右下)提供了你可能关注的单个观测点的信息。从图形可以鉴别出离群点、高杠杆值点和强影响点：</p>
+<ul>
+<li>离群点：表明拟合回归模型对其预测效果不佳(产生了巨大的或正或负的残差)；</li>
+<li>一个观测点有很高的杠杆值：表明它是一个异常的预测变量值的组合。也就是说，在预测变量空间中，它是一个离群点。因变量值不参与计算一个观测点的杠杆值；</li>
+<li>一个观测点是强影响点(influential observation)：表明它对模型参数的估计产生的影响过大，非常不成比例。强影响点可以通过Cook距离即Cook’s D统计量来鉴别。<strong>强影响点可以删除，但需要谨慎</strong>。</li>
+</ul>
+<p>至于怎么看这个残差与杠杆图，笔者也不清楚。。。而且它的可读性太差且不够实用，后面会有更好的方法，所以不了解也不碍事。</p>
+<h2 id="改进的方法">改进的方法</h2>
+<p>主要介绍的是car包中的以下回归诊断函数以及gvlma包：</p>
+<table>
+<thead>
+<tr class="header">
+<th>函数</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>qqPlot()</code></td>
+<td>分位数比较图</td>
+</tr>
+<tr class="even">
+<td><code>durbinWatsonTest()</code></td>
+<td>对误差自相关性做 Durbin-Watson 检验</td>
+</tr>
+<tr class="odd">
+<td><code>crPlots()</code></td>
+<td>成分与残差图</td>
+</tr>
+<tr class="even">
+<td><code>ncvTest()</code></td>
+<td>对非恒定的误差方差做得分检验</td>
+</tr>
+<tr class="odd">
+<td><code>spreadLevelPlot()</code></td>
+<td>分散水平检验</td>
+</tr>
+<tr class="even">
+<td><code>outlierTest()</code></td>
+<td>Bonferroni 离群点检验</td>
+</tr>
+<tr class="odd">
+<td><code>avPlots()</code></td>
+<td>添加的变量图形</td>
+</tr>
+<tr class="even">
+<td><code>inluencePlot()</code></td>
+<td>回归影响图</td>
+</tr>
+<tr class="odd">
+<td><code>vif()</code></td>
+<td>方差膨胀因子</td>
+</tr>
+</tbody>
+</table>
+<h3 id="检验正态性">检验正态性</h3>
+<p><code>qqPlot()</code>函数提供了更为精确的正态假设检验方法，它画出了在n–p–1个自由度的t分布下的学生化残差图形(studentized residual，也称<strong>学生化删除残差</strong>或<strong>折叠化残差</strong>)，其中<code>n</code>是样本大小，<code>p</code>是回归参数的数目(包括截距项)：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">library</span>(car)</span><br><span class="line">states &lt;- as.data.frame(state.x77[, c(<span class="string">"Murder"</span>, <span class="string">"Population"</span>, <span class="string">"Illiteracy"</span>, <span class="string">"Income"</span>, <span class="string">"Frost"</span>)])</span><br><span class="line">fit &lt;- lm(Murder ~ Population + Illiteracy + Income + Frost, data = states)</span><br><span class="line">qqPlot(fit, labels = row.names(states), simulate = <span class="literal">TRUE</span>, main = <span class="string">"Q-Q Plot"</span>)</span><br></pre></td></tr></table></figure>
+<p>当<code>simulate=TRUE</code>时，95%的置信区间将会用<strong>参数自助法</strong>生成，它会使得每次运行所得到的结果都不相同。以下的两条虚线就表示置信区间。</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587889862/R/qqplotcar.png" style="zoom:50%;" /></p>
+<p>此处可以看出，Nevada这个点存在异常。除了Nevada，所有的点都离直线很近，并都落在置信区间内，这表明正态性假设符合得很好。 但是你也必须关注Nevada，它有一个很大的正残差值(<code>真实值-预测值</code>)，表明模型低估了该州的谋杀率。</p>
+<h3 id="检验误差的独立性">检验误差的独立性</h3>
+<p>之前提过，判断因变量值(或残差)是否相互独立，最好的方法是依据收集数据方式。不过car包提供了一个可做Durbin-Watson检验的函数，能够检测误差的序列相关性：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; durbinWatsonTest(fit)</span><br><span class="line"> lag Autocorrelation D-W Statistic p-value</span><br><span class="line">   <span class="number">1</span>      -<span class="number">0.2006929</span>      <span class="number">2.317691</span>    <span class="number">0.25</span></span><br><span class="line"> Alternative hypothesis: rho != <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>p值不显著(p=0.282)说明无自相关性，误差项之间独立。</p>
+<p>滞后项(lag=1)表明数据集中每个数据都是与其后一个数据进行比较的。</p>
+<p><strong>该检验适用于时间独立的数据，对于非聚集型的数据并不适用</strong>。</p>
+<h3 id="检验线性">检验线性</h3>
+<p>可以通过car包中的<code>crPlots()</code>函数绘制成分残差图(component plus residual plot，也称偏残差(partial residual plot)来查看自变量与因变量之间是否有线性关系，也可以通过它查看是否有不同于已设定线性模型的系统偏差：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(car)</span><br><span class="line">&gt; summary(fit)</span><br><span class="line">Call:</span><br><span class="line">lm(formula = Murder ~ Population + Illiteracy + Income + Frost, </span><br><span class="line">    data = states)</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line">    Min      1Q  Median      3Q     Max </span><br><span class="line">-<span class="number">4.7960</span> -<span class="number">1.6495</span> -<span class="number">0.0811</span>  <span class="number">1.4815</span>  <span class="number">7.6210</span> </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">             Estimate Std. Error t value Pr(&gt;|t|)    </span><br><span class="line">(Intercept) <span class="number">1.235e+00</span>  <span class="number">3.866e+00</span>   <span class="number">0.319</span>   <span class="number">0.7510</span>    </span><br><span class="line">Population  <span class="number">2.237e-04</span>  <span class="number">9.052e-05</span>   <span class="number">2.471</span>   <span class="number">0.0173</span> *  </span><br><span class="line">Illiteracy  <span class="number">4.143e+00</span>  <span class="number">8.744e-01</span>   <span class="number">4.738</span> <span class="number">2.19e-05</span> ***</span><br><span class="line">Income      <span class="number">6.442e-05</span>  <span class="number">6.837e-04</span>   <span class="number">0.094</span>   <span class="number">0.9253</span>    </span><br><span class="line">Frost       <span class="number">5.813e-04</span>  <span class="number">1.005e-02</span>   <span class="number">0.058</span>   <span class="number">0.9541</span>    </span><br><span class="line">---</span><br><span class="line">Signif. codes:  <span class="number">0</span> ‘***’ <span class="number">0.001</span> ‘**’ <span class="number">0.01</span> ‘*’ <span class="number">0.05</span> ‘.’ <span class="number">0.1</span> ‘ ’ <span class="number">1</span></span><br><span class="line"></span><br><span class="line">Residual standard error: <span class="number">2.535</span> on <span class="number">45</span> degrees of freedom</span><br><span class="line">Multiple R-squared:  <span class="number">0.567</span>,	Adjusted R-squared:  <span class="number">0.5285</span> </span><br><span class="line"><span class="literal">F</span>-statistic: <span class="number">14.73</span> on <span class="number">4</span> and <span class="number">45</span> DF,  p-value: <span class="number">9.133e-08</span></span><br><span class="line"></span><br><span class="line">&gt; crPlots(fit)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587893311/R/crplot.png" /></p>
+<p>通过实线与虚线是否一致来判断线性关系。上图结果和<code>summary()</code>的结果一致。</p>
+<h3 id="检验同方差性">检验同方差性</h3>
+<p>car包中有两个函数可以用来判断方差是否恒定。</p>
+<h4 id="ncvtest">ncvTest()</h4>
+<p><code>ncvTest()</code>函数生成一个计分检验，<strong>零假设为误差方差不变，备择假设为误差方差随着拟合值水平的变化而变化</strong>。若检验显著， 则说明存在异方差性(误差方差不恒定)。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; ncvTest(fit)</span><br><span class="line">Non-constant Variance Score Test </span><br><span class="line">Variance formula: ~ fitted.values </span><br><span class="line">Chisquare = <span class="number">1.746514</span>, Df = <span class="number">1</span>, p = <span class="number">0.18632</span></span><br></pre></td></tr></table></figure>
+<p>结果不显著，接受原假设，方差不变。</p>
+<h4 id="spreadlevelplot">spreadLevelPlot()</h4>
+<p><code>spreadLevelPlot()</code>创建一个添加了最佳拟合曲线的散点图，展示标准化残差绝对值与拟合值的关系。如果图中的点在拟合的直线周围随机分布，则接受原假设（方差恒定）：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; spreadLevelPlot(fit)</span><br><span class="line"></span><br><span class="line">Suggested power transformation:  <span class="number">1.209626</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587895945/R/spreadLevelPlot.png" style="zoom:50%;" /></p>
+<p>结果除了一张图之外，还输出了一个“建议幂次变换”(suggested power transformation)，它的含义是：经过p次幂(<span class="math inline">\(Y^{p}\)</span>)变换，非恒定的误差方差将会平稳。注意，<strong>此处是对因变量的变换</strong>！如果<strong>建议幂次为0，则做对数变换</strong>。</p>
+<h2 id="线性模型假设的综合验证">线性模型假设的综合验证</h2>
+<p>上一节中，对OSL的4个假设的检验是分开做的，其实还可以通过gvlma包中的<code>gvlma()</code>函数进行综合检验，该函数同时还能做偏斜度、峰度和异方差性的评价：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(gvlma)</span><br><span class="line">&gt; gvmodel &lt;- gvlma(fit)</span><br><span class="line">&gt; summary(gvmodel)	<span class="comment"># 它还会输出summary(fit)的内容</span></span><br><span class="line"><span class="keyword">...</span> <span class="comment"># 省略了summary(fit)的输出内容</span></span><br><span class="line">ASSESSMENT OF THE LINEAR MODEL ASSUMPTIONS</span><br><span class="line">USING THE GLOBAL TEST ON <span class="number">4</span> DEGREES-OF-FREEDOM:</span><br><span class="line">Level of Significance =  <span class="number">0.05</span> </span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line"> gvlma(x = fit) </span><br><span class="line"></span><br><span class="line">                    Value p-value                Decision</span><br><span class="line">Global Stat        <span class="number">2.7728</span>  <span class="number">0.5965</span> Assumptions acceptable.</span><br><span class="line">Skewness           <span class="number">1.5374</span>  <span class="number">0.2150</span> Assumptions acceptable.</span><br><span class="line">Kurtosis           <span class="number">0.6376</span>  <span class="number">0.4246</span> Assumptions acceptable.</span><br><span class="line">Link Function      <span class="number">0.1154</span>  <span class="number">0.7341</span> Assumptions acceptable.</span><br><span class="line">Heteroscedasticity <span class="number">0.4824</span>  <span class="number">0.4873</span> Assumptions acceptable.</span><br></pre></td></tr></table></figure>
+<p>Global Stat显示数据满足OLS回归模型所有的统计假设 (p=0.597)。如果拒绝原假设，可以再用之前介绍的方法查找到底是哪一项不成立。</p>
+<h2 id="多重共线性">多重共线性</h2>
+<p>多重共线性简单说就是自变量之间具有相关性，例如出生日期和年龄做自变量的话，这两个自变量显然是相关的。</p>
+<p>多重共线性会导致模型参数的置信区间过大，使单个系数解释起来很困难。</p>
+<p>VIF的平方根表示变量回归参数的置信区间能膨胀为与模型无关的预测变量的程度。</p>
+<p><strong>一般原则下，<code>vif &gt; 4</code>就表明存在多重共线性问题</strong>。</p>
+<p>计算自变量的VIF值可以使用car包中的<code>vif()</code>函数：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; vif(fit)</span><br><span class="line">Population Illiteracy     Income      Frost </span><br><span class="line">  <span class="number">1.245282</span>   <span class="number">2.165848</span>   <span class="number">1.345822</span>   <span class="number">2.082547</span></span><br></pre></td></tr></table></figure>
+<p>均没有大于4，说明这几个自变量之间没有多重共线性。</p>
+<h1 id="异常值分析">异常值分析</h1>
+<p>一个全面的回归分析要覆盖对异常值的分析，包括离群点、高杠杆值点和强影响点，因为它们在一定程度上与其他观测点不同，可能对结果产生较大的负面影响。</p>
+<h2 id="离群点">离群点</h2>
+<p>离群点是指那些模型预测效果不佳的观测点。它们通常有很大的、或正或负的残差(<span class="math inline">\(Y_{i}-\hat{Y}_{i}\)</span>)。 正的残差说明模型低估了响应值，负的残差则说明高估了响应值。</p>
+<p>之前的内容已经展示了一种检测离群点的方法：正态Q-Q图。</p>
+<p>car包也提供了一种离群点的统计检验方法。<code>outlierTest()</code>函数可以求得最大标准化残差绝对值Bonferroni调整后的p值:</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># fit依然是上一节中根据states拟合的模型</span></span><br><span class="line">&gt; outlierTest(fit)</span><br><span class="line">       rstudent unadjusted p-value Bonferroni p</span><br><span class="line">Nevada <span class="number">3.542929</span>         <span class="number">0.00095088</span>     <span class="number">0.047544</span></span><br></pre></td></tr></table></figure>
+<p>注意，该函数只是根据单个最大(或正或负)残差值的显著性来判断是否有离群点。<strong>若不显著，则说明数据集中没有离群点;若显著，必须删除该离群点，然后再检验是否还有其他离群点。</strong></p>
+<h2 id="高杠杆点">高杠杆点</h2>
+<p>高杠杆值观测点，即<strong>与其他预测变量有关的离群点</strong>。换句话说，它们是<strong>由许多异常的预测变量值组合起来的，与响应变量值没有关系</strong>。</p>
+<p>高杠杆值的观测点可通过帽子统计量(hat statistic)判断。对于一个给定的数据集，帽子均值为<code>p/n</code>，其中<code>p</code>是模型估计的参数数目(包含截距项)，<code>n</code>是样本量。一般来说，若观测点的帽子值大于帽子均值的2或3倍，就可以认定为高杠杆值点。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">hat.plot &lt;- <span class="keyword">function</span>(fit) &#123;</span><br><span class="line">    p &lt;- length(coefficients(fit))</span><br><span class="line">    n &lt;- length(fitted(fit))</span><br><span class="line">    hts &lt;- hatvalues(fit)</span><br><span class="line">    </span><br><span class="line">    idx &lt;- hts &gt; (<span class="number">2</span> * p/n)</span><br><span class="line">    </span><br><span class="line">    plot(hts, main = <span class="string">"Index Plot of Hat Values"</span>)</span><br><span class="line">    abline(h = c(<span class="number">2</span>, <span class="number">3</span>) * p/n, col = <span class="string">"red"</span>, lty = <span class="number">2</span>)</span><br><span class="line">    </span><br><span class="line">    text(c(<span class="number">1</span>:n)[idx], hts[idx], names(hts)[idx], pos = <span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line">hat.plot(fit)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587913038/R/hatvalues.png" style="zoom:50%;" /></p>
+<p>从上图可以看出，Alaska和California这两个点的杠杆值非常高。</p>
+<p><strong>高杠杆值点可能是强影响点，也可能不是，这要看它们是否是离群点。</strong></p>
+<h2 id="强影响点">强影响点</h2>
+<p>强影响点，即对模型参数估计值影响有些比例失衡的点。例如，若移除模型的一个观测点时模型会发生巨大的改变，这种点就是强影响点。</p>
+<p>有两种方法可以检测强影响点：Cook距离，又称D统计量以及变量添加图(added variable plot)。</p>
+<h3 id="cook距离">Cook距离</h3>
+<p>一般来说，Cook’s D值大于<code>4/(n–k–1)</code>，则表明它是强影响点，其中<code>n</code>为样本量大小，<code>k</code>是预测变量数目。</p>
+<p>可以通过以下代码作图判断强影响点：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">cutoff &lt;- <span class="number">4</span>/(nrow(states)-length(fit$coefficients)-<span class="number">2</span>)</span><br><span class="line">plot(fit, which=<span class="number">4</span>, cook.levels=cutoff)</span><br><span class="line">abline(h=cutoff, lty=<span class="number">2</span>, col=<span class="string">"red"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587914726/R/cookd.png" style="zoom:50%;" /></p>
+<p>可以看到Alaska、Hawaii和Nevada是强影响点。</p>
+<h3 id="变量添加图">变量添加图</h3>
+<p>Cook’s D图有助于鉴别强影响点，但是并不提供关于这些点如何影响模型的信息。<strong>变量添加图</strong>弥补了这个缺陷，可以通过car包中的<code>avPlots()</code>函数绘制：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">avPlots(fit)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587914985/R/avplots.png" /></p>
+<p><strong>图中的直线表示相应预测变量的实际回归系数</strong>。上述诸图就是方便大家想象删除某些强影响点后直线的变化，以此来估计它的影响效果。例如，对于左下角这幅图，如果删除Alaska和Nevada这两个，直线将变为负斜率。</p>
+]]></content>
+      <categories>
+        <category>R语言</category>
+      </categories>
+      <tags>
+        <tag>R语言</tag>
+        <tag>R语言回归分析</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>R语言基本统计分析</title>
     <url>/2020/04/24/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E6%9C%AC%E7%BB%9F%E8%AE%A1%E5%88%86%E6%9E%90/</url>
     <content><![CDATA[<blockquote>
