@@ -179,7 +179,7 @@
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; ncvTest(fit)</span><br><span class="line">Non-constant Variance Score Test </span><br><span class="line">Variance formula: ~ fitted.values </span><br><span class="line">Chisquare = <span class="number">1.746514</span>, Df = <span class="number">1</span>, p = <span class="number">0.18632</span></span><br></pre></td></tr></table></figure>
 <p>结果不显著，接受原假设，方差不变。</p>
 <h4 id="spreadlevelplot">spreadLevelPlot()</h4>
-<p><code>spreadLevelPlot()</code>创建一个添加了最佳拟合曲线的散点图，展示标准化残差绝对值与拟合值的关系。如果图中的点在拟合的直线周围随机分布，则接受原假设（方差恒定）：</p>
+<p><span id="spreadLevelPlot"><code>spreadLevelPlot()</code></span>创建一个添加了最佳拟合曲线的散点图，展示标准化残差绝对值与拟合值的关系。如果图中的点在拟合的直线周围随机分布，则接受原假设（方差恒定）：</p>
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; spreadLevelPlot(fit)</span><br><span class="line"></span><br><span class="line">Suggested power transformation:  <span class="number">1.209626</span></span><br></pre></td></tr></table></figure>
 <p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587895945/R/spreadLevelPlot.png" style="zoom:50%;" /></p>
 <p>结果除了一张图之外，还输出了一个“建议幂次变换”(suggested power transformation)，它的含义是：经过p次幂(<span class="math inline">\(Y^{p}\)</span>)变换，非恒定的误差方差将会平稳。注意，<strong>此处是对因变量的变换</strong>！如果<strong>建议幂次为0，则做对数变换</strong>。</p>
@@ -270,7 +270,7 @@
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; boxTidwell(Murder~Population+Illiteracy,data=states)</span><br><span class="line">           MLE of lambda Score Statistic (z) Pr(&gt;|z|)</span><br><span class="line">Population       <span class="number">0.86939</span>             -<span class="number">0.3228</span>   <span class="number">0.7468</span></span><br><span class="line">Illiteracy       <span class="number">1.35812</span>              <span class="number">0.6194</span>   <span class="number">0.5357</span></span><br><span class="line"></span><br><span class="line">iterations =  <span class="number">19</span></span><br></pre></td></tr></table></figure>
 <p>结果显示，使用变换<span class="math inline">\(Population^{0.87}\)</span>和<span class="math inline">\(Illiteracy^{1.36}\)</span>能够大大改善线性关系。但是对Population(p=0.75)和Illiteracy(p=0.54)的计分检验又表明变量并不需要变换。</p>
 <h3 id="模型违反方差同性假设时">模型违反方差同性假设时</h3>
-<p>可以使用<a href="#spreadLevelPlot()">之前提到</a>过的car包中的<code>spreadLevelPlot()</code>函数来改善，这里不再赘述，但需要提醒的是，它的建议值是对因变量的变化。</p>
+<p>可以使用<a href="#spreadLevelPlot">之前提到</a>过的car包中的<code>spreadLevelPlot()</code>函数来改善，这里不再赘述，但需要提醒的是，它的建议值是对因变量的变化。</p>
 <h2 id="增删变量">增删变量</h2>
 <p>有时，添加一个重要变量可以解决之前已经讨论过的许多问题，删除一个冗余变量也能达到同样的效果。</p>
 <p>删除变量在处理多重共线性时是一种非常重要的方法。最常见的方法就是删除某个存在多重共线性的变量。</p>
