@@ -8,6 +8,8 @@
 <p>本篇主要介绍普通最小二乘(<em>ordinary least squares</em>，<em>OLS</em>)回归法，包括简单线性回归、多项式回归和多元线性回归</p>
 </blockquote>
 <a id="more"></a>
+<h1 id="思维导图">思维导图</h1>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587987664/R/OSL回归.svg" /></p>
 <h1 id="osl回归">OSL回归</h1>
 <p>OLS回归是通过预测变量的加权和来预测量化的因变量，其中权重是通过数据估计而得的参数。 OLS回归拟合模型的形式如下： <span class="math display">\[
 \hat{Y}_{i}=\hat{\beta}_{0}+\hat{\beta}_{1} X_{1 i}+\cdots+\hat{\beta}_{k} X_{k i} \quad i=1 \cdots n
@@ -33,7 +35,7 @@
 <ul>
 <li><strong>简单线性回归</strong>：当回归模型包含一个因变量和一个自变量时；</li>
 <li><strong>多项式回归</strong>：当只有一个预测变量，但同时包含变量的幂时（比如<span class="math inline">\(X\)</span>，<span class="math inline">\(X^{2}\)</span>，<span class="math inline">\(X^{3}\)</span>）；</li>
-<li><strong>多元线性回归</strong>：当有不止一个预测变量时。</li>
+<li><strong>多元线性回归</strong>：自变量不止一个。</li>
 </ul>
 <h3 id="线性模型与非线性模型">线性模型与非线性模型</h3>
 <p>多项式等式仍可认为是线性回归模型，因为等式仍是预测变量的加权和形式。即使这样的模型： <span class="math display">\[
@@ -169,7 +171,7 @@
 <p>可以通过car包中的<code>crPlots()</code>函数绘制成分残差图(component plus residual plot，也称偏残差(partial residual plot)来查看自变量与因变量之间是否有线性关系，也可以通过它查看是否有不同于已设定线性模型的系统偏差：</p>
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(car)</span><br><span class="line">&gt; summary(fit)</span><br><span class="line">Call:</span><br><span class="line">lm(formula = Murder ~ Population + Illiteracy + Income + Frost, </span><br><span class="line">    data = states)</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line">    Min      1Q  Median      3Q     Max </span><br><span class="line">-<span class="number">4.7960</span> -<span class="number">1.6495</span> -<span class="number">0.0811</span>  <span class="number">1.4815</span>  <span class="number">7.6210</span> </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">             Estimate Std. Error t value Pr(&gt;|t|)    </span><br><span class="line">(Intercept) <span class="number">1.235e+00</span>  <span class="number">3.866e+00</span>   <span class="number">0.319</span>   <span class="number">0.7510</span>    </span><br><span class="line">Population  <span class="number">2.237e-04</span>  <span class="number">9.052e-05</span>   <span class="number">2.471</span>   <span class="number">0.0173</span> *  </span><br><span class="line">Illiteracy  <span class="number">4.143e+00</span>  <span class="number">8.744e-01</span>   <span class="number">4.738</span> <span class="number">2.19e-05</span> ***</span><br><span class="line">Income      <span class="number">6.442e-05</span>  <span class="number">6.837e-04</span>   <span class="number">0.094</span>   <span class="number">0.9253</span>    </span><br><span class="line">Frost       <span class="number">5.813e-04</span>  <span class="number">1.005e-02</span>   <span class="number">0.058</span>   <span class="number">0.9541</span>    </span><br><span class="line">---</span><br><span class="line">Signif. codes:  <span class="number">0</span> ‘***’ <span class="number">0.001</span> ‘**’ <span class="number">0.01</span> ‘*’ <span class="number">0.05</span> ‘.’ <span class="number">0.1</span> ‘ ’ <span class="number">1</span></span><br><span class="line"></span><br><span class="line">Residual standard error: <span class="number">2.535</span> on <span class="number">45</span> degrees of freedom</span><br><span class="line">Multiple R-squared:  <span class="number">0.567</span>,	Adjusted R-squared:  <span class="number">0.5285</span> </span><br><span class="line"><span class="literal">F</span>-statistic: <span class="number">14.73</span> on <span class="number">4</span> and <span class="number">45</span> DF,  p-value: <span class="number">9.133e-08</span></span><br><span class="line"></span><br><span class="line">&gt; crPlots(fit)</span><br></pre></td></tr></table></figure>
 <p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587893311/R/crplot.png" /></p>
-<p>通过实线与虚线是否一致来判断线性关系。上图结果和<code>summary()</code>的结果一致。</p>
+<p><strong>通过实线与虚线是否一致来判断线性关系</strong>。上图结果和<code>summary()</code>的结果一致。</p>
 <h3 id="检验同方差性">检验同方差性</h3>
 <p>car包中有两个函数可以用来判断方差是否恒定。</p>
 <h4 id="ncvtest">ncvTest()</h4>
@@ -189,7 +191,8 @@
 <p>多重共线性简单说就是自变量之间具有相关性，例如出生日期和年龄做自变量的话，这两个自变量显然是相关的。</p>
 <p>多重共线性会导致模型参数的置信区间过大，使单个系数解释起来很困难。</p>
 <p>VIF的平方根表示变量回归参数的置信区间能膨胀为与模型无关的预测变量的程度。</p>
-<p><strong>一般原则下，<code>vif &gt; 4</code>就表明存在多重共线性问题</strong>。</p>
+<p><strong>一般原则下，<code>vif &gt; 4</code>就表明存在多重共线性问题，<code>vif &gt; 10</code>表示存在严重的多重共线性</strong>。</p>
+<p>如果仅仅是做预测，那么多重共线性并不构成问题，但是如果还要对每个预测变量进行解释，那么就必须解决这个问题。</p>
 <p>计算自变量的VIF值可以使用car包中的<code>vif()</code>函数：</p>
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; vif(fit)</span><br><span class="line">Population Illiteracy     Income      Frost </span><br><span class="line">  <span class="number">1.245282</span>   <span class="number">2.165848</span>   <span class="number">1.345822</span>   <span class="number">2.082547</span></span><br></pre></td></tr></table></figure>
 <p>均没有大于4，说明这几个自变量之间没有多重共线性。</p>
@@ -210,7 +213,7 @@
 <p>从上图可以看出，Alaska和California这两个点的杠杆值非常高。</p>
 <p><strong>高杠杆值点可能是强影响点，也可能不是，这要看它们是否是离群点。</strong></p>
 <h2 id="强影响点">强影响点</h2>
-<p>强影响点，即对模型参数估计值影响有些比例失衡的点。例如，若移除模型的一个观测点时模型会发生巨大的改变，这种点就是强影响点。</p>
+<p>强影响点，即<strong>对模型参数估计值影响有些比例失衡的点</strong>。例如，若移除模型的一个观测点时模型会发生巨大的改变，这种点就是强影响点。</p>
 <p>有两种方法可以检测强影响点：Cook距离，又称D统计量以及变量添加图(added variable plot)。</p>
 <h3 id="cook距离">Cook距离</h3>
 <p>一般来说，Cook’s D值大于<code>4/(n–k–1)</code>，则表明它是强影响点，其中<code>n</code>为样本量大小，<code>k</code>是预测变量数目。</p>
@@ -253,7 +256,92 @@
 <p>删除离群点通常可以提高数据集对于正态假设的拟合度；强影响点会干扰结果，通常也会被删除。</p>
 <p>删除最大的离群点或者强影响点后，模型需要重新拟合。</p>
 <p>若离群点或强影响点仍然存在， 重复以上过程直至获得比较满意的拟合。</p>
-<p>但<strong>删除观测点需谨慎</strong>：如果是人为因素造成的，比如记错了，那么删除是合理的；但如果这就是个正确的数据，那么删除它们可能就不太合适了，发掘为何该观测点不同于其他点，有助于更深刻地理解研究的主题，或者发现其他可能没有想过的问题。</p>
+<p>但<strong>删除观测点需谨慎</strong>：如果是人为因素造成的，比如记错了，那么删除是合理的；但如果这就是个正确的数据，那么删除它们可能就不太合适了，发掘为何该观测点不同于其他点，有助于更深刻地理解研究的主题以及发现其他可能没有想过的问题。</p>
+<h2 id="变量变换">变量变换</h2>
+<p><strong>说在最前</strong>：与“删除观测点”相同的是，<strong>请谨慎使用变量变换</strong>！首先，你需要解释这样变换的意义是什么；其次，如果变换了变量，你的解释必须基于变换后的变量，而不是初始变量。如果无法解释，请谨慎变换！</p>
+<p>变换多用<span class="math inline">\(Y^{\lambda}\)</span>替代<span class="math inline">\(Y\)</span>： <img src="https://res.cloudinary.com/vpointer/image/upload/v1587959596/R/y变换.png" /></p>
+<p>若<span class="math inline">\(Y\)</span>是比例数，通常使用logit变换<code>ln (Y/1–Y)</code>。</p>
+<h3 id="模型违反正态假设时">模型违反正态假设时</h3>
+<p>通常可以对因变量尝试某种变换。car包中的<code>powerTransform()</code>函数通过λ的最大似然估计来正态化变量<span class="math inline">\(Y^{\lambda}\)</span>：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; summary(powerTransform(states$Murder))</span><br><span class="line">bcPower Transformation to Normality </span><br><span class="line">              Est Power Rounded Pwr Wald Lwr Bnd Wald Upr Bnd</span><br><span class="line">states$Murder    <span class="number">0.6055</span>           <span class="number">1</span>       <span class="number">0.0884</span>       <span class="number">1.1227</span></span><br><span class="line"></span><br><span class="line">Likelihood ratio test that transformation parameter is equal to <span class="number">0</span></span><br><span class="line"> (log transformation)</span><br><span class="line">                           LRT df     pval</span><br><span class="line">LR test, lambda = (<span class="number">0</span>) <span class="number">5.665991</span>  <span class="number">1</span> <span class="number">0.017297</span></span><br><span class="line"></span><br><span class="line">Likelihood ratio test that no transformation is needed</span><br><span class="line">                           LRT df    pval</span><br><span class="line">LR test, lambda = (<span class="number">1</span>) <span class="number">2.122763</span>  <span class="number">1</span> <span class="number">0.14512</span></span><br></pre></td></tr></table></figure>
+<p>结果表明，你可以用Murder<span class="math inline">\(^{0.6}\)</span>来正态化变量Murder。但在本例中，<code>λ=1</code>的假设也无法拒绝(p=0.145)，因此没 有强有力的证据表明本例需要变量变换。</p>
+<h3 id="模型违反线性假设时">模型违反线性假设时</h3>
+<p>此时对预测变量进行变换会比较有用。car包中的<code>boxTidwell()</code>函数通过获得预测变量幂数的最大似然估计来改善线性关系。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; boxTidwell(Murder~Population+Illiteracy,data=states)</span><br><span class="line">           MLE of lambda Score Statistic (z) Pr(&gt;|z|)</span><br><span class="line">Population       <span class="number">0.86939</span>             -<span class="number">0.3228</span>   <span class="number">0.7468</span></span><br><span class="line">Illiteracy       <span class="number">1.35812</span>              <span class="number">0.6194</span>   <span class="number">0.5357</span></span><br><span class="line"></span><br><span class="line">iterations =  <span class="number">19</span></span><br></pre></td></tr></table></figure>
+<p>结果显示，使用变换<span class="math inline">\(Population^{0.87}\)</span>和<span class="math inline">\(Illiteracy^{1.36}\)</span>能够大大改善线性关系。但是对Population(p=0.75)和Illiteracy(p=0.54)的计分检验又表明变量并不需要变换。</p>
+<h3 id="模型违反方差同性假设时">模型违反方差同性假设时</h3>
+<p>可以使用<a href="#spreadLevelPlot()">之前提到</a>过的car包中的<code>spreadLevelPlot()</code>函数来改善，这里不再赘述，但需要提醒的是，它的建议值是对因变量的变化。</p>
+<h2 id="增删变量">增删变量</h2>
+<p>有时，添加一个重要变量可以解决之前已经讨论过的许多问题，删除一个冗余变量也能达到同样的效果。</p>
+<p>删除变量在处理多重共线性时是一种非常重要的方法。最常见的方法就是删除某个存在多重共线性的变量。</p>
+<p>另外一个可用的方法便是岭回归——多元回归的变体，专门用来处理多重共线性问题。</p>
+<h1 id="选择最佳回归模型">选择“最佳”回归模型</h1>
+<p>本节讨论的问题，就是如何在候选模型中进行筛选。</p>
+<h2 id="r自带的模型比较方法">R自带的模型比较方法</h2>
+<p>如果只有两个模型，可以使用R自带的方法，多于两个的模型需要使用后续方法。</p>
+<p>这里主要介绍的是<code>anova()</code>函数和<code>AIC()</code>函数。</p>
+<h3 id="anova比较模型">anova()比较模型</h3>
+<p><strong><code>anova()</code>函数可以比较两个嵌套模型的拟合优度。</strong></p>
+<p>所谓的嵌套模型是指：模型A的一些项完全包含在模型B中，那么模型A就相当于“嵌套”在模型B中。</p>
+<p>依然以前方<code>states</code>的多元回归模型为例，探究<code>Income</code>和<code>Frost</code>这两个自变量是否是必须的：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; states &lt;- as.data.frame(state.x77[,c(<span class="string">"Murder"</span>, <span class="string">"Population"</span>, <span class="string">"Illiteracy"</span>, <span class="string">"Income"</span>, <span class="string">"Frost"</span>)])</span><br><span class="line">&gt; fit1 &lt;- lm(Murder ~ Population + Illiteracy, data=states)</span><br><span class="line">&gt; fit2 &lt;- lm(Murder ~ Population + Illiteracy + Income + Frost, data=states)</span><br><span class="line">&gt; anova(fit1, fit2)</span><br><span class="line">Analysis of Variance Table</span><br><span class="line"></span><br><span class="line">Model <span class="number">1</span>: Murder ~ Population + Illiteracy</span><br><span class="line">Model <span class="number">2</span>: Murder ~ Population + Illiteracy + Income + Frost</span><br><span class="line">  Res.Df    RSS Df Sum of Sq      <span class="literal">F</span> Pr(&gt;<span class="literal">F</span>)</span><br><span class="line"><span class="number">1</span>     <span class="number">47</span> <span class="number">289.25</span>                           </span><br><span class="line"><span class="number">2</span>     <span class="number">45</span> <span class="number">289.17</span>  <span class="number">2</span>  <span class="number">0.078505</span> <span class="number">0.0061</span> <span class="number">0.9939</span></span><br></pre></td></tr></table></figure>
+<p>对于模型2的检验并不显著，说明可以删掉这两个变量。</p>
+<h3 id="aic函数比较模型">AIC()函数比较模型</h3>
+<p>AIC(Akaike Information Criterion，赤池信息准则)也可以用来比较模型，它考虑了模型的<strong>统计拟合度</strong>以及<strong>用来拟合的参数数目</strong>。<strong>AIC值较小的模型要优先选择，它说明模型用较少的参数获得了足够的拟合度</strong>。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; AIC(fit1, fit2)</span><br><span class="line">     df      AIC</span><br><span class="line">fit1  <span class="number">4</span> <span class="number">237.6565</span></span><br><span class="line">fit2  <span class="number">6</span> <span class="number">241.6429</span></span><br></pre></td></tr></table></figure>
+<p><code>AIC()</code>给出的结果依然是应该选择模型1。</p>
+<p>注意：<strong>ANOVA需要嵌套模型，AIC不需要</strong>。</p>
+<h2 id="模型的自变量选择">模型的自变量选择</h2>
+<p>目前有两种流行的方法：<strong>逐步回归法(stepwise method)</strong>和<strong>全子集回归(all-subsets regression)</strong>。</p>
+<h3 id="逐步回归">逐步回归</h3>
+<p>逐步回归中，模型会一次添加或者删除一个变量，直到达到某个判停准则为止。它又分为3个类型：</p>
+<ol type="1">
+<li><strong>向前逐步回归</strong>(forward stepwise regression)每次添加一个预测变量到模型中，直到添加变量不会使模型有所改进为止；</li>
+<li><strong>向后逐步回归</strong>(backward stepwise regression)从模型包含所有预测变量开始， 一次删除一个变量直到会降低模型质量为止；</li>
+<li>向前向后逐步回归(stepwise stepwise regression， 通常称作<strong>逐步回归</strong>，以避免听起来太冗长)，结合了向前逐步回归和向后逐步回归的方法，变量每次进入一个，但是每一步中，变量都会被重新评价，对模型没有贡献的变量将会被删除，预测变量可能会被添加、删除好几次，直到获得最优模型为止。</li>
+</ol>
+<p>逐步回归算法依据判断准则的不同而不同，这里使用MASS包中的<code>stepAIC()</code>函数，它实现了上述三种算法，依据的是精确AIC准则。</p>
+<p>仍以前方的<code>states</code>为例，这里采用的是向后回归：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(MASS)</span><br><span class="line">&gt; fit &lt;- lm(Murder ~ Population + Illiteracy + Income + Frost, data=states)</span><br><span class="line">&gt; stepAIC(fit, direction=<span class="string">"backward"</span>)</span><br><span class="line">Start:  AIC=<span class="number">97.75</span></span><br><span class="line">Murder ~ Population + Illiteracy + Income + Frost</span><br><span class="line"></span><br><span class="line">             Df Sum of Sq    RSS     AIC</span><br><span class="line">- Frost       <span class="number">1</span>     <span class="number">0.021</span> <span class="number">289.19</span>  <span class="number">95.753</span></span><br><span class="line">- Income      <span class="number">1</span>     <span class="number">0.057</span> <span class="number">289.22</span>  <span class="number">95.759</span></span><br><span class="line">&lt;none&gt;                    <span class="number">289.17</span>  <span class="number">97.749</span></span><br><span class="line">- Population  <span class="number">1</span>    <span class="number">39.238</span> <span class="number">328.41</span> <span class="number">102.111</span></span><br><span class="line">- Illiteracy  <span class="number">1</span>   <span class="number">144.264</span> <span class="number">433.43</span> <span class="number">115.986</span></span><br><span class="line"></span><br><span class="line">Step:  AIC=<span class="number">95.75</span></span><br><span class="line">Murder ~ Population + Illiteracy + Income</span><br><span class="line"></span><br><span class="line">             Df Sum of Sq    RSS     AIC</span><br><span class="line">- Income      <span class="number">1</span>     <span class="number">0.057</span> <span class="number">289.25</span>  <span class="number">93.763</span></span><br><span class="line">&lt;none&gt;                    <span class="number">289.19</span>  <span class="number">95.753</span></span><br><span class="line">- Population  <span class="number">1</span>    <span class="number">43.658</span> <span class="number">332.85</span> <span class="number">100.783</span></span><br><span class="line">- Illiteracy  <span class="number">1</span>   <span class="number">236.196</span> <span class="number">525.38</span> <span class="number">123.605</span></span><br><span class="line"></span><br><span class="line">Step:  AIC=<span class="number">93.76</span></span><br><span class="line">Murder ~ Population + Illiteracy</span><br><span class="line"></span><br><span class="line">             Df Sum of Sq    RSS     AIC</span><br><span class="line">&lt;none&gt;                    <span class="number">289.25</span>  <span class="number">93.763</span></span><br><span class="line">- Population  <span class="number">1</span>    <span class="number">48.517</span> <span class="number">337.76</span>  <span class="number">99.516</span></span><br><span class="line">- Illiteracy  <span class="number">1</span>   <span class="number">299.646</span> <span class="number">588.89</span> <span class="number">127.311</span></span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">lm(formula = Murder ~ Population + Illiteracy, data = states)</span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">(Intercept)   Population   Illiteracy  </span><br><span class="line">  <span class="number">1.6515497</span>    <span class="number">0.0002242</span>    <span class="number">4.0807366</span></span><br></pre></td></tr></table></figure>
+<p>上述每一步中的表格表示，删除该变量后，模型最后的AIC值，其中的<code>&lt;none&gt;</code>表示此步没有删除变量时，模型的AIC值。模型每次都按AIC最小值来删除，直到删除变量不能再减小模型AIC值为止。</p>
+<h3 id="全子集回归">全子集回归</h3>
+<p>逐步回归法其实存在争议，虽然它可能会找到一个好的模型，但是不能保证模型就是最佳模型，因为不是每一个可能的模型都被评价了。</p>
+<p><strong>全子集回归会检验所有可能的模型。</strong></p>
+<p>全子集回归可用leaps包中的<code>regsubsets()</code>函数实现。可以通过R平方、调整R平方或Mallows Cp统计量等准则来选择“最佳”模型。</p>
+<p><strong>R平方是预测变量解释响应变量的程度；调整R平方与之类似，但考虑了模型的参数数目。</strong></p>
+<p>R平方总会随着变量数目的增加而增加。当与样本量相比，预测变量数目很大时，容易导致<strong>过拟合</strong>。R平方很可能会丢失数据的偶然变异信息，而<strong>调整R平方则提供了更为真实的R平方估计，也就是说，对于调整R平方，它的值越大越好</strong>。</p>
+<p>另外，Mallows Cp统计量也用来作为逐步回归的判停规则。广泛研究表明，<strong>对于一个好的模型，它的Cp统计量非常接近于模型的参数数目(包括截距项)</strong>。</p>
+<p>以下是一个使用调整R平方的例子：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">library</span>(leaps)</span><br><span class="line">leaps &lt;- regsubsets(Murder ~ Population + Illiteracy + Income + Frost, data=states, nbest=<span class="number">4</span>)</span><br><span class="line">plot(leaps, scale=<span class="string">"adjr2"</span>) <span class="comment"># 是leaps包中的函数，而不是自带的plot函数</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587966028/R/regsubsets.png" style="zoom:50%;" /></p>
+<p>参数<code>nbest</code>表示展示n个不同子集大小(一个、两个或多个预测变量)中的最佳模型，例如，<code>nbest=4</code>表示先展示4个最佳的单预测变量模型，然后展示4个最佳的双预测变量模型，以此类推，直到包含所有的预测变量。</p>
+<p>最上面一行展示的就是“最佳”模型，即只含Population和Illiteracy这两个自变量的模型。</p>
+<h1 id="深层次分析">深层次分析</h1>
+<p>本节介绍如何评价<strong>模型泛化能力</strong>和<strong>变量相对重要性</strong>。</p>
+<p>如果只是拟合一个方程来进行描述性分析，而不涉及现新数据的预测，那么到上一节就可以了。</p>
+<p>本节涉及的是用拟合的模型进行预测的问题。</p>
+<h2 id="交叉验证">交叉验证</h2>
+<p>对于OLS回归，通过让预测误差(残差)平方和最小和对响应变量的解释度(R平方)最大，可获得模型参数。但这只是在已给定的数据集上“最佳”，在新数据集上表现并不一定好，还需要进一步验证。</p>
+<p><strong>交叉验证法可以评价回归方程的泛化能力</strong>。</p>
+<p>所谓交叉验证，即将一定比例的数据挑选出来作为<strong>训练样本</strong>，另外的样本作<strong>保留样本</strong>，先在训练样本上获取回归方程，然后在保留样本上做预测。由于保留样本不涉及模型参数的选择，该样本可获得比新数据更为精确的估计。</p>
+<p>在<strong>k重交叉验证</strong>中，样本被分为k个子样本，轮流将k–1个子样本组合作为训练集，另外1个子样本作为保留集。这样会获得k个预测方程，记录k个保留样本的预测表现结果，然后求其平均值。(当n是观测总数目，且k为n时，该方法又称作刀切法，jackknifing)</p>
+<p><strong>bootstrap包中的<code>crossval()</code>函数可以实现k重交叉验证。</strong></p>
+<p>以下自定义的<code>shrinkage()</code>函数对模型的<strong>R平方统计量</strong>做了k重交叉验证：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(bootstrap)</span><br><span class="line">&gt; shrinkage &lt;- <span class="keyword">function</span>(fit, k = <span class="number">10</span>) &#123;</span><br><span class="line">    <span class="keyword">require</span>(bootstrap)</span><br><span class="line">    theta.fit &lt;- <span class="keyword">function</span>(x, y) &#123;</span><br><span class="line">        lsfit(x, y)</span><br><span class="line">    &#125;</span><br><span class="line">    theta.predict &lt;- <span class="keyword">function</span>(fit, x) &#123;</span><br><span class="line">        cbind(<span class="number">1</span>, x) %*% fit$coef</span><br><span class="line">    &#125;</span><br><span class="line">    x &lt;- fit$model[, <span class="number">2</span>:ncol(fit$model)]</span><br><span class="line">    y &lt;- fit$model[, <span class="number">1</span>]</span><br><span class="line">    results &lt;- crossval(x, y, theta.fit, theta.predict, ngroup = k)</span><br><span class="line">    r2 &lt;- cor(y, fit$fitted.values)^<span class="number">2</span></span><br><span class="line">    r2cv &lt;- cor(y, results$cv.fit)^<span class="number">2</span></span><br><span class="line">    cat(<span class="string">"Original R-square ="</span>, r2, <span class="string">"\n"</span>)</span><br><span class="line">    cat(k, <span class="string">"Fold Cross-Validated R-square ="</span>, r2cv, <span class="string">"\n"</span>)</span><br><span class="line">    cat(<span class="string">"Change ="</span>, r2 - r2cv, <span class="string">"\n"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&gt; states &lt;- as.data.frame(state.x77[, c(<span class="string">"Murder"</span>, <span class="string">"Population"</span>, <span class="string">"Illiteracy"</span>, <span class="string">"Income"</span>, <span class="string">"Frost"</span>)])</span><br><span class="line">&gt; fit &lt;- lm(Murder ~ Population + Income + Illiteracy + Frost, data = states)</span><br><span class="line">&gt; shrinkage(fit)</span><br><span class="line">Original R-square = <span class="number">0.5669502</span> </span><br><span class="line"><span class="number">10</span> Fold Cross-Validated R-square = <span class="number">0.3957056</span> </span><br><span class="line">Change = <span class="number">0.1712447</span></span><br></pre></td></tr></table></figure>
+<p>可以看到，没做交叉验证之前，模型的R方过于乐观了(0.567)，而10重交叉验证显示，模型的R方只有0.396，相去甚远。</p>
+<p><strong>交叉验证还能用来验证所选择的变量的效果</strong>，例如只用两个变量：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; fit2 &lt;- lm(Murder ~ Population + Illiteracy,data=states)</span><br><span class="line">&gt; shrinkage(fit2)</span><br><span class="line">Original R-square = <span class="number">0.5668327</span> </span><br><span class="line"><span class="number">10</span> Fold Cross-Validated R-square = <span class="number">0.5293426</span> </span><br><span class="line">Change = <span class="number">0.03749011</span></span><br></pre></td></tr></table></figure>
+<p>可以看到模型2拟合的更好。</p>
+<h2 id="相对重要性">相对重要性</h2>
+<p>如果一个OSL模型有多个自变量，那么有时候你会想知道，哪个自变量对因变量的影响是最大的。这就是自变量的相对重要性。</p>
+<p>目前有如下方法来计算自变量之间的相对重要性：</p>
+<ol type="1">
+<li><p>若自变量之间不相关，可以根据<strong>自变量与因变量的相关系数</strong>来排序。但大多数时候自变量之间或多或少都会有相关性。</p></li>
+<li><p>除去第一种方法，最简单的则是比较<strong>标准化的回归系数</strong>，它表示当其他预测变量不变时，该自变量一个标准差的变化可引起的因变量的预期变化(以标准差单位度量)。在进行回归分析前，可用<code>scale()</code>函数将数据标准化为均值为0、标准差为1的数据集，这样模型中的系数即是标准化的回归系数：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; states &lt;- as.data.frame(state.x77[, c(<span class="string">"Murder"</span>, <span class="string">"Population"</span>, <span class="string">"Illiteracy"</span>, <span class="string">"Income"</span>, <span class="string">"Frost"</span>)])</span><br><span class="line">&gt; zstates &lt;- as.data.frame(scale(states))</span><br><span class="line">&gt; zfit &lt;- lm(Murder ~ Population + Income + Illiteracy + Frost, data = zstates)</span><br><span class="line">&gt; coef(zfit)</span><br><span class="line">  (Intercept)    Population        Income    Illiteracy         Frost </span><br><span class="line">-<span class="number">2.054026e-16</span>  <span class="number">2.705095e-01</span>  <span class="number">1.072372e-02</span>  <span class="number">6.840496e-01</span>  <span class="number">8.185407e-03</span></span><br></pre></td></tr></table></figure>
+<p>可以看到Illiteracy的影响是最大的。</p></li>
+<li><p><strong>相对权重</strong>(relative weight)是一种比较有前景的新方法，它是对所有可能子模型添加一个预 测变量引起的R平方平均增加量的一个近似值。暂时未找到该方法的第三方包，且得出的结果与第二种方法以及前面的分析略有偏差，这里不做描述。</p></li>
+</ol>
 ]]></content>
       <categories>
         <category>R语言</category>
@@ -271,6 +359,8 @@
 <p>主要介绍如何用R语言进行一些基本的统计</p>
 </blockquote>
 <a id="more"></a>
+<h1 id="思维导图">思维导图</h1>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587827013/R/统计学R语言版.svg" /></p>
 <h1 id="描述性统计分析">描述性统计分析</h1>
 <p>R语言中描述性统计分析相关的方法多如牛毛，以下是一些主要函数的介绍。</p>
 <h2 id="非分组统计方法">非分组统计方法</h2>
@@ -517,8 +607,6 @@
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; states &lt;- data.frame(state.region, state.x77)</span><br><span class="line">&gt; kruskal.test(Illiteracy ~ state.region, data=states)</span><br><span class="line"></span><br><span class="line">	Kruskal-Wallis rank sum test</span><br><span class="line"></span><br><span class="line">data:  Illiteracy by state.region</span><br><span class="line">Kruskal-Wallis chi-squared = <span class="number">22.672</span>, df = <span class="number">3</span>, p-value = <span class="number">4.726e-05</span></span><br></pre></td></tr></table></figure>
 <p>显著性检验的结果意味着美国四个地区的文盲率各不相同(p&lt;0.001)。</p>
 <p><strong>这个检验只能表明可以拒绝不存在差异的原假设，但它并没有展示哪些组显著地与其他组不同。为了解决这个问题，可以使用Wilcoxon检验每次比较两组数据。</strong></p>
-<h1 id="思维导图">思维导图</h1>
-<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1587827013/R/统计学R语言版.svg" /></p>
 ]]></content>
       <categories>
         <category>R语言</category>
