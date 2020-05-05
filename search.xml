@@ -1,6 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>R语言-中级绘图</title>
+    <url>/2020/05/05/R%E8%AF%AD%E8%A8%80-%E4%B8%AD%E7%BA%A7%E7%BB%98%E5%9B%BE/</url>
+    <content><![CDATA[<blockquote>
+<p>《R语言实战》笔记</p>
+<p>本篇主要关注用于展示双变量间关系(二元关系)和多变量间关系(多元关系)的绘图方法。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="思维导图">思维导图</h1>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588660294/R/中级绘图.svg" /></p>
+<h1 id="散点图">散点图</h1>
+<p>本节主要包括：</p>
+<ul>
+<li>如何绘制信息量更多的散点图</li>
+<li>散点图矩阵</li>
+<li>如何解决数据点重叠</li>
+<li>三维散点图和气泡图</li>
+</ul>
+<p>本节使用的数据均来自于数据集mtcars。</p>
+<h2 id="增强的散点图">增强的散点图</h2>
+<p>基础的散点图就是自带的<code>plot()</code>函数。</p>
+<p>主要是car包中的<code>scatterplot()</code>函数。</p>
+<p>以下示例在绘制散点图的同时进行了分类，并且还添加了拟合的直线和曲线：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">attach</span>(mtcars)</span><br><span class="line"><span class="keyword">library</span>(car)</span><br><span class="line">scatterplot(mpg ~ wt | cyl, data = mtcars, lwd = <span class="number">2</span>,  </span><br><span class="line">            main = <span class="string">"Scatter Plot of MPG vs. Weight by # Cylinders"</span>, </span><br><span class="line">            xlab = <span class="string">"Weight of Car (lbs/1000)"</span>, </span><br><span class="line">            ylab = <span class="string">"Miles Per Gallon"</span>, </span><br><span class="line">            smooth = list(spread = <span class="literal">F</span>, span=<span class="number">0.75</span>), <span class="comment"># loess平滑拟合曲线，span控制平滑度</span></span><br><span class="line">            legend=list(columns=<span class="number">1</span>,coords=<span class="string">"topright"</span>),</span><br><span class="line">            boxplots = <span class="string">"xy"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588648731/R/11-scattorplot.png" style="zoom:50%;" /></p>
+<h2 id="散点图矩阵">散点图矩阵</h2>
+<p>如果有多个变量，但又想看到每两个变量之间的关系，可以使用散点图。</p>
+<h3 id="pairs函数">pairs()函数</h3>
+<p><code>pairs()</code>函数可以创建基础的散点图矩阵，以下是它的一个示例代码：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 添加upper.panel = NULL将只生成下三角的图形</span></span><br><span class="line">pairs(~mpg+disp+drat+wt, data=mtcars, main=<span class="string">"Basic Scatter Plot Matrix"</span>)</span><br></pre></td></tr></table></figure>
+<p>图就不画了，基本形式跟后面要介绍的差不多，只是不能拟合直线和曲线。</p>
+<h3 id="carscatterplotmatrix函数">car::scatterplotMatrix()函数</h3>
+<p>它相比基础的<code>pairs()</code>函数，多了以下功能（没有列全）：</p>
+<ul>
+<li>以某个因子为条件绘制散点图矩阵</li>
+<li>包含线性和平滑拟合曲线</li>
+<li>在主对角线放置箱线图、密度图或者直方图</li>
+<li>在各单元格的边界添加轴须图</li>
+</ul>
+<p>以下是一个示例：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">scatterplotMatrix(~mpg + disp + drat + wt, </span><br><span class="line">                  data = mtcars, </span><br><span class="line">                  smooth = list(spread = <span class="literal">F</span>), <span class="comment"># spread=F表示不添加展示分散度和对称信息的直线</span></span><br><span class="line">                  main = <span class="string">"Scatter Plot Matrix via car Package"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588649413/R/11-scatterplotMatrix.png" /></p>
+<p>主对角线处添加了核密度曲线和轴须图。</p>
+<h3 id="高密度散点图">高密度散点图</h3>
+<p>这类图形主要用在当数据点重叠很严重时。</p>
+<h4 id="smoothscatter函数">smoothScatter()函数</h4>
+<p>自带的<code>smoothScatter()</code>函数利用核密度估计生成用颜色密度来表示点分布的散点图：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">set.seed(<span class="number">1234</span>)</span><br><span class="line">n &lt;- <span class="number">10000</span></span><br><span class="line">c1 &lt;- matrix(rnorm(n, mean=<span class="number">0</span>, sd=<span class="number">.5</span>), ncol=<span class="number">2</span>) </span><br><span class="line">c2 &lt;- matrix(rnorm(n, mean=<span class="number">3</span>, sd=<span class="number">2</span>), ncol=<span class="number">2</span>) </span><br><span class="line">mydata &lt;- rbind(c1, c2)</span><br><span class="line">mydata &lt;- as.data.frame(mydata)</span><br><span class="line">names(mydata) &lt;- c(<span class="string">"x"</span>, <span class="string">"y"</span>)</span><br><span class="line">with(mydata,</span><br><span class="line">     smoothScatter(x, y, main=<span class="string">"Scatter Plot Colored by Smoothed Densities"</span>))</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588649801/R/11-smoothScatter.png" style="zoom:50%;" /></p>
+<h4 id="hexbinhexbin函数">hexbin::hexbin()函数</h4>
+<p>它将二元变量的封箱放到六边形单元格中：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">library</span>(hexbin)</span><br><span class="line">with(mydata, &#123;</span><br><span class="line">    bin &lt;- hexbin(x, y, xbins = <span class="number">50</span>)</span><br><span class="line">    plot(bin, main = <span class="string">"Hexagonal Binning with 10,000 Observations"</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588650014/R/11-hexbin.png" style="zoom:50%;" /></p>
+<p>每一个小六边形格子表示该范围内有都少个点。</p>
+<h3 id="三维散点图">三维散点图</h3>
+<p>散点图和散点图矩阵展示的都是二元变量关系。当你想一次对三个定量变量的交互关系进行可视化时，可以使用三维散点图。</p>
+<p>三维散点图又分为可旋转与不可旋转的散点图。</p>
+<p>可旋转的散点图主要是rgl包中的plot3d()函数和car包中的scatter3d()函数，这里不做过多介绍。</p>
+<h4 id="scatterplot3dscatterplot3d">scatterplot3d::scatterplot3d()</h4>
+<p>该散点图不可旋转。</p>
+<p>以下绘制的是汽车英里数mpg、车重wt和排量间disp之间的关系，同时添加了连接点与水平面的垂直线以及一个回归面：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">library</span>(scatterplot3d)</span><br><span class="line">s3d &lt;- scatterplot3d(wt, disp, mpg, type = <span class="string">"h"</span>, pch = <span class="number">16</span>, </span><br><span class="line">                     highlight.3d = <span class="literal">TRUE</span>, <span class="comment"># 显示纵深</span></span><br><span class="line">                     main = <span class="string">"3D Scatter Plot with Vertical Lines and Regression Plane"</span>)</span><br><span class="line">fit &lt;- lm(mpg ~ wt + disp)</span><br><span class="line">s3d$plane3d(fit)	<span class="comment"># 添加回归面</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588650526/R/11-scatterplot3d.png" style="zoom:50%;" /></p>
+<h3 id="气泡图">气泡图</h3>
+<p>三维散点图直接在三维空间中绘制图像，而气泡图则是在二维散点图上，通过点的大小来表示第三个量的大小。</p>
+<p>它可以通过自带的<code>symbols()</code>函数绘制：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">r &lt;- sqrt(disp/pi)</span><br><span class="line">symbols(wt, mpg, circle = r, inches = <span class="number">0.3</span>, fg = <span class="string">"white"</span>, bg = <span class="string">"lightblue"</span>, </span><br><span class="line">        main = <span class="string">"Bubble Plot with point size proportional to displacement"</span>, </span><br><span class="line">        ylab = <span class="string">"Miles Per Gallon"</span>, </span><br><span class="line">        xlab = <span class="string">"Weight of Car (lbs/1000)"</span>)</span><br><span class="line">text(wt, mpg, rownames(mtcars), cex = <span class="number">0.6</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588651171/R/11-symbols.png" style="zoom:50%;" /></p>
+<p>一般来说，统计人员使用R时都倾向于避免用气泡图，原因和避免使用饼图一样:相比对长度的判断，人们对体积/面积的判断通常更困难。但是气泡图在商业应用中非常受欢迎。</p>
+<h1 id="折线图">折线图</h1>
+<p>折线图一般可用下列两个函数之一来创建：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">plot(x, y, type=) </span><br><span class="line">lines(x, y, type=)	<span class="comment"># 在已存在的图上添加线，并不能创建新图</span></span><br></pre></td></tr></table></figure>
+<p>参数<code>type</code>的可选值如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588651367/R/typevalue.png" /></p>
+<p>以五种橘树随时间推移的生长状况为例，使用自带的Orange数据集：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">Orange$Tree &lt;- as.numeric(Orange$Tree)</span><br><span class="line">ntrees &lt;- max(Orange$Tree)</span><br><span class="line"></span><br><span class="line">xrange &lt;- range(Orange$age)</span><br><span class="line">yrange &lt;- range(Orange$circumference)</span><br><span class="line"></span><br><span class="line">plot(xrange, yrange, type = <span class="string">"n"</span>, xlab = <span class="string">"Age (days)"</span>, ylab = <span class="string">"Circumference (mm)"</span>)</span><br><span class="line">colors &lt;- rainbow(ntrees)</span><br><span class="line">linetype &lt;- c(<span class="number">1</span>:ntrees)</span><br><span class="line">plotchar &lt;- seq(<span class="number">18</span>, <span class="number">18</span> + ntrees, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1</span>:ntrees) &#123;</span><br><span class="line">    tree &lt;- subset(Orange, Tree == i)</span><br><span class="line">    lines(tree$age, tree$circumference, </span><br><span class="line">          type = <span class="string">"b"</span>, </span><br><span class="line">          lwd = <span class="number">2</span>, </span><br><span class="line">          lty = linetype[i], </span><br><span class="line">          col = colors[i], </span><br><span class="line">          pch = plotchar[i])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">title(<span class="string">"Tree Growth"</span>, <span class="string">"example of line plot"</span>)</span><br><span class="line">legend(xrange[<span class="number">1</span>], yrange[<span class="number">2</span>], <span class="number">1</span>:ntrees, cex = <span class="number">0.8</span>, col = colors, pch = plotchar, lty = linetype, </span><br><span class="line">    title = <span class="string">"Tree"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588651799/R/11-Orange.png" style="zoom:50%;" /></p>
+<h1 id="相关图">相关图</h1>
+<p>主要是用来可视化相关系数矩阵。</p>
+<p>依然以mtcars数据集为例。</p>
+<h2 id="corrgramcorrgram函数">corrgram::corrgram()函数</h2>
+<p>它的调用格式如下：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">corrgram(x, order=, panel=, text.panel=, diag.panel=, col.regions=)</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li><code>x</code>是相关系数矩阵</li>
+<li><code>order</code>表示是否将行与列重新排序（按主成分分析法排序）</li>
+<li><code>panel</code>设置非对角线面板使用的元素类型</li>
+<li><code>lower.panel</code>和<code>upper.panel</code>分别设置主对角线下方和上方的元素类型，为<code>NULL</code>则表示不显示</li>
+<li><code>text.panel</code>和<code>diag.panel</code>选项控制着主对角线元素类型</li>
+<li><code>col.regions</code>用于自定义颜色，默认是红蓝色</li>
+</ul>
+<p>常见<code>panel</code>的值如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588656714/R/11-panel.png" /></p>
+<p>以下是一个例子：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">library</span>(corrgram)</span><br><span class="line">corrgram(mtcars, order=<span class="literal">TRUE</span>, lower.panel=panel.shade,</span><br><span class="line">         upper.panel=panel.pie, text.panel=panel.txt, </span><br><span class="line">         diag.panel=panel.minmax,</span><br><span class="line">         main=<span class="string">"Corrgram of mtcars intercorrelations"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588657010/R/11-corrgram.png" /></p>
+<p>默认地，蓝色和从左下指向右上的斜杠表示单元格中的两个变量呈正相关。红色和从左上指向右下的斜杠表示变量呈负相关。色彩越深，饱和度越高，说明变量相关性越大。相关性接近于0的单元格基本无色。右上角的饼状图从12点开始顺时针填充。</p>
+<h1 id="马赛克图">马赛克图</h1>
+<p>上述的图形针对的主要是连续型或定量型数据，而马赛克图针对的则是分类型数据。</p>
+<p>单个类别型变量，可以使用柱状图或者饼图；两个类别型变量，可以使用三维柱状图(不过，这在R中不太容易实现)。如果多于两个类别变量呢？</p>
+<p>马赛克图就是手段之一。使用vcd包中的<code>mosaic()</code>函数绘制。自带的<code>mosaicplot()</code>函数也可以，只是少了些功能。</p>
+<p>以下使用自带的Titanic数据集（也就是泰坦尼克号数据集），按Class，Sex，Age和Survived将数据分类绘制马赛克图：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; ftable(Titanic)</span><br><span class="line">                   Survived  No Yes</span><br><span class="line">Class Sex    Age                   </span><br><span class="line">1st   Male   Child            <span class="number">0</span>   <span class="number">5</span></span><br><span class="line">             Adult          <span class="number">118</span>  <span class="number">57</span></span><br><span class="line">      Female Child            <span class="number">0</span>   <span class="number">1</span></span><br><span class="line">             Adult            <span class="number">4</span> <span class="number">140</span></span><br><span class="line">2nd   Male   Child            <span class="number">0</span>  <span class="number">11</span></span><br><span class="line">             Adult          <span class="number">154</span>  <span class="number">14</span></span><br><span class="line">      Female Child            <span class="number">0</span>  <span class="number">13</span></span><br><span class="line">             Adult           <span class="number">13</span>  <span class="number">80</span></span><br><span class="line">3rd   Male   Child           <span class="number">35</span>  <span class="number">13</span></span><br><span class="line">             Adult          <span class="number">387</span>  <span class="number">75</span></span><br><span class="line">      Female Child           <span class="number">17</span>  <span class="number">14</span></span><br><span class="line">             Adult           <span class="number">89</span>  <span class="number">76</span></span><br><span class="line">Crew  Male   Child            <span class="number">0</span>   <span class="number">0</span></span><br><span class="line">             Adult          <span class="number">670</span> <span class="number">192</span></span><br><span class="line">      Female Child            <span class="number">0</span>   <span class="number">0</span></span><br><span class="line">             Adult            <span class="number">3</span>  <span class="number">20</span></span><br><span class="line">&gt; <span class="keyword">library</span>(vcd)</span><br><span class="line"><span class="comment"># mosaic(Titanic, shade=TRUE, legend=TRUE) 两种调用方式</span></span><br><span class="line">&gt; mosaic(~Class + Sex + Age + Survived, data = Titanic, shade = <span class="literal">TRUE</span>, legend = <span class="literal">TRUE</span>)</span><br></pre></td></tr></table></figure>
+<p>其中<code>shade</code>设置是否根据拟合模型的皮尔逊残差值对图形上色。</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588657967/R/11-mosaic.png" /></p>
+<p>在本例中，蓝色阴影表明，在假定生存率与船舱等级、性别和年龄层无关的条件下，该类别下的生存率通常超过预期值。红色阴影则相反。</p>
+]]></content>
+      <categories>
+        <category>R语言</category>
+      </categories>
+      <tags>
+        <tag>R语言</tag>
+        <tag>R语言绘图</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>R语言-功效分析</title>
     <url>/2020/05/04/R%E8%AF%AD%E8%A8%80-%E5%8A%9F%E6%95%88%E5%88%86%E6%9E%90/</url>
     <content><![CDATA[<blockquote>
@@ -1231,7 +1347,7 @@
       </categories>
       <tags>
         <tag>R语言</tag>
-        <tag>R语言基本图形</tag>
+        <tag>R语言绘图</tag>
       </tags>
   </entry>
   <entry>
