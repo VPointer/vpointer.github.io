@@ -1,6 +1,213 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>R语言-重抽样与自助法</title>
+    <url>/2020/05/05/R%E8%AF%AD%E8%A8%80-%E9%87%8D%E6%8A%BD%E6%A0%B7%E4%B8%8E%E8%87%AA%E5%8A%A9%E6%B3%95/</url>
+    <content><![CDATA[<blockquote>
+<p>《R语言实战》笔记</p>
+<p>许多实际情况中，统计假设并不一定被满足，比如数据抽样于未知或混合分布、样本量过小、存在离群点、基于理论分布设计合适的统计检验过于复杂且数学上难以处理等情况，这时基于随机化和重抽样的统计方法就可派上用场。</p>
+<p>本篇探究两种应用广泛的依据随机化思想的统计方法：置换检验和自助法。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="思维导图">思维导图</h1>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588681128/R/重抽样与自助法.svg" /></p>
+<h1 id="置换检验permutation-test">置换检验Permutation test</h1>
+<p>置换检验，也称随机化检验或重随机化检验，数十年前就已经被提出，但直到高性能计算机的出现（因为要迭代多次），该方法才有了真正的应用价值。</p>
+<p>研究表明，当样本含量较大时，置换检验得到的结果与经典的参数检验(t检验、F检验)近似；当样本含量较小时，置换检验要优于参数检验，并且其检验效能也高于秩和检验。</p>
+<h2 id="概念">概念</h2>
+<p>置换检验的概念不好总结，以一个例子来说明。</p>
+<p>假设有一个实验，它有两种处理方式，方式A和方式B，10个试验者被随机分配到这两组中，获得了一组得分：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588662981/R/WX20200505-151606.png" /></p>
+<p>现在想研究，这两种处理方式A和B的影响是否不同。</p>
+<h3 id="正态理论的处理方式">正态理论的处理方式</h3>
+<p>如果是参数方法，你可能会假设数据抽样自等方差的正态分布，然后用假设独立分组的双尾t检验来验证结果。此时，<span class="math inline">\(H_{0}\)</span>为A处理的总体均值与B处理的总体均值相等，你根据数据计算了t统计量，将其与理论分布进行比较，如果t统计量落在你设定的置信区间外(比如95%)，那么你将拒绝<span class="math inline">\(H_{0}\)</span>，并得出结论：在0.05的显著性水平下两组的总体均值不相等。</p>
+<h3 id="置换检验的处理方式">置换检验的处理方式</h3>
+<p>按<strong>置换检验</strong>的思路，如果A，B两种处理方式真的等价，那么上面这10个数据是可以随机分配个标签的（毕竟A和B等价嘛，谁是A谁是B有什么区别呢）。以这个假设为前提，按如下步骤进行检验：</p>
+<ol type="1">
+<li>与参数方法类似，计算观测数据的t统计量，称为<span class="math inline">\(t_{0}\)</span>；</li>
+<li><strong>随机分配</strong>5个数据到A组，剩余的到B组；</li>
+<li>重新计算t统计量；</li>
+<li>重复步骤(2)~(3)，对每一种可能的随机分配计算t统计量，此处有252种可能(<span class="math inline">\(C_{10}^{5}\)</span>)的分配组合；</li>
+<li>将252个t统计量按升序排列，得到<strong>基于(或以之为条件)样本数据的经验分布</strong>；</li>
+<li>如果<span class="math inline">\(t_{0}\)</span>落在经验分布中间95%部分之外，则在0.05的显著性水平下，拒绝两个处理组的总体均值相等的零假设。</li>
+</ol>
+<p>这种计算了所有可能组合的统计量的置换检验叫做<strong>“精确”检验</strong>。当数据量增多时，“精确”检验将非常耗时，此时可以使用<strong>蒙特卡洛模拟</strong>，从所有可能的排列中进行抽样，获得一个近似的检验。</p>
+<h3 id="与参数方法的异同">与参数方法的异同</h3>
+<p>置换方法和参数方法都计算了相同的t统计量。但置换方法并不是将统计量与理论分布进行比较，而是将其与置换观测数据后获得的经验分布进行比较，根据统计量值的极端性判断是否有足够的理由拒绝零假设。<strong>这种逻辑可以延伸至大部分经典统计检验和线性模型上来</strong>。</p>
+<h3 id="置换检验的优劣">置换检验的优劣</h3>
+<ul>
+<li><strong>适用场景</strong>：置换检验真正发挥功用的地方是处理非正态数据(如分布偏倚很大)、存在离群点、样本很小或无法做参数检验等情况；</li>
+<li>置换检验主要用于生成检验零假设的p值，它有助于回答“效应是否存在”这样的问题，对于<strong>获取置信区间和估计测量精度比较困难</strong>。</li>
+</ul>
+<h2 id="两个做置换检验的包">两个做置换检验的包</h2>
+<p>本节主要介绍coin和lmPerm包。coin包对于独立性问题提供了一个非常全面的置换检验的框架，而lmPerm包则专门用来做方差分析和回归分析的置换检验。</p>
+<h3 id="用coin包做置换检验">用coin包做置换检验</h3>
+<p>对于独立性问题，coin包提供了一个进行置换检验的一般性框架，它可以解决如下问题：</p>
+<ul>
+<li>响应值与组的分配独立吗？</li>
+<li>两个数值变量独立吗?</li>
+<li>两个类别型变量独立吗?</li>
+</ul>
+<p>以下是该包提供的一些函数，它与<a href="https://www.zuiqiangiron.xyz/2020/04/24/R语言基本统计分析/">该篇文章</a>中大部分的传统统计检验是等价的：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588665348/R/coin中的函数.png" /></p>
+<p>注:在coin函数中，<code>y</code>和<code>x</code>是数值变量，<code>A</code>和<code>B</code>是分类因子，<code>C</code>是类别型区组变量，<code>D</code>和<code>E</code>是有序因子，<code>y1</code>和<code>y2</code>是相匹配的数值变量。</p>
+<p>上述每个函数的调用形式如下：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">function_name(formula, data, distribution)</span><br></pre></td></tr></table></figure>
+<p>参数<code>distribution</code>指定经验分布在零假设条件下的形式，可能值有<code>"exact”</code>，<code>"asymptotic”</code>和<code>"approximate"</code>。</p>
+<p>若<code>distribution="exact"</code>，那么在零假设条件下，分布的计算是精确的(即依据所有可能的排列组合)。当然，也可以根据它的渐进分布(<code>distribution="asymptotic"</code>)或蒙特卡洛重抽样(<code>distribution="approxiamate(nresample=#)"</code>)来做近似计算，其中<code>#</code>指所需重复的次数。 <code>distribution="exact"</code>当前仅可用于两样本问题。</p>
+<h4 id="独立两样本和k样本的组间差异检验">独立两样本和K样本的组间差异检验</h4>
+<p>首先是双样本的单因素精确置换检验和Wilcoxon秩和检验，最后是一个K样本的置换检验。</p>
+<h5 id="单因素精确置换检验">单因素精确置换检验</h5>
+<p>与独立样本t检验做对比，数据就是上方表中那10个数据。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> library(coin)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> score &lt;- c(40, 57, 45, 55, 58, 57, 64, 55, 62, 65)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> treatment &lt;- factor(c(rep(<span class="string">"A"</span>, 5), rep(<span class="string">"B"</span>, 5)))</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> mydata &lt;- data.frame(treatment, score)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 独立样本t检验</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> t.test(score ~ treatment, data = mydata, var.equal = TRUE)</span></span><br><span class="line"></span><br><span class="line">	Two Sample t-test</span><br><span class="line"></span><br><span class="line">data:  score by treatment</span><br><span class="line">t = -2.345, df = 8, p-value = 0.04705</span><br><span class="line">alternative hypothesis: true difference in means is not equal to 0</span><br><span class="line">95 percent confidence interval:</span><br><span class="line"> -19.0405455  -0.1594545</span><br><span class="line">sample estimates:</span><br><span class="line">mean in group A mean in group B </span><br><span class="line">           51.0            60.6</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 单因素精确置换检验</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> oneway_test(score ~ treatment, data = mydata, distribution = <span class="string">"exact"</span>)</span></span><br><span class="line"></span><br><span class="line">	Exact Two-Sample Fisher-Pitman Permutation Test</span><br><span class="line"></span><br><span class="line">data:  score by treatment (A, B)</span><br><span class="line">Z = -1.9147, p-value = 0.07143</span><br><span class="line">alternative hypothesis: true mu is not equal to 0</span><br></pre></td></tr></table></figure>
+<p>可以看到，这两个检验的结果并不相同：独立样本t检验表明这两组有显著差异，而单因素精确置换检验显示这两组的差异并不显著。</p>
+<h5 id="wilcoxon秩和检验">Wilcoxon秩和检验</h5>
+<p>与传统的Wilcoxon秩和检验<code>wilcox.test()</code>对比，数据使用自带的UScrime数据集：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> library(MASS)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> UScrime &lt;- transform(UScrime, So = factor(So))</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 传统Wilcoxon秩和检验</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> wilcox.test(Prob ~ So, data=UScrime)</span></span><br><span class="line"></span><br><span class="line">	Wilcoxon rank sum test</span><br><span class="line"></span><br><span class="line">data:  Prob by So</span><br><span class="line">W = 81, p-value = 8.488e-05</span><br><span class="line">alternative hypothesis: true location shift is not equal to 0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> Wilcoxon秩和置换检验</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> wilcox_test(Prob ~ So, data = UScrime, distribution = <span class="string">"exact"</span>)</span></span><br><span class="line"></span><br><span class="line">	Exact Wilcoxon-Mann-Whitney Test</span><br><span class="line"></span><br><span class="line">data:  Prob by So (0, 1)</span><br><span class="line">Z = -3.7493, p-value = 8.488e-05</span><br><span class="line">alternative hypothesis: true mu is not equal to 0</span><br></pre></td></tr></table></figure>
+<p>两个检验的结果都显示，南方各州和非南方各州监禁率并不相同。</p>
+<h5 id="k样本置换检验">K样本置换检验</h5>
+<p>使用的是multcomp包中的cholesterol数据集，研究5种药物疗法对降低胆固醇的效果是否不同：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> library(multcomp)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> set.seed(1234)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> oneway_test(response ~ trt, data = cholesterol, distribution = approximate(nresample = 9999))</span></span><br><span class="line"></span><br><span class="line">	Approximative K-Sample Fisher-Pitman Permutation Test</span><br><span class="line"></span><br><span class="line">data:  response by</span><br><span class="line">	 trt (1time, 2times, 4times, drugD, drugE)</span><br><span class="line">chi-squared = 36.381, p-value &lt; 1e-04</span><br></pre></td></tr></table></figure>
+<p>此处，参考分布得自于数据9999次的置换。<strong>设定随机数种子可让结果重现。</strong>结果表明各组间 病人的响应值显著不同。</p>
+<h4 id="非独立两样本和k样本的组间差异检验">非独立两样本和K样本的组间差异检验</h4>
+<p>如果两组并不是相互独立的，可使用<code>wilcoxsign_test()</code>函数做置换检验；多于两组时，使用<code>friedman_test()</code>函数。</p>
+<p>数据集使用MASS包中的UScrime数据集：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> library(coin)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> library(MASS)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 置换版本</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> wilcoxsign_test(U1~U2, data=UScrime, distribution=<span class="string">"exact"</span>)</span></span><br><span class="line"></span><br><span class="line">	Exact Wilcoxon-Pratt Signed-Rank Test</span><br><span class="line"></span><br><span class="line">data:  y by x (pos, neg) </span><br><span class="line">	 stratified by block</span><br><span class="line">Z = 5.9691, p-value = 1.421e-14</span><br><span class="line">alternative hypothesis: true mu is not equal to 0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> Wilcoxon符号秩检验</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> with(UScrime, wilcox.test(U1, U2, paired=TRUE))</span></span><br><span class="line"></span><br><span class="line">	Wilcoxon signed rank test with continuity correction</span><br><span class="line"></span><br><span class="line">data:  U1 and U2</span><br><span class="line">V = 1128, p-value = 2.464e-09</span><br><span class="line">alternative hypothesis: true location shift is not equal to 0</span><br></pre></td></tr></table></figure>
+<p>两者均表明，U1和U2年龄范围内的失业率是不同的。</p>
+<h4 id="列联表中的独立性">列联表中的独立性</h4>
+<p><code>chisq_test()</code>可判断两类别型变量的独立性；当数据可根据第三个类别型变量进行分层时，可以使用<code>cmh_test()</code>；若变量都是有序型，可使用<code>lbl_test()</code>函数来检验是否存在线性趋势。</p>
+<p>数据使用vcd包中的Arthritis数据集：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> library(coin)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> library(vcd)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 卡方检验</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> chisq.test(Arthritis<span class="variable">$Treatment</span>, Arthritis<span class="variable">$Improved</span>)</span></span><br><span class="line"></span><br><span class="line">	Pearson's Chi-squared test</span><br><span class="line"></span><br><span class="line">data:  Arthritis$Treatment and Arthritis$Improved</span><br><span class="line">X-squared = 13.055, df = 2, p-value = 0.001463</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 卡方检验置换版本</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> Arthritis &lt;- transform(Arthritis, Improved = as.factor(as.numeric(Improved)))</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> set.seed(1234)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> chisq_test(Treatment ~ Improved, data = Arthritis, distribution = approximate(nresample = 9999))</span></span><br><span class="line"></span><br><span class="line">	Approximative Pearson Chi-Squared Test</span><br><span class="line"></span><br><span class="line">data:  Treatment by Improved (1, 2, 3)</span><br><span class="line">chi-squared = 13.055, p-value = 0.0018</span><br></pre></td></tr></table></figure>
+<p>两者都说明<code>Treatment</code>和<code>Improved</code>有一定的相关性。</p>
+<p>这里之所以将<code>Improved</code>从一个有序因子变成一个分类因子，是因为使用有序因子的话，<code>chisq_test()</code>将会生成一个线性与线性趋势检验，而不是卡方检验，虽然它在本例中也是个不错的选择，但不好与卡方检验比较。</p>
+<h4 id="数值变量间的独立性">数值变量间的独立性</h4>
+<p><code>spearman_test()</code>函数提供了两数值变量的独立性置换检验。</p>
+<p>数据集使用自带的state.x77数据集：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> states &lt;- as.data.frame(state.x77)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> set.seed(1234)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> spearman相关性检验置换版本</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> spearman_test(Illiteracy~Murder, data=states, distribution = approximate(nresample = 9999))</span></span><br><span class="line"></span><br><span class="line">	Approximative Spearman Correlation Test</span><br><span class="line"></span><br><span class="line">data:  Illiteracy by Murder</span><br><span class="line">Z = 4.7065, p-value &lt; 1e-04</span><br><span class="line">alternative hypothesis: true rho is not equal to 0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> spearman相关性检验</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> cor.test(states<span class="variable">$Illiteracy</span>, states<span class="variable">$Murder</span>, method = <span class="string">"spearman"</span>)</span></span><br><span class="line"></span><br><span class="line">	Spearman's rank correlation rho</span><br><span class="line"></span><br><span class="line">data:  states$Illiteracy and states$Murder</span><br><span class="line">S = 6823.1, p-value = 8.932e-08</span><br><span class="line">alternative hypothesis: true rho is not equal to 0</span><br><span class="line">sample estimates:</span><br><span class="line">      rho </span><br><span class="line">0.6723592</span><br></pre></td></tr></table></figure>
+<p>两者均表明，文盲和犯罪率这两个因素并不独立。</p>
+<h3 id="用lmperm包做置换检验">用lmPerm包做置换检验</h3>
+<p>lmPerm包可做线性模型的置换检验。例如<code>lmp()</code>和<code>aovp()</code>函数即<code>lm()</code>和<code>aov()</code>函数的修改版。</p>
+<p><code>lmp()</code>和<code>aovp()</code>函数的参数与<code>lm()</code>和<code>aov()</code>函数类似，只额外添加了<code>perm</code>参数。</p>
+<p><code>perm</code>选项的可选值有<code>Exact</code>、<code>Prob</code>或<code>SPR</code>：</p>
+<ul>
+<li><code>Exact</code>根据所有可能的排列组合生成精确检验，若观测数大于10，<code>perm="Exact"</code>将自动默认转为<code>perm="Prob"</code></li>
+<li><code>Prob</code>从 有可能的排列中不断抽样，直至估计的标准差在估计的p值0.1之下（具体值由<code>Ca</code>参数控制）</li>
+<li><code>SPR</code>使用贯序概率比检验来判断何时停止抽样</li>
+</ul>
+<h4 id="简单回归和多项式回归的置换检验">简单回归和多项式回归的置换检验</h4>
+<p>使用自带的数据集women：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> library(lmPerm)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> set.seed(1234)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 简单回归置换版本</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> summary(lmp(weight ~ height, data = women, perm = <span class="string">"Prob"</span>))</span></span><br><span class="line">[1] "Settings:  unique SS : numeric variables centered" # 这一行是lmp()的输出</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">lmp(formula = weight ~ height, data = women, perm = "Prob")</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line">    Min      1Q  Median      3Q     Max </span><br><span class="line">-1.7333 -1.1333 -0.3833  0.7417  3.1167 </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">       Estimate Iter Pr(Prob)    </span><br><span class="line">height     3.45 5000   &lt;2e-16 ***</span><br><span class="line">---</span><br><span class="line">Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span><br><span class="line"></span><br><span class="line">Residual standard error: 1.525 on 13 degrees of freedom</span><br><span class="line">Multiple R-Squared: 0.991,	Adjusted R-squared: 0.9903 </span><br><span class="line">F-statistic:  1433 on 1 and 13 DF,  p-value: 1.091e-14 </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 原版简单回归</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> summary(lm(weight ~ height, data = women))</span></span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">lm(formula = weight ~ height, data = women)</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line">    Min      1Q  Median      3Q     Max </span><br><span class="line">-1.7333 -1.1333 -0.3833  0.7417  3.1167 </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">             Estimate Std. Error t value Pr(&gt;|t|)    </span><br><span class="line">(Intercept) -87.51667    5.93694  -14.74 1.71e-09 ***</span><br><span class="line">height        3.45000    0.09114   37.85 1.09e-14 ***</span><br><span class="line">---</span><br><span class="line">Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span><br><span class="line"></span><br><span class="line">Residual standard error: 1.525 on 13 degrees of freedom</span><br><span class="line">Multiple R-squared:  0.991,	Adjusted R-squared:  0.9903 </span><br><span class="line">F-statistic:  1433 on 1 and 13 DF,  p-value: 1.091e-14</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 多项式回归置换版本</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> summary(lmp(weight~height + I(height^2), data=women, perm=<span class="string">"Prob"</span>))</span></span><br><span class="line">[1] "Settings:  unique SS : numeric variables centered"</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">lmp(formula = weight ~ height + I(height^2), data = women, perm = "Prob")</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line">      Min        1Q    Median        3Q       Max </span><br><span class="line">-0.509405 -0.296105 -0.009405  0.286151  0.597059 </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">            Estimate Iter Pr(Prob)    </span><br><span class="line">height      -7.34832 5000   &lt;2e-16 ***</span><br><span class="line">I(height^2)  0.08306 5000   &lt;2e-16 ***</span><br><span class="line">---</span><br><span class="line">Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span><br><span class="line"></span><br><span class="line">Residual standard error: 0.3841 on 12 degrees of freedom</span><br><span class="line">Multiple R-Squared: 0.9995,	Adjusted R-squared: 0.9994 </span><br><span class="line">F-statistic: 1.139e+04 on 2 and 12 DF,  p-value: &lt; 2.2e-16</span><br></pre></td></tr></table></figure>
+<p>其中的Iter项表示要达到判停准则所需的迭代次数。可惜的，<code>lmp()</code>没有列出截距项。</p>
+<h4 id="多元回归的置换检验">多元回归的置换检验</h4>
+<p>使用的是state.x77数据集：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> library(lmPerm)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> set.seed(1234)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> states &lt;- as.data.frame(state.x77)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 置换版本</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> summary(lmp(Murder ~ Population + Illiteracy + Income + Frost, data = states, perm = <span class="string">"Prob"</span>))</span></span><br><span class="line">[1] "Settings:  unique SS : numeric variables centered"</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">lmp(formula = Murder ~ Population + Illiteracy + Income + Frost, </span><br><span class="line">    data = states, perm = "Prob")</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line">     Min       1Q   Median       3Q      Max </span><br><span class="line">-4.79597 -1.64946 -0.08112  1.48150  7.62104 </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">            Estimate Iter Pr(Prob)    </span><br><span class="line">Population 2.237e-04   51   1.0000    </span><br><span class="line">Illiteracy 4.143e+00 5000   0.0004 ***</span><br><span class="line">Income     6.442e-05   51   1.0000    </span><br><span class="line">Frost      5.813e-04   51   0.8627    </span><br><span class="line">---</span><br><span class="line">Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span><br><span class="line"></span><br><span class="line">Residual standard error: 2.535 on 45 degrees of freedom</span><br><span class="line">Multiple R-Squared: 0.567,	Adjusted R-squared: 0.5285 </span><br><span class="line">F-statistic: 14.73 on 4 and 45 DF,  p-value: 9.133e-08 </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 原版</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> summary(lm(Murder ~ Population + Illiteracy + Income + Frost, data = states))</span></span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">lm(formula = Murder ~ Population + Illiteracy + Income + Frost, </span><br><span class="line">    data = states)</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line">    Min      1Q  Median      3Q     Max </span><br><span class="line">-4.7960 -1.6495 -0.0811  1.4815  7.6210 </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">             Estimate Std. Error t value Pr(&gt;|t|)    </span><br><span class="line">(Intercept) 1.235e+00  3.866e+00   0.319   0.7510    </span><br><span class="line">Population  2.237e-04  9.052e-05   2.471   0.0173 *  </span><br><span class="line">Illiteracy  4.143e+00  8.744e-01   4.738 2.19e-05 ***</span><br><span class="line">Income      6.442e-05  6.837e-04   0.094   0.9253    </span><br><span class="line">Frost       5.813e-04  1.005e-02   0.058   0.9541    </span><br><span class="line">---</span><br><span class="line">Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span><br><span class="line"></span><br><span class="line">Residual standard error: 2.535 on 45 degrees of freedom</span><br><span class="line">Multiple R-squared:  0.567,	Adjusted R-squared:  0.5285 </span><br><span class="line">F-statistic: 14.73 on 4 and 45 DF,  p-value: 9.133e-08</span><br></pre></td></tr></table></figure>
+<p>可以看到，正态理论中<code>Population</code>和<code>Illiteracy</code>均显著(p&lt;0.05)。而该置换检验中，<code>Population</code>不再显著。当两种方法所得结果不一致时，需要更加谨慎地审视数据，这很可能是因为违反了正态性假设或者存在离群点。</p>
+<h4 id="单因素方差分析的置换检验">单因素方差分析的置换检验</h4>
+<p><a href="https://www.zuiqiangiron.xyz/2020/04/27/R语言方差分析/">该篇文章</a>中任意一种方差分析设计都可进行置换检验。以下是一个单因素方差分析置换版本的例子，数据集来自multcomp包中的cholesterol数据集：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> library(lmPerm)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> library(multcomp)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> set.seed(1234)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 置换版本</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> summary(aovp(response~trt, data=cholesterol, perm=<span class="string">"Prob"</span>))</span></span><br><span class="line">[1] "Settings:  unique SS "</span><br><span class="line">Component 1 :</span><br><span class="line">            Df R Sum Sq R Mean Sq Iter  Pr(Prob)    </span><br><span class="line">trt          4  1351.37    337.84 5000 &lt; 2.2e-16 ***</span><br><span class="line">Residuals   45   468.75     10.42                   </span><br><span class="line">---</span><br><span class="line">Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 原版</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> summary(aov(response~trt, data=cholesterol))</span></span><br><span class="line">            Df Sum Sq Mean Sq F value   Pr(&gt;F)    </span><br><span class="line">trt          4 1351.4   337.8   32.43 9.82e-13 ***</span><br><span class="line">Residuals   45  468.8    10.4                     </span><br><span class="line">---</span><br><span class="line">Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span><br></pre></td></tr></table></figure>
+<h4 id="单因素协方差分析的置换检验">单因素协方差分析的置换检验</h4>
+<p>使用自带的litter数据集：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> library(lmPerm)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> set.seed(1234)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 置换版本</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> summary(aovp(weight ~ gesttime + dose, data=litter, perm=<span class="string">"Prob"</span>))</span></span><br><span class="line">[1] "Settings:  unique SS : numeric variables centered"</span><br><span class="line">Component 1 :</span><br><span class="line">            Df R Sum Sq R Mean Sq Iter Pr(Prob)    </span><br><span class="line">gesttime     1   161.49   161.493 5000   0.0006 ***</span><br><span class="line">dose         3   137.12    45.708 5000   0.0392 *  </span><br><span class="line">Residuals   69  1151.27    16.685                  </span><br><span class="line">---</span><br><span class="line">Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 原版</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> summary(aov(weight ~ gesttime + dose, data=litter))</span></span><br><span class="line">            Df Sum Sq Mean Sq F value  Pr(&gt;F)   </span><br><span class="line">gesttime     1  134.3  134.30   8.049 0.00597 **</span><br><span class="line">dose         3  137.1   45.71   2.739 0.04988 * </span><br><span class="line">Residuals   69 1151.3   16.69                   </span><br><span class="line">---</span><br><span class="line">Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span><br></pre></td></tr></table></figure>
+<h4 id="双因素方差分析">双因素方差分析</h4>
+<p>使用自带的ToothGrowth数据集：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> library(lmPerm)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> set.seed(1234)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 置换版本</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> summary(aovp(len~supp*dose, data=ToothGrowth, perm=<span class="string">"Prob"</span>))</span></span><br><span class="line">[1] "Settings:  unique SS : numeric variables centered"</span><br><span class="line">Component 1 :</span><br><span class="line">            Df R Sum Sq R Mean Sq Iter Pr(Prob)    </span><br><span class="line">supp         1   205.35    205.35 5000  &lt; 2e-16 ***</span><br><span class="line">dose         1  2224.30   2224.30 5000  &lt; 2e-16 ***</span><br><span class="line">supp:dose    1    88.92     88.92 2032  0.04724 *  </span><br><span class="line">Residuals   56   933.63     16.67                  </span><br><span class="line">---</span><br><span class="line">Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 原版</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> summary(aov(len~supp*dose, data=ToothGrowth))</span></span><br><span class="line">            Df Sum Sq Mean Sq F value   Pr(&gt;F)    </span><br><span class="line">supp         1  205.4   205.4  12.317 0.000894 ***</span><br><span class="line">dose         1 2224.3  2224.3 133.415  &lt; 2e-16 ***</span><br><span class="line">supp:dose    1   88.9    88.9   5.333 0.024631 *  </span><br><span class="line">Residuals   56  933.6    16.7                     </span><br><span class="line">---</span><br><span class="line">Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span><br></pre></td></tr></table></figure>
+<p>值得注意的是，当将<code>aovp()</code>应用到方差分析设计中时，它默认使用唯一平方和法(也称为 SAS类型III平方和)，而R中默认的参数化方差分析使用的是序贯平方和(SAS类型I平方和)。在<code>aovp()</code>函数中设定<code>seqs=TRUE</code>可以使用序贯平方和。</p>
+<h2 id="其他可做置换检验的包">其他可做置换检验的包</h2>
+<ul>
+<li>perm包能实现coin包中的部分功能；</li>
+<li>corrperm包提供了有重复测量的相关性的置换检验；</li>
+<li>logregperm包提供了Logistic回归的置换检验；</li>
+<li>glmperm包涵盖了广 义线性模型的置换检验。</li>
+</ul>
+<h1 id="自助法">自助法</h1>
+<p>所谓自助法，即从初始样本重复随机替换抽样，生成一个或一系列待检验统计量的经验分布。 无需假设一个特定的理论分布，便可生成统计量的置信区间，并能检验统计假设(置信区间是否包含0)。</p>
+<h2 id="概念-1">概念</h2>
+<p>依然以一个例子来说明。比如，样本现有10个观测，均值为40，标准差为5，现在你想计算一个样本均值95%的置信区间。</p>
+<h3 id="正态理论的处理方式-1">正态理论的处理方式</h3>
+<p>如果假设均值的样本分布为正态分布，那么<span class="math inline">\((1-\alpha / 2) \%\)</span>的置信区间计算如下： <span class="math display">\[
+\bar{X}-t \frac{s}{\sqrt{n}}&lt;\mu&lt;\bar{X}+t \frac{s}{\sqrt{n}}
+\]</span> 其中，<span class="math inline">\(t\)</span>是自由度为<span class="math inline">\(n–1\)</span>的<span class="math inline">\(t\)</span>分布的<span class="math inline">\(1–α\)</span>上界值。对于95%的置信区间，可得<span class="math inline">\(36.424&lt;μ&lt;43.577\)</span>。</p>
+<p>以这种方式创建的95%置信区间将会包含真实的总体均值。</p>
+<h3 id="自助法的处理方式">自助法的处理方式</h3>
+<p>如果你确定样本是不是正态分布的，那么可以用自助法：</p>
+<ol type="1">
+<li>有放回地从样本中随机选择10个观测。有些观测可能会被选择多次，有些可能一直都不会被选中；</li>
+<li>计算并记录样本均值；</li>
+<li>重复<span class="math inline">\(n\)</span>次步骤1～2；</li>
+<li>将<span class="math inline">\(n\)</span>个样本均值从小到大排序；</li>
+<li>找出样本均值2.5%（位于<span class="math inline">\(0.025n\)</span>位置的均值）和97.5%（位于<span class="math inline">\(0.975n\)</span>位置的均值）的分位点，它们就是限定了95%的置信区间。</li>
+</ol>
+<h3 id="适用场景">适用场景</h3>
+<p>如果你想估计样本中位数的置信区间，或者两样本中位数之差，该怎么做呢？正态理论没有现成的简单公式可套用，而自助法此时却是不错的选择。即使潜在分布未知， 或出现了离群点，或者样本量过小，再或者是没有可供选择的参数方法，自助法将是生成置信区间和做假设检验的一个利器。</p>
+<h2 id="boot包中的自助法"><strong>boot</strong>包中的自助法</h2>
+<p>boot包扩展了自助法和重抽样的相关用途，可以<strong>对一个统计量</strong>(如中位数)或<strong>一个统计量向量</strong>(如一列回归系数)使用自助法。</p>
+<p>一般来说，<strong>自助法有3个主要步骤</strong>：</p>
+<ol type="1">
+<li>写一个能返回待研究统计量值的函数：
+<ul>
+<li>如果只有单个统计量(如中位数)，函数应该返回一个数值；</li>
+<li>如果有一列统计量(如一列回归系数)，函数应该返回一个向量；</li>
+</ul></li>
+<li>为生成R中自助法所需的有效统计量重复数，使用<code>boot()</code>函数对上面所写的函数进行处理；</li>
+<li>使用<code>boot.ci()</code>函数获取步骤2生成的统计量的置信区间。</li>
+</ol>
+<p>主要的自助法函数是<code>boot()</code>，它的格式为:</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">bootobject &lt;- boot(data, statistic, R, <span class="keyword">...</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588675366/R/boot函数参数.png" /></p>
+<p><code>boot()</code>函数调用统计量函数<code>R</code>次（<strong>大多数时候，1000次就足够了</strong>），每次都从整数<code>1:nrow(data)</code>中生成一列有放回的随机指标，这些指标被统计量函数用来选择样本。统计量将根据所选样本进行计算，结果存储在<code>bootobject</code>中。<code>bootobject</code>的结构如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588676069/R/bootobject.png" /></p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">元素</th>
+<th style="text-align: left;">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>t0</code></td>
+<td style="text-align: left;">将<strong>全部的原始数据</strong>带入传入的函数计算出来的k维统计量向量。<br />也就是说，在迭代之前，先用全部原始数据计算出一个结果</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>t</code></td>
+<td style="text-align: left;">一个R行k列的矩阵，每行表示每一次迭代计算出来的k维统计量向量</td>
+</tr>
+</tbody>
+</table>
+<p>生成了自助样本后，可通过<code>print()</code>和<code>plot()</code>来检查结果。如果结果看起来还算合理，则使用<code>boot.ci()</code>函数获取统计量的置信区间：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">boot.ci(bootobject, conf, type)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588676277/R/bootci.png" /></p>
+<p><code>type</code>参数设定了获取置信区间的方法。<code>perc</code>方法(分位数)展示的是样本均值，<code>bca</code>将根据偏差对区间做简单调整。书作者发现，<strong><code>bca</code>在大部分情况中都是更可取的</strong>。</p>
+<h3 id="对单个统计量使用自助法">对单个统计量使用自助法</h3>
+<p>以mtcars数据集为例，它包含32辆汽车的信息。假设你正使用多元回归根据车重和发动机排量来预测汽车每加仑行驶的英里数，除了标准的回归统计量，你还想获得：95%的<span class="math inline">\(R^{2}\)</span>的置信区间。</p>
+<h4 id="步骤1创建一个获取r2的函数">步骤1：创建一个获取<span class="math inline">\(R^{2}\)</span>的函数</h4>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">rsq &lt;- <span class="keyword">function</span>(formula, data, indices) &#123;	<span class="comment"># boot()要求传入的函数必须有indices参数！</span></span><br><span class="line">    d &lt;- data[indices, ]</span><br><span class="line">    fit &lt;- lm(formula, data = d)</span><br><span class="line">    <span class="keyword">return</span>(summary(fit)$r.square)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="步骤2调用boot函数">步骤2：调用boot()函数</h4>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> library(boot)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> set.seed(1234)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> results &lt;- boot(data = mtcars, statistic = rsq, R = 1000, formula = mpg ~ wt + disp)</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> results</span></span><br><span class="line"></span><br><span class="line">ORDINARY NONPARAMETRIC BOOTSTRAP</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">boot(data = mtcars, statistic = rsq, R = 1000, formula = mpg ~ </span><br><span class="line">    wt + disp)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Bootstrap Statistics :</span><br><span class="line">     original     bias    std. error</span><br><span class="line">t1* 0.7809306 0.01379126  0.05113904</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> plot(results)</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588677014/R/bootstrap.png" /></p>
+<p>可以看到，自助的R平方值并非正态分布。</p>
+<h4 id="步骤3计算置信区间">步骤3：计算置信区间</h4>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> boot.ci(results, <span class="built_in">type</span>=c(<span class="string">"perc"</span>, <span class="string">"bca"</span>))</span></span><br><span class="line">BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS</span><br><span class="line">Based on 1000 bootstrap replicates</span><br><span class="line"></span><br><span class="line">CALL : </span><br><span class="line">boot.ci(boot.out = results, type = c("perc", "bca"))</span><br><span class="line"></span><br><span class="line">Intervals : </span><br><span class="line">Level     Percentile            BCa          </span><br><span class="line"><span class="meta">95%</span><span class="bash">   ( 0.6753,  0.8835 )   ( 0.6344,  0.8561 )  <span class="comment"># 两种方式各自获得的置信区间</span></span></span><br><span class="line">Calculations and Intervals on Original Scale</span><br><span class="line">Some BCa intervals may be unstable</span><br></pre></td></tr></table></figure>
+<p>两例中，由于0都在置信区间外，零假设<span class="math inline">\(\mathrm{H}_{0}: \mathrm{R}^{2}=0\)</span>都被拒绝。</p>
+<h3 id="多个统计量的自助法">多个统计量的自助法</h3>
+<p>还是上面这个多元回归的例子。现在你想获得：截距项、车重和发动机排量这3个回归系数95%的置信区间。</p>
+<h4 id="步骤1创建一个获取3个回归系数的函数">步骤1：创建一个获取3个回归系数的函数</h4>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">bs &lt;- <span class="keyword">function</span>(formula, data, indices) &#123;</span><br><span class="line">    d &lt;- data[indices, ]</span><br><span class="line">    fit &lt;- lm(formula, data = d)</span><br><span class="line">    <span class="keyword">return</span>(coef(fit))	<span class="comment"># 返回回归系数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="步骤2调用boot函数-1">步骤2：调用boot()函数</h4>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(boot)</span><br><span class="line">&gt; set.seed(<span class="number">1234</span>)</span><br><span class="line">&gt; results &lt;- boot(data = mtcars, statistic = bs, R = <span class="number">1000</span>, formula = mpg ~ wt + disp)</span><br><span class="line">&gt; results</span><br><span class="line"></span><br><span class="line">ORDINARY NONPARAMETRIC BOOTSTRAP</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">boot(data = mtcars, statistic = bs, R = <span class="number">1000</span>, formula = mpg ~ </span><br><span class="line">    wt + disp)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Bootstrap Statistics :</span><br><span class="line">       original        bias    std. error</span><br><span class="line">t1* <span class="number">34.96055404</span>  <span class="number">4.715497e-02</span> <span class="number">2.546106756</span></span><br><span class="line">t2* -<span class="number">3.35082533</span> -<span class="number">4.908125e-02</span> <span class="number">1.154800744</span></span><br><span class="line">t3* -<span class="number">0.01772474</span>  <span class="number">6.230927e-05</span> <span class="number">0.008518022</span></span><br></pre></td></tr></table></figure>
+<h4 id="步骤3计算置信区间-1">步骤3：计算置信区间</h4>
+<p>这里以计算<code>t2</code>，也就是<code>wt</code>的回归系数的置信区间为例：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> boot.ci(results, index = 2, <span class="built_in">type</span> = <span class="string">"bca"</span>)</span></span><br><span class="line">BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS</span><br><span class="line">Based on 1000 bootstrap replicates</span><br><span class="line"></span><br><span class="line">CALL : </span><br><span class="line">boot.ci(boot.out = results, type = "bca", index = 2)</span><br><span class="line"></span><br><span class="line">Intervals : </span><br><span class="line">Level       BCa          </span><br><span class="line"><span class="meta">95%</span><span class="bash">   (-5.477, -0.937 )  </span></span><br><span class="line">Calculations and Intervals on Original Scale</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>R语言</category>
+      </categories>
+      <tags>
+        <tag>R语言</tag>
+        <tag>重抽样与自助法</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>R语言-中级绘图</title>
     <url>/2020/05/05/R%E8%AF%AD%E8%A8%80-%E4%B8%AD%E7%BA%A7%E7%BB%98%E5%9B%BE/</url>
     <content><![CDATA[<blockquote>
@@ -327,8 +534,8 @@
       </tags>
   </entry>
   <entry>
-    <title>R语言方差分析</title>
-    <url>/2020/04/27/R%E8%AF%AD%E8%A8%80%E6%96%B9%E5%B7%AE%E5%88%86%E6%9E%90/</url>
+    <title>R语言-方差分析</title>
+    <url>/2020/04/27/R%E8%AF%AD%E8%A8%80-%E6%96%B9%E5%B7%AE%E5%88%86%E6%9E%90/</url>
     <content><![CDATA[<blockquote>
 <p>《R语言实战》笔记</p>
 <p>当包含的因子是解释变量时， 我们关注的重点通常会从预测转向组别差异的分析，这种分析法称作方差分析(ANOVA)</p>
@@ -623,8 +830,8 @@
       </tags>
   </entry>
   <entry>
-    <title>R语言回归分析</title>
-    <url>/2020/04/25/R%E8%AF%AD%E8%A8%80%E5%9B%9E%E5%BD%92%E5%88%86%E6%9E%90/</url>
+    <title>R语言-回归分析</title>
+    <url>/2020/04/25/R%E8%AF%AD%E8%A8%80-%E5%9B%9E%E5%BD%92%E5%88%86%E6%9E%90/</url>
     <content><![CDATA[<blockquote>
 <p>《R语言实战》笔记</p>
 <p>本篇主要介绍普通最小二乘(<em>ordinary least squares</em>，<em>OLS</em>)回归法，包括简单线性回归、多项式回归和多元线性回归</p>
@@ -974,8 +1181,8 @@
       </tags>
   </entry>
   <entry>
-    <title>R语言基本统计分析</title>
-    <url>/2020/04/24/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E6%9C%AC%E7%BB%9F%E8%AE%A1%E5%88%86%E6%9E%90/</url>
+    <title>R语言-基本统计分析</title>
+    <url>/2020/04/24/R%E8%AF%AD%E8%A8%80-%E5%9F%BA%E6%9C%AC%E7%BB%9F%E8%AE%A1%E5%88%86%E6%9E%90/</url>
     <content><![CDATA[<blockquote>
 <p>《R语言实战》笔记。</p>
 <p>主要介绍如何用R语言进行一些基本的统计</p>
@@ -1239,8 +1446,8 @@
       </tags>
   </entry>
   <entry>
-    <title>R语言基本图形</title>
-    <url>/2020/04/21/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E6%9C%AC%E5%9B%BE%E5%BD%A2/</url>
+    <title>R语言-基本图形</title>
+    <url>/2020/04/21/R%E8%AF%AD%E8%A8%80-%E5%9F%BA%E6%9C%AC%E5%9B%BE%E5%BD%A2/</url>
     <content><![CDATA[<blockquote>
 <p>《R语言实战》笔记。</p>
 <p>各种基本统计图在R语言中的构建方法，包括条形图，饼图，直方图，核密度图，箱线图，点图等。</p>
@@ -1351,8 +1558,8 @@
       </tags>
   </entry>
   <entry>
-    <title>R语言入门</title>
-    <url>/2020/04/16/R%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8/</url>
+    <title>R语言-入门</title>
+    <url>/2020/04/16/R%E8%AF%AD%E8%A8%80-%E5%85%A5%E9%97%A8/</url>
     <content><![CDATA[<blockquote>
 <p>《R语言实战》笔记。</p>
 <p>R语言入门内容。</p>
