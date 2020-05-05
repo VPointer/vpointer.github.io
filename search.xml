@@ -7,6 +7,7 @@
 <p>《R语言实战》笔记</p>
 <p>功效分析针对的是假设检验。功效分析可以帮助在给定置信度的情况下，判断检测到给定效应值时所需的样本量。反过来， 它也可以帮助你在给定置信度水平情况下，计算在某样本量内能检测到给定效应值的概率。</p>
 <p>个人对功效分析的理解就是：确定样本量，或者计算该样本量下，究竟能研究出多少东西。</p>
+<p><strong>本节内容主要用在规划实验的阶段，而不是实验结束之后的分析阶段</strong>。</p>
 </blockquote>
 <a id="more"></a>
 <h1 id="假设检验速览">假设检验速览</h1>
@@ -28,6 +29,7 @@
 <p>以下是pwr包中的一些重要的函数：</p>
 <p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588600361/R/pwr包中的函数.png" /></p>
 <p>可以传入4个基本量中的3个，函数会自动计算第4个量。</p>
+<p>本小节前面部分都是知道要用什么方法来计算预期效应值，最后一部分则是介绍，在全新的研究情况，没有任何过去的经验可借鉴时，该如何计算效应值。</p>
 <h2 id="t检验">t检验</h2>
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">pwr.t.test(n=, d=, sig.level=, power=, type=, alternative=)</span><br></pre></td></tr></table></figure>
 <p>其中：</p>
@@ -92,7 +94,7 @@
 <p><span class="math inline">\(f^{2}=\frac{R_{A B}^{2}-R_{A}^{2}}{1-R_{A B}^{2}}\)</span>，<span class="math inline">\(R_{A}^{2}\)</span>=集合A中变量对总体方差的解释率，<span class="math inline">\(R_{A B}^{2}\)</span>=集合A和B中变量对总体方差的解释率</p></li>
 </ul></li>
 </ul>
-<h3 id="示例求样本数">示例：求样本数</h3>
+<h3 id="示例求样本量">示例：求样本量</h3>
 <p>假设你想研究老板的领导风格对员工满意度的影响，是否超过薪水和工作小费对员工满意度的影响。</p>
 <p>领导风格可用4个变量来评估，薪水和小费与3个变量有关。过去的经验表明，薪水和小费能够解释约30%的员工满意度的方差，领导风格至少能解释35%的方差。 假定显著性水平为0.05，那么在90%的置信度情况下，需要多少受试者才能得到这样的方差贡献率?</p>
 <p>此处：</p>
@@ -101,7 +103,104 @@
 <li>效应值<code>f2=(0.35–0.30)/(1–0.35) = 0.0769</code></li>
 </ul>
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">pwr.f2.test(u=<span class="number">3</span>, f2=<span class="number">0.0769</span>, sig.level=<span class="number">0.05</span>, power=<span class="number">0.90</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">################################ 输出如下 ###########################################</span></span><br><span class="line">     Multiple regression power calculation </span><br><span class="line"></span><br><span class="line">              u = <span class="number">3</span></span><br><span class="line">              v = <span class="number">184.2426</span></span><br><span class="line">             f2 = <span class="number">0.0769</span></span><br><span class="line">      sig.level = <span class="number">0.05</span></span><br><span class="line">          power = <span class="number">0.9</span></span><br></pre></td></tr></table></figure>
-<p>在多元回归中，分母的自由度等于<code>N–k–1</code>，<code>N</code>是总观测数，<code>k</code>是预测变量数。本例中，N–7–1=185， 即需要样本大小N=185+7+1=193。</p>
+<p>在多元回归中，分母的自由度等于<span class="math inline">\(N–k–1\)</span>，<span class="math inline">\(N\)</span>是总观测数，<span class="math inline">\(k\)</span>是预测变量数。本例中，<span class="math inline">\(N–7–1=185\)</span>， 即需要样本大小<span class="math inline">\(N=185+7+1=193\)</span>。</p>
+<h2 id="比例检验">比例检验</h2>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">pwr.2p.test(h=, n=, sig.level=, power=)	<span class="comment"># 各组样本量相同</span></span><br><span class="line">pwr.2p2n.test(h=, n1=, n2=, sig.level=, power=)	<span class="comment"># 各组样本量不同时</span></span><br></pre></td></tr></table></figure>
+<p><code>h</code>是效应值，计算公式为：<span class="math inline">\(h=2 \arcsin (\sqrt{p_{1}})-2 \arcsin (\sqrt{p_{2}})\)</span>，可用<code>ES.h(p1, p2)</code>函数计算。</p>
+<h3 id="示例求样本量-1">示例：求样本量</h3>
+<p>假定你对某流行药物能缓解60%使用者的症状感到怀疑，而一种更贵的新药如果能缓解65%使用者的症状，就会被投放到市场中。你想有90%的把握得出新药更有效的结论，显著性水平为0.05。另外，你只对评价新药是否比标准药物更好感兴趣，因此只需用单边检验。现在计算需要多少实验对象</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">pwr.2p.test(h=ES.h(<span class="number">.65</span>, <span class="number">.6</span>), sig.level=<span class="number">.05</span>, power=<span class="number">.9</span>, alternative=<span class="string">"greater"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">################################ 输出如下 ###########################################</span></span><br><span class="line">     Difference of proportion power calculation <span class="keyword">for</span> binomial distribution (arcsine transformation) </span><br><span class="line"></span><br><span class="line">              h = <span class="number">0.1033347</span></span><br><span class="line">              n = <span class="number">1604.007</span></span><br><span class="line">      sig.level = <span class="number">0.05</span></span><br><span class="line">          power = <span class="number">0.9</span></span><br><span class="line">    alternative = greater</span><br><span class="line"></span><br><span class="line">NOTE: same sample sizes</span><br></pre></td></tr></table></figure>
+<p>可以看到，两个组分别需要1605个实验对象。</p>
+<h2 id="卡方检验">卡方检验</h2>
+<p>卡方检验常常用来评价两个类别型变量的关系。典型的零假设是变量之间独立，备择假设是不独立。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">pwr.chisq.test(w=, N=, df=, sig.level=, power=)</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li><p><code>w</code>是效应值：</p>
+<p><span class="math inline">\(w=\sqrt{\sum_{i=1}^{m} \frac{\left(p 0_{i}-p 1_{i}\right)^{2}}{p 0_{i}}}\)</span></p>
+<p><span class="math inline">\(p 0_{i}=\mathrm{H}_{0}\)</span> 时第 <span class="math inline">\(i\)</span> 单元格中的概率</p>
+<p>此处从1到<span class="math inline">\(m\)</span>进行求和，连加号上的<span class="math inline">\(m\)</span>指的是列联表中单元格的数目。函数<code>ES.w2(P)</code>可以计算双因素列联表中备择假设的效应值，<code>P</code>是一个假设的双因素概率表。</p></li>
+<li><p><code>N</code>是总样本大小，</p></li>
+<li><p><code>df</code>是自由度。</p></li>
+</ul>
+<h3 id="示例依然是求样本量">示例：依然是求样本量</h3>
+<p>假设你研究的是人种与工作晋升的关系，你想知道需要都少人来做这个实验。</p>
+<p>以下是两种关系的统计表：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588644497/R/晋升的人群比例.png" /></p>
+<p>取0.05的显著性水平和0.90的预期功效水平。双因素列联表的自由度为<span class="math inline">\((r–1)(c–1)\)</span>，<span class="math inline">\(r\)</span>是行数，<span class="math inline">\(c\)</span>是列数。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">prob &lt;- matrix(c(<span class="number">.42</span>, <span class="number">.28</span>, <span class="number">.03</span>, <span class="number">.07</span>, <span class="number">.10</span>, <span class="number">.10</span>), byrow=<span class="literal">TRUE</span>, nrow=<span class="number">3</span>)</span><br><span class="line"><span class="comment"># 使用ES.w2()计算效应值</span></span><br><span class="line">pwr.chisq.test(w=ES.w2(prob), df=<span class="number">2</span>, sig.level=<span class="number">0.05</span>, power=<span class="number">0.9</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">################################ 输出如下 ###########################################</span></span><br><span class="line">     Chi squared power calculation </span><br><span class="line"></span><br><span class="line">              w = <span class="number">0.1853198</span></span><br><span class="line">              N = <span class="number">368.4528</span></span><br><span class="line">             df = <span class="number">2</span></span><br><span class="line">      sig.level = <span class="number">0.05</span></span><br><span class="line">          power = <span class="number">0.9</span></span><br><span class="line"></span><br><span class="line">NOTE: N is the number of observations</span><br></pre></td></tr></table></figure>
+<p>计算表明，需要369个实验对象。</p>
+<h2 id="在新情况中选择合适的效应值">在新情况中选择合适的效应值</h2>
+<p>上述的情况要求你知道该用什么检验方法，且之前做过一些类似的统计，知道大概该设置多少的功效值。</p>
+<p>而<strong>本节并不是指那种连该用什么检验方法都不知道的情况</strong>，而是<strong>你得先知道该用什么方法来检验</strong>，只是不知道该用什么功效值。</p>
+<p>这里介绍了两种方法：</p>
+<ul>
+<li>Cohen(1988)曾尝试提出的一个一般性基准，但这个基准主要用在行为科学领域，这里不做介绍；</li>
+<li>绘制样本功效图。</li>
+</ul>
+<h3 id="绘制样本功效图">绘制样本功效图</h3>
+<p>以下是检验各种效应值下的相关性所需的样本量曲线：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">library</span>(pwr)</span><br><span class="line"><span class="comment"># 生成一系列相关系数和功效值</span></span><br><span class="line">r &lt;- seq(<span class="number">0.1</span>, <span class="number">0.5</span>, <span class="number">0.01</span>)</span><br><span class="line">nr &lt;- length(r)</span><br><span class="line">p &lt;- seq(<span class="number">0.4</span>, <span class="number">0.9</span>, <span class="number">0.1</span>)</span><br><span class="line">np &lt;- length(p)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取样本大小</span></span><br><span class="line">samsize &lt;- array(numeric(nr * np), dim = c(nr, np))</span><br><span class="line"><span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1</span>:np) &#123;</span><br><span class="line">    <span class="keyword">for</span> (j <span class="keyword">in</span> <span class="number">1</span>:nr) &#123;</span><br><span class="line">        result &lt;- pwr.r.test(n = <span class="literal">NULL</span>, r = r[j], sig.level = <span class="number">0.05</span>, power = p[i], </span><br><span class="line">            alternative = <span class="string">"two.sided"</span>)</span><br><span class="line">        samsize[j, i] &lt;- ceiling(result$n)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建图形</span></span><br><span class="line">xrange &lt;- range(r)</span><br><span class="line">yrange &lt;- round(range(samsize))</span><br><span class="line">colors &lt;- rainbow(length(p))</span><br><span class="line">plot(xrange, yrange, type = <span class="string">"n"</span>, xlab = <span class="string">"Correlation Coefficient (r)"</span>, ylab = <span class="string">"Sample Size (n)"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加功效曲线</span></span><br><span class="line"><span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1</span>:np) &#123;</span><br><span class="line">    lines(r, samsize[, i], type = <span class="string">"l"</span>, lwd = <span class="number">2</span>, col = colors[i])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加网格线</span></span><br><span class="line">abline(v = <span class="number">0</span>, h = seq(<span class="number">0</span>, yrange[<span class="number">2</span>], <span class="number">50</span>), lty = <span class="number">2</span>, col = <span class="string">"grey89"</span>)</span><br><span class="line">abline(h = <span class="number">0</span>, v = seq(xrange[<span class="number">1</span>], xrange[<span class="number">2</span>], <span class="number">0.02</span>), lty = <span class="number">2</span>, col = <span class="string">"gray89"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 说明</span></span><br><span class="line">title(<span class="string">"Sample Size Estimation for Correlation Studies\n Sig=0.05 (Two-tailed)"</span>)</span><br><span class="line">legend(<span class="string">"topright"</span>, title = <span class="string">"Power"</span>, as.character(p), fill = colors)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588646330/R/功效样本曲线.png" style="zoom:50%;" /></p>
+<h1 id="其他用于功效分析的软件包">其他用于功效分析的软件包</h1>
+<table>
+<thead>
+<tr class="header">
+<th>软件包</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>asypow</td>
+<td>通过渐进似然比方法计算功效</td>
+</tr>
+<tr class="even">
+<td>longpower</td>
+<td>纵向数据中样本量的计算</td>
+</tr>
+<tr class="odd">
+<td>PwrGSD</td>
+<td>组序列设计的功效分析</td>
+</tr>
+<tr class="even">
+<td>pamm</td>
+<td>混合模型中随机效应的功效分析</td>
+</tr>
+<tr class="odd">
+<td>powerSurvEpi</td>
+<td>流行病研究的生存分析中功效和样本量的计算</td>
+</tr>
+<tr class="even">
+<td><strong>powerMediation</strong></td>
+<td><strong>线性、Logistic、泊松和 Cox 回归的中介效应中功效和样本量的计算</strong></td>
+</tr>
+<tr class="odd">
+<td>powerpkg</td>
+<td>患病同胞配对法和 TDT(Transmission Disequilibrium Test，传送不均衡检验)设计的功效分析</td>
+</tr>
+<tr class="even">
+<td>powerGWASinteraction</td>
+<td>GWAS 交互作用的功效计算</td>
+</tr>
+<tr class="odd">
+<td>pedantics</td>
+<td>一些有助于种群基因研究功效分析的函数</td>
+</tr>
+<tr class="even">
+<td>gap</td>
+<td>一些病例队列研究设计中计算功效和样本量的函数</td>
+</tr>
+<tr class="odd">
+<td>ssize.fdr</td>
+<td>微阵列实验中样本量的计算</td>
+</tr>
+<tr class="even">
+<td>MBESS</td>
+<td>包含了可供各种形式功效分析所用的函数，这些函数主要供行为学、教育学和社会科学的研究者使用</td>
+</tr>
+</tbody>
+</table>
 ]]></content>
       <categories>
         <category>R语言</category>
