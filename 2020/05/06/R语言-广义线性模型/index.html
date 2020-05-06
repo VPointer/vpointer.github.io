@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="Y0-gFMBzGnbrueUrh8PjkmnvCGItjob2oR3HjG9SVnE">
+  <meta name="msvalidate.01" content="97A49017D4D536B99438C4EE0E9FBA3F">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zuiqiangiron.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《R语言实战》笔记 广义线性模型扩展了线性模型的框架，它包含了非正态因变量的分析。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R语言-广义线性模型">
+<meta property="og:url" content="https://www.zuiqiangiron.xyz/2020/05/06/R%E8%AF%AD%E8%A8%80-%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《R语言实战》笔记 广义线性模型扩展了线性模型的框架，它包含了非正态因变量的分析。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588780040/R/%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B.svg">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588742221/R/glm%E5%8F%82%E6%95%B0.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588766515/R/12-robust_hist_boxplot.png">
+<meta property="article:published_time" content="2020-05-06T12:19:34.000Z">
+<meta property="article:modified_time" content="2020-05-06T15:47:44.458Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="R语言">
+<meta property="article:tag" content="广义线性模型">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588780040/R/%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B.svg">
+
+<link rel="canonical" href="https://www.zuiqiangiron.xyz/2020/05/06/R%E8%AF%AD%E8%A8%80-%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>R语言-广义线性模型 | 嘴强黑铁</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161480657-1"></script>
+    <script pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161480657-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">天下事以难而废者十之一，以惰而废者十之九</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zuiqiangiron.xyz/2020/05/06/R%E8%AF%AD%E8%A8%80-%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          R语言-广义线性模型
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-06 20:19:34 / 修改时间：23:47:44" itemprop="dateCreated datePublished" datetime="2020-05-06T20:19:34+08:00">2020-05-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">R语言</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/05/06/R%E8%AF%AD%E8%A8%80-%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/05/06/R语言-广义线性模型/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《R语言实战》笔记</p>
+<p>广义线性模型扩展了线性模型的框架，它包含了非正态因变量的分析。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="思维导图">思维导图</h1>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588780040/R/%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B.svg" /></p>
+<h1 id="标准线性模型的局限">标准线性模型的局限</h1>
+<p>标准线性模型要求因变量符合正态分布，但在许多情况下，假设因变量为正态分布(甚至连续型变量)并不合理，例如：</p>
+<ul>
+<li>结果变量可能是类别型的。二分类和多分类变量显然不是正态分布；</li>
+<li>结果变量可能是计数型的，而非连续型的。这类变量都是非负的有限值，而且它们的均值和方差通常都是相关的。</li>
+</ul>
+<p>由于标准线性模型无法用于上述情况，因此广义线性模型诞生了。</p>
+<p>本篇将通过Logistic回归(因变量为类别型)和泊松回归(因变量为计数型)来介绍广义线性模型。</p>
+<h1 id="广义线性模型">广义线性模型</h1>
+<p>标准线性模型中，需要假设响应变量<span class="math inline">\(Y\)</span>呈正态分布，公式如下：</p>
+<p><span class="math display">\[
+\mu_{Y}=\beta_{0}+\sum_{j=1}^{p} \beta_{j} X_{j}
+\]</span></p>
+<p>该等式表明<strong>响应变量的条件均值</strong>是预测变量的线性组合。</p>
+<p>该等式并<strong>没有要求预测变量<span class="math inline">\(X_j\)</span>满足什么分布</strong>，实际上，它可以是类别型变量，还可以对<span class="math inline">\(X_j\)</span>做非线性变换，例如取平方<span class="math inline">\(X^2\)</span>，该等式只要右边参数为线性即可。</p>
+<p>广义线性模型所做的变化均在上述等式左边，它对响应变量的均值做变换：</p>
+<p><span class="math display">\[
+g\left(\mu_{Y}\right)=\beta_{0}+\sum_{j=1}^{p} \beta_{j} X_{j}
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><span class="math inline">\(g\left(\mu_{Y}\right)\)</span>是<strong>条件均值的函数</strong>，称为<strong>连接函数(<em>link function</em>)</strong>，也就是对<span class="math inline">\(Y\)</span>或者与<span class="math inline">\(Y\)</span>相关的统计量进行变换的函数；</li>
+<li>不再对<span class="math inline">\(Y\)</span>做正态分布的要求，<strong>它的概率分布</strong>只要是指数分布族中的一种分布即可。</li>
+</ul>
+<p>从这里各位应该可以推知，在使用广义线性模型时，需要设置两个参数：<strong>概率分布</strong>和<strong>连接函数</strong>。</p>
+<p>设定这两个后，可以通过<strong>最大似然估计</strong>的<strong>多次迭代</strong>推导出各参数值。</p>
+<blockquote>
+<p>注意：不管是OLS还是广义线性模型，针对的都是<span class="math inline">\(Y\)</span>的<strong>条件均值<span class="math inline">\(\mu_{Y}\)</span></strong>或者对其变换后的统计量！</p>
+</blockquote>
+<h1 id="glm函数">glm()函数</h1>
+<p><code>glm()</code>的形式与<code>lm()</code>类似，只是多了一些参数:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># family是概率分布，link是连接函数</span></span><br><span class="line">glm(formula, family=family(link=<span class="keyword">function</span>), data)</span><br></pre></td></tr></table></figure>
+<p><code>family</code>和<code>link</code>的常用值如下：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588742221/R/glm%E5%8F%82%E6%95%B0.png" /></p>
+<p>其中：</p>
+<ul>
+<li>第1行<code>binomial(link="logit")</code>就是Logistic回归；</li>
+<li>第5行<code>poisson(link="log")</code>就是泊松回归；</li>
+<li>第2行<code>gaussian(link="identity")</code>就是标准线性回归，其中的<code>"identity"</code>值保持原值，不做变换。</li>
+</ul>
+<p>以标准线性回归的调用为例，该函数的调用形式如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">glm(Y~X1+X2+X3, family=gaussian(link=<span class="string">"identity"</span>), data=mydata)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 等价于</span></span><br><span class="line">lm(Y~X1+X2+X3, data=mydata)</span><br></pre></td></tr></table></figure>
+<h2 id="glm的配套函数">glm()的配套函数</h2>
+<p>分析标准线性模型时，与<code>lm()</code>连用的许多函数在<code>glm()</code>中都有对应的形式：</p>
+<table>
+<thead>
+<tr class="header">
+<th>函数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>summary()</code></td>
+<td>展示拟合模型的细节</td>
+</tr>
+<tr class="even">
+<td><code>coefficients()</code>、<code>coef()</code></td>
+<td>列出拟合模型的参数(截距项和斜率)</td>
+</tr>
+<tr class="odd">
+<td><code>confint()</code></td>
+<td>给出模型参数的置信区间(默认为95%)</td>
+</tr>
+<tr class="even">
+<td><code>residuals()</code></td>
+<td>列出拟合模型的残差值</td>
+</tr>
+<tr class="odd">
+<td><code>anova()</code></td>
+<td>生成两个拟合模型的方差分析表</td>
+</tr>
+<tr class="even">
+<td><code>plot()</code></td>
+<td>生成评价拟合模型的诊断图</td>
+</tr>
+<tr class="odd">
+<td><code>predict()</code></td>
+<td>用拟合模型对新数据集进行预测</td>
+</tr>
+<tr class="even">
+<td><code>deviance()</code></td>
+<td>拟合模型的偏差</td>
+</tr>
+<tr class="odd">
+<td><code>df.residual()</code></td>
+<td>拟合模型的残差自由度</td>
+</tr>
+</tbody>
+</table>
+<h2 id="模型诊断">模型诊断</h2>
+<p>对于广义线性模型，学术界还没有一个统一的标准来诊断拟合的模型。一般来说，可以使用OLS中的诊断方法，但需要注意以下几点：</p>
+<p>当<strong>评价模型适用性</strong>时，可以绘制<strong>初始响应变量的预测值与残差</strong>的<strong>诊断图</strong>：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># model为glm()函数返回的对象</span></span><br><span class="line">plot(predict(model, type=<span class="string">"response"</span>), residuals(model, type= <span class="string">"deviance"</span>))</span><br></pre></td></tr></table></figure>
+<p>对于<strong>识别异常值</strong>，目前还没有一个统一的标准来计算阈值来检测异常值，通过相互比较来进行判断。可以通过画<strong>帽子值(hat value)</strong>、<strong>学生化残差值</strong>和<strong>Cook距离</strong>等统计量的参考图来检测异常值：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">plot(hatvalues(model))</span><br><span class="line">plot(rstudent(model))</span><br><span class="line">plot(cooks.distance(model))</span><br></pre></td></tr></table></figure>
+<p>也可以创建综合性的诊断图来诊断拟合的模型：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(car)</span><br><span class="line"><span class="comment"># 横轴代表杠杆值，纵轴代表学生化残差值，而绘制的符号大小与Cook距离大小成正比</span></span><br><span class="line">influencePlot(model)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：当响应变量有许多值时，诊断图非常有用；而当响应变量只有有限个值时(比如Logistic回归)，诊断图的功效就会降低很多。</p>
+</blockquote>
+<h1 id="logistic回归">Logistic回归</h1>
+<p>中文名叫逻辑回归，它适用于响应变量为<strong>二分类</strong>的情况（01分类），预测变量可以是连续型，也可以是类别型变量（或者两者的混合）。</p>
+<p>模型<strong>假设<span class="math inline">\(Y\)</span>服从二项分布</strong>，待拟合公式如下：</p>
+<p><span class="math display">\[
+\log _{\mathrm{e}}\left(\frac{\pi}{1-\pi}\right)=\beta_{0}+\sum_{j=1}^{p} \beta_{j} X_{j}
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><span class="math inline">\(\pi=\mu_{Y}\)</span>，它是Y的条件均值（即给定一系列<span class="math inline">\(X\)</span>的值时<span class="math inline">\(Y=1\)</span>的概率）；</li>
+<li><span class="math inline">\((\pi / 1-\pi)\)</span>是<span class="math inline">\(Y=1\)</span>时的<strong>优势比(odds，以下均以odds代替优势比)</strong>。医学研究中<strong>OR值</strong>指的也是它，此时还被叫做<strong>比值比</strong>。如果把1看作是赢，0看作是输，那它还有个更通俗的名字，叫做<strong>赔率</strong>；</li>
+<li><span class="math inline">\(\log(\pi / 1-\pi)\)</span>为对数优势比（对数比值比，log odds），简写为<em>logit</em>（这也是为什么逻辑回归中<code>link</code>的参数值为<code>"logit"</code>）。</li>
+</ul>
+<p>函数的调用形式如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">glm(Y~X1+X2+X3, family=binomial(link=<span class="string">"logit"</span>), data=mydata)</span><br></pre></td></tr></table></figure>
+<h2 id="logistic回归示例">Logistic回归示例</h2>
+<p>数据集使用AER包中的Affairs数据集，它包含的是婚外情的数据。。。。。。</p>
+<p>该数据集包含601条数据，9个变量，分别是一年来婚外私通的频率<code>affairs</code>、性别<code>gender</code>、年龄<code>age</code>、婚龄<code>yearsmarried</code>、是否有小孩<code>children</code>、宗教信仰程度<code>Religiousness</code>(5分制，1分表示反对，5分表示非常信仰)、学历<code>education</code>、职业<code>occupation</code>(逆向编号的戈登7种分类)，以及婚姻的自我评分<code>rating</code>(5分制，1表示非常不幸福，5表示非常幸福)</p>
+<h2 id="拟合模型">拟合模型</h2>
+<p>由于研究的是二分类问题，即是否有婚外情，需要将<code>affairs</code>变量转换为二值型因子<code>ynaffair</code>。使用剩余8个变量来拟合模型：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">&gt; data(Affairs, package=<span class="string">"AER"</span>)</span><br><span class="line">&gt; Affairs$ynaffair[Affairs$affairs &gt; <span class="number">0</span>] &lt;- <span class="number">1</span></span><br><span class="line">&gt; Affairs$ynaffair[Affairs$affairs == <span class="number">0</span>] &lt;- <span class="number">0</span></span><br><span class="line">&gt; Affairs$ynaffair &lt;- factor(Affairs$ynaffair, levels=c(<span class="number">0</span>,<span class="number">1</span>), labels=c(<span class="string">"No"</span>,<span class="string">"Yes"</span>))</span><br><span class="line">&gt; fit.full &lt;- glm(ynaffair ~ gender + age + yearsmarried + children + </span><br><span class="line">                  religiousness + education + occupation + rating, </span><br><span class="line">                  data=Affairs, family=binomial())</span><br><span class="line">&gt; summary(fit.full)</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">glm(formula = ynaffair ~ gender + age + yearsmarried + children + </span><br><span class="line">    religiousness + education + occupation + rating, family = binomial(), </span><br><span class="line">    data = Affairs)</span><br><span class="line"></span><br><span class="line">Deviance Residuals: </span><br><span class="line">    Min       1Q   Median       3Q      Max  </span><br><span class="line">-<span class="number">1.5713</span>  -<span class="number">0.7499</span>  -<span class="number">0.5690</span>  -<span class="number">0.2539</span>   <span class="number">2.5191</span>  </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">              Estimate Std. Error z value Pr(&gt;|z|)    </span><br><span class="line">(Intercept)    <span class="number">1.37726</span>    <span class="number">0.88776</span>   <span class="number">1.551</span> <span class="number">0.120807</span>    </span><br><span class="line">gendermale     <span class="number">0.28029</span>    <span class="number">0.23909</span>   <span class="number">1.172</span> <span class="number">0.241083</span>    </span><br><span class="line">age           -<span class="number">0.04426</span>    <span class="number">0.01825</span>  -<span class="number">2.425</span> <span class="number">0.015301</span> *  </span><br><span class="line">yearsmarried   <span class="number">0.09477</span>    <span class="number">0.03221</span>   <span class="number">2.942</span> <span class="number">0.003262</span> ** </span><br><span class="line">childrenyes    <span class="number">0.39767</span>    <span class="number">0.29151</span>   <span class="number">1.364</span> <span class="number">0.172508</span>    </span><br><span class="line">religiousness -<span class="number">0.32472</span>    <span class="number">0.08975</span>  -<span class="number">3.618</span> <span class="number">0.000297</span> ***</span><br><span class="line">education      <span class="number">0.02105</span>    <span class="number">0.05051</span>   <span class="number">0.417</span> <span class="number">0.676851</span>    </span><br><span class="line">occupation     <span class="number">0.03092</span>    <span class="number">0.07178</span>   <span class="number">0.431</span> <span class="number">0.666630</span>    </span><br><span class="line">rating        -<span class="number">0.46845</span>    <span class="number">0.09091</span>  -<span class="number">5.153</span> <span class="number">2.56e-07</span> ***</span><br><span class="line">---</span><br><span class="line">Signif. codes:  <span class="number">0</span> ‘***’ <span class="number">0.001</span> ‘**’ <span class="number">0.01</span> ‘*’ <span class="number">0.05</span> ‘.’ <span class="number">0.1</span> ‘ ’ <span class="number">1</span></span><br><span class="line"></span><br><span class="line">(Dispersion parameter <span class="keyword">for</span> binomial family taken to be <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    Null deviance: <span class="number">675.38</span>  on <span class="number">600</span>  degrees of freedom</span><br><span class="line">Residual deviance: <span class="number">609.51</span>  on <span class="number">592</span>  degrees of freedom</span><br><span class="line">AIC: <span class="number">627.51</span></span><br><span class="line"></span><br><span class="line">Number of Fisher Scoring iterations: <span class="number">4</span></span><br></pre></td></tr></table></figure>
+<p>可以看到，<code>gender</code>, <code>children</code>, <code>education</code>和<code>occupation</code>这4项对模型对贡献都不显著。</p>
+<p>去掉这4项再次拟合模型：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&gt; fit.reduced &lt;- glm(ynaffair ~ age + yearsmarried + religiousness + rating, data=Affairs, family=binomial())</span><br><span class="line">&gt; summary(fit.reduced)</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">glm(formula = ynaffair ~ age + yearsmarried + religiousness + </span><br><span class="line">    rating, family = binomial(), data = Affairs)</span><br><span class="line"></span><br><span class="line">Deviance Residuals: </span><br><span class="line">    Min       1Q   Median       3Q      Max  </span><br><span class="line">-<span class="number">1.6278</span>  -<span class="number">0.7550</span>  -<span class="number">0.5701</span>  -<span class="number">0.2624</span>   <span class="number">2.3998</span>  </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">              Estimate Std. Error z value Pr(&gt;|z|)    </span><br><span class="line">(Intercept)    <span class="number">1.93083</span>    <span class="number">0.61032</span>   <span class="number">3.164</span> <span class="number">0.001558</span> ** </span><br><span class="line">age           -<span class="number">0.03527</span>    <span class="number">0.01736</span>  -<span class="number">2.032</span> <span class="number">0.042127</span> *  </span><br><span class="line">yearsmarried   <span class="number">0.10062</span>    <span class="number">0.02921</span>   <span class="number">3.445</span> <span class="number">0.000571</span> ***</span><br><span class="line">religiousness -<span class="number">0.32902</span>    <span class="number">0.08945</span>  -<span class="number">3.678</span> <span class="number">0.000235</span> ***</span><br><span class="line">rating        -<span class="number">0.46136</span>    <span class="number">0.08884</span>  -<span class="number">5.193</span> <span class="number">2.06e-07</span> ***</span><br><span class="line">---</span><br><span class="line">Signif. codes:  <span class="number">0</span> ‘***’ <span class="number">0.001</span> ‘**’ <span class="number">0.01</span> ‘*’ <span class="number">0.05</span> ‘.’ <span class="number">0.1</span> ‘ ’ <span class="number">1</span></span><br><span class="line"></span><br><span class="line">(Dispersion parameter <span class="keyword">for</span> binomial family taken to be <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    Null deviance: <span class="number">675.38</span>  on <span class="number">600</span>  degrees of freedom</span><br><span class="line">Residual deviance: <span class="number">615.36</span>  on <span class="number">596</span>  degrees of freedom</span><br><span class="line">AIC: <span class="number">625.36</span></span><br><span class="line"></span><br><span class="line">Number of Fisher Scoring iterations: <span class="number">4</span></span><br></pre></td></tr></table></figure>
+<p>由于拟合的这两个模型是嵌套的，可以用<code>anova()</code>函数对它们进行比较。对于广义线性回归，可用卡方检验：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; anova(fit.reduced, fit.full, test=<span class="string">"Chisq"</span>)</span><br><span class="line">Analysis of Deviance Table</span><br><span class="line"></span><br><span class="line">Model <span class="number">1</span>: ynaffair ~ age + yearsmarried + religiousness + rating</span><br><span class="line">Model <span class="number">2</span>: ynaffair ~ gender + age + yearsmarried + children + religiousness + </span><br><span class="line">    education + occupation + rating</span><br><span class="line">  Resid. Df Resid. Dev Df Deviance Pr(&gt;Chi)</span><br><span class="line"><span class="number">1</span>       <span class="number">596</span>     <span class="number">615.36</span>                     </span><br><span class="line"><span class="number">2</span>       <span class="number">592</span>     <span class="number">609.51</span>  <span class="number">4</span>   <span class="number">5.8474</span>   <span class="number">0.2108</span></span><br></pre></td></tr></table></figure>
+<p>结果的卡方值不显著(p=0.21)，表明4个预测变量的新模型与9个完整预测变量的模型拟合程度一样好。</p>
+<h2 id="解释回归系数">解释回归系数</h2>
+<p>以下是模型<code>fit.reduced</code>的回归系数：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; coef(fit.reduced)</span><br><span class="line">  (Intercept)           age  yearsmarried religiousness        rating </span><br><span class="line">   <span class="number">1.93083017</span>   -<span class="number">0.03527112</span>    <span class="number">0.10062274</span>   -<span class="number">0.32902386</span>   -<span class="number">0.46136144</span></span><br></pre></td></tr></table></figure>
+<p>在Logistic回归中，响应变量是<span class="math inline">\(Y=1\)</span>的对数优势比<span class="math inline">\(ln(odds)\)</span>，即logit值。回归系数的含义是当其他预测变量不变时，一单位预测变量的变化可引起的logit值的变化。</p>
+<p>由于logit值的解释性差，一般是解释<strong>odds</strong>，这需要对回归系数指数化：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt; exp(coef(fit.reduced))</span><br><span class="line">  (Intercept)           age  yearsmarried religiousness        rating </span><br><span class="line">    <span class="number">6.8952321</span>     <span class="number">0.9653437</span>     <span class="number">1.1058594</span>     <span class="number">0.7196258</span>     <span class="number">0.6304248</span></span><br><span class="line">&gt; exp(confint(fit.reduced)) <span class="comment"># 各回归系数在odds尺度上的95%置信区间</span></span><br><span class="line">                  <span class="number">2.5</span> %     <span class="number">97.5</span> %</span><br><span class="line">(Intercept)   <span class="number">2.1255764</span> <span class="number">23.3506030</span></span><br><span class="line">age           <span class="number">0.9323342</span>  <span class="number">0.9981470</span></span><br><span class="line">yearsmarried  <span class="number">1.0448584</span>  <span class="number">1.1718250</span></span><br><span class="line">religiousness <span class="number">0.6026782</span>  <span class="number">0.8562807</span></span><br><span class="line">rating        <span class="number">0.5286586</span>  <span class="number">0.7493370</span></span><br></pre></td></tr></table></figure>
+<p>可以看到：</p>
+<ol type="1">
+<li>保持其他变量不变，年龄每增加1岁，婚外情的OR值将<strong>乘以</strong>0.965；</li>
+<li>保持其他变量不变，婚龄每增加1年，婚外情的OR值将<strong>乘以</strong>1.106；</li>
+</ol>
+<p>因为预测变量不能等于0，<strong>截距项在此处没有什么特定含义</strong>。</p>
+<p>最后，预测变量一单位的变化可能并不是我们最关注的，比如此例中，我们更关注结婚10年后的odds变化。对于二值型Logistic回归，某预测变量n单位的变化引起的优势比的变化为<span class="math inline">\(e^{n \beta_{j}}\)</span>，即<span class="math inline">\(odds_{\beta_j}^{n}\)</span>。那么结婚10年，婚外情的odds将乘以<span class="math inline">\(1.106^{10}\)</span>，即2.7。</p>
+<h2 id="预测">预测</h2>
+<p>调用如下函数进行预测：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># testdata为待预测的数据</span></span><br><span class="line">predict(fit.reduced, newdata=testdata, type=<span class="string">"response"</span>)</span><br></pre></td></tr></table></figure>
+<p>参数<code>type="response"</code>表示预测结果以概率的形式返回。此处预测的是<span class="math inline">\(Y=1\)</span>的概率。</p>
+<h2 id="检验模型的过度离势overdispersion">检验模型的过度离势(Overdispersion)</h2>
+<p>所谓过度离势，即观测到的响应变量的方差大于期望的二项分布的方差。<strong>过度离势会导致奇异的标准误检验和不精确的显著性检验</strong>。</p>
+<blockquote>
+<p>二项分布的期望方差为：<span class="math inline">\(\sigma^{2}=n \pi(1-\pi)\)</span>，其中<span class="math inline">\(n\)</span>是样本量，<span class="math inline">\(\pi\)</span>是<span class="math inline">\(Y=1\)</span>的概率。</p>
+</blockquote>
+<p>检测过度离势的一种方法是比较二项分布模型的<strong>残差偏差</strong>与<strong>残差自由度</strong>，如果两者的<strong>比值比1大很多</strong>（而不只是<strong>大</strong>），便可认为存在过度离势。</p>
+<p>例如：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># deviance求偏差，df.residual求残差自由度</span></span><br><span class="line">&gt; deviance(fit.reduced) / df.residual(fit.reduced)</span><br><span class="line">[<span class="number">1</span>] <span class="number">1.03248</span></span><br></pre></td></tr></table></figure>
+<p>可以看到，比值只比1大一点点，可以认为不存在过度离势。</p>
+<p>当出现过度离势时，仍可使用<code>glm()</code>函数拟合Logistic回归，但此时需要将二项分布改为类二项分布(quasibinomial distribution)。</p>
+<h3 id="对过度离势的检验">对过度离势的检验</h3>
+<p>检验过度离势，需要拟合模型两次，第一次使用<code>family="binomial"</code>，第二次使用<code>family="quasibinomial"</code>。然后再使用卡方检验，<span class="math inline">\(H_0: \phi = 1, H_{1}: \phi \neq 1\)</span></p>
+<p>具体步骤如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; fit &lt;- glm(ynaffair ~ age + yearsmarried + religiousness + rating, family = binomial(), data = Affairs)</span><br><span class="line">&gt; fit.od &lt;- glm(ynaffair ~ age + yearsmarried + religiousness + rating, family = quasibinomial(), data = Affairs)</span><br><span class="line">&gt; pchisq(summary(fit.od)$dispersion * fit$df.residual, fit$df.residual, lower = <span class="literal">F</span>)</span><br><span class="line">[<span class="number">1</span>] <span class="number">0.340122</span></span><br></pre></td></tr></table></figure>
+<p>可以看到卡方检验不显著，增强了我们认为不存在过度离势的信心。</p>
+<h2 id="扩展的logistic回归">扩展的Logistic回归</h2>
+<ol type="1">
+<li>稳健Logistic回归：当有离群点或强影响点时，可以使用稳健Logistic回归。robust包中的<code>glmRob()</code>函数可用来拟合稳健的广义线性模型，包括稳健Logistic回归。</li>
+<li>多项分布回归：若响应变量包含两个以上的无序类别时（也就是多分类的情况），可使用mlogit包中的<code>mlogit()</code>函数拟合多项Logistic回归。</li>
+<li>序数Logistic回归：若响应变量是一组有序的类别，可使用rms包中的<code>lrm()</code>函数拟合序数Logistic回归。</li>
+</ol>
+<h1 id="泊松回归">泊松回归</h1>
+<p>它适用于在给定时间内响应变量为事件发生次数的情形，预测变量既可以是连续型也可以是类别型变量（或者两者皆有）。</p>
+<p>模型假设<span class="math inline">\(Y\)</span>服从泊松分布，待拟合公式如下：</p>
+<p><span class="math display">\[
+\log _{\mathrm{e}}(\lambda)=\beta_{0}+\sum_{j=1}^{p} \beta_{j} X_{j}
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><span class="math inline">\(\lambda\)</span>是<span class="math inline">\(Y\)</span>的均值(也等于方差)；</li>
+<li>连接函数为<span class="math inline">\(\log(\lambda)\)</span>。</li>
+</ul>
+<p>函数的调用形式如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">glm(Y~X1+X2+X3, family=poisson(link=<span class="string">"log"</span>), data=mydata)</span><br></pre></td></tr></table></figure>
+<h2 id="泊松回归示例">泊松回归示例</h2>
+<p>数据集使用robust包中的Breslow癫痫数据(Breslow，1993)，我们将讨论在治疗初期的八周内，抗癫痫药物对癫痫发病次数的影响。</p>
+<p>响应变量为<code>sumY</code>(随机化后八周内癫痫发病次数)，预测变量为治疗条件(<code>Trt</code>)、年龄(<code>Age</code>)和前八周内的基础癫痫发病数(<code>Base</code>)。</p>
+<p>之所以包含基础癫痫发病数和年龄，是因为它们对响应变量有潜在影响。在解释这些协变量后，我们感兴趣的是药物治疗是否能减少癫痫发病数。</p>
+<p>首先观察一下因变量<code>sumY</code>（绘图代码很简单，此处省略）：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588766515/R/12-robust_hist_boxplot.png" style="zoom:30%;" /></p>
+<p>上图可以清晰地看到因变量的偏倚特性以及可能的离群点。初看图形时，药物治疗下癫痫发病数似乎变小了，且方差也变小了。</p>
+<blockquote>
+<p>泊松分布中，较小的方差伴随着较小的均值。</p>
+<p>与标准最小二乘回归不同，泊松回归并不关注方差异质性。</p>
+</blockquote>
+<h2 id="拟合模型-1">拟合模型</h2>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&gt; fit &lt;- glm(sumY ~ Base + Age + Trt, data=breslow.dat, family=poisson())</span><br><span class="line">&gt; summary(fit)</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">glm(formula = sumY ~ Base + Age + Trt, family = poisson(), data = breslow.dat)</span><br><span class="line"></span><br><span class="line">Deviance Residuals: </span><br><span class="line">    Min       1Q   Median       3Q      Max  </span><br><span class="line">-<span class="number">6.0569</span>  -<span class="number">2.0433</span>  -<span class="number">0.9397</span>   <span class="number">0.7929</span>  <span class="number">11.0061</span>  </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">               Estimate Std. Error z value Pr(&gt;|z|)    </span><br><span class="line">(Intercept)   <span class="number">1.9488259</span>  <span class="number">0.1356191</span>  <span class="number">14.370</span>  &lt; <span class="number">2e-16</span> ***</span><br><span class="line">Base          <span class="number">0.0226517</span>  <span class="number">0.0005093</span>  <span class="number">44.476</span>  &lt; <span class="number">2e-16</span> ***</span><br><span class="line">Age           <span class="number">0.0227401</span>  <span class="number">0.0040240</span>   <span class="number">5.651</span> <span class="number">1.59e-08</span> ***</span><br><span class="line">Trtprogabide -<span class="number">0.1527009</span>  <span class="number">0.0478051</span>  -<span class="number">3.194</span>   <span class="number">0.0014</span> ** </span><br><span class="line">---</span><br><span class="line">Signif. codes:  <span class="number">0</span> ‘***’ <span class="number">0.001</span> ‘**’ <span class="number">0.01</span> ‘*’ <span class="number">0.05</span> ‘.’ <span class="number">0.1</span> ‘ ’ <span class="number">1</span></span><br><span class="line"></span><br><span class="line">(Dispersion parameter <span class="keyword">for</span> poisson family taken to be <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    Null deviance: <span class="number">2122.73</span>  on <span class="number">58</span>  degrees of freedom</span><br><span class="line">Residual deviance:  <span class="number">559.44</span>  on <span class="number">55</span>  degrees of freedom</span><br><span class="line">AIC: <span class="number">850.71</span></span><br><span class="line"></span><br><span class="line">Number of Fisher Scoring iterations: <span class="number">5</span></span><br></pre></td></tr></table></figure>
+<p>输出结果列出了偏差、回归参数、标准误和参数为0的检验。此处，预测变量在p&lt;0.05 的水平下都非常显著。</p>
+<h2 id="解释回归参数">解释回归参数</h2>
+<p>由于泊松回归中，因变量是以条件均值的自然对数形式<span class="math inline">\(ln(\lambda)\)</span>来建模的，所以上述输出中的回归参数是在自然对数尺度下的值，跟Logistic回归一样，将其变换为初始尺度比较容易：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; exp(coef(fit))</span><br><span class="line"> (Intercept)         Base          Age Trtprogabide </span><br><span class="line">   <span class="number">7.0204403</span>    <span class="number">1.0229102</span>    <span class="number">1.0230007</span>    <span class="number">0.8583864</span></span><br></pre></td></tr></table></figure>
+<p>可以看到：</p>
+<ul>
+<li>保持其他变量不变，年龄增加一岁，期望的癫痫发病数将<strong>乘以</strong>1.023。这意味着年龄的增加与较高的癫痫发病数相关联；</li>
+<li>一单位<code>Trt</code>的变化(即从安慰剂到治疗组)，期望的癫痫发病数将<strong>乘以</strong>0.86，也就是说，保持基础癫痫发病数和年龄不变，服药组相对于安慰剂组癫痫发病数降低了20%。</li>
+<li>截距项表示当预测变量都为0时，癫痫发病数的对数均值，但由于预测变量不可能全为0，所以这里不讨论截距项。</li>
+</ul>
+<blockquote>
+<p>注意：与Logistic回归中的指数化参数相似，泊松模型中的指数化参数对响应变量的影响都是成倍增加的，而不是线性相加！</p>
+</blockquote>
+<h2 id="检验模型的过度离势">检验模型的过度离势</h2>
+<p>当响应变量观测的方差比依据泊松分布预测的方差大时，泊松回归可能发生过度离势。处理计数型数据时经常发生过度离势，且过度离势会对结果的可解释性造成负面影响。</p>
+<p>发生过度离势的可能原因如下：</p>
+<ul>
+<li>遗漏了某个重要的预测变量；</li>
+<li>"事件相关(state dependence)"也可能造成过度离势。在泊松分布的观测中，计数中每次事件都被认为是独立发生的。以癫痫数据为例，这意味着对于任何病人，每次癫痫发病的概率与其他癫痫发病的概率相互独立。但是这个假设通常都无法满足。对于某个病人，在已知他已经发生了39次癫痫时，第1次发生癫痫的概率不可能与第40次发生癫痫的概率相同（概率越来越大）。</li>
+<li>在纵向数据分析中，重复测量的数据由于内在群聚特性可导致过度离势。此处并不讨论纵向泊松模型。</li>
+</ul>
+<p>如果存在过度离势，并且你也无法对其进行解释，那么你可能会得到过小的标准误和置信区间，并且显著性检验也会过于宽松(也就是说，你将会发现并不真实存在的效应)。</p>
+<h3 id="对过度离势的检验-1">对过度离势的检验</h3>
+<p>首先，与Logistic回归一样，求残差偏差与残差自由度的比：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; deviance(fit)/df.residual(fit)</span><br><span class="line">[<span class="number">1</span>] <span class="number">10.1717</span></span><br></pre></td></tr></table></figure>
+<p>远大于1，说明很可能存在过度离势。</p>
+<p>qcc包提供了一个对泊松模型过度离势的检验方法：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(qcc)</span><br><span class="line">&gt; qcc.overdispersion.test(breslow.dat$sumY, type=<span class="string">"poisson"</span>)</span><br><span class="line">                   </span><br><span class="line">Overdispersion test Obs.Var/Theor.Var Statistic p-value</span><br><span class="line">       poisson data          <span class="number">62.87013</span>  <span class="number">3646.468</span>       <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>显著性检验p值远小于0.05，进一步证明存在过度离势。</p>
+<h2 id="改进模型">改进模型</h2>
+<p>由于第1个模型存在过度离势，现在改用类泊松方法(quasi-Poisson)：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># family="quasipoisson"</span></span><br><span class="line">&gt; fit.od &lt;- glm(sumY ~ Base + Age + Trt, data=breslow.dat, family=quasipoisson())</span><br><span class="line">&gt; summary(fit.od)</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">glm(formula = sumY ~ Base + Age + Trt, family = quasipoisson(), </span><br><span class="line">    data = breslow.dat)</span><br><span class="line"></span><br><span class="line">Deviance Residuals: </span><br><span class="line">    Min       1Q   Median       3Q      Max  </span><br><span class="line">-<span class="number">6.0569</span>  -<span class="number">2.0433</span>  -<span class="number">0.9397</span>   <span class="number">0.7929</span>  <span class="number">11.0061</span>  </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">              Estimate Std. Error t value Pr(&gt;|t|)    </span><br><span class="line">(Intercept)   <span class="number">1.948826</span>   <span class="number">0.465091</span>   <span class="number">4.190</span> <span class="number">0.000102</span> ***</span><br><span class="line">Base          <span class="number">0.022652</span>   <span class="number">0.001747</span>  <span class="number">12.969</span>  &lt; <span class="number">2e-16</span> ***</span><br><span class="line">Age           <span class="number">0.022740</span>   <span class="number">0.013800</span>   <span class="number">1.648</span> <span class="number">0.105085</span>    </span><br><span class="line">Trtprogabide -<span class="number">0.152701</span>   <span class="number">0.163943</span>  -<span class="number">0.931</span> <span class="number">0.355702</span>    </span><br><span class="line">---</span><br><span class="line">Signif. codes:  <span class="number">0</span> ‘***’ <span class="number">0.001</span> ‘**’ <span class="number">0.01</span> ‘*’ <span class="number">0.05</span> ‘.’ <span class="number">0.1</span> ‘ ’ <span class="number">1</span></span><br><span class="line"></span><br><span class="line">(Dispersion parameter <span class="keyword">for</span> quasipoisson family taken to be <span class="number">11.76075</span>)</span><br><span class="line"></span><br><span class="line">    Null deviance: <span class="number">2122.73</span>  on <span class="number">58</span>  degrees of freedom</span><br><span class="line">Residual deviance:  <span class="number">559.44</span>  on <span class="number">55</span>  degrees of freedom</span><br><span class="line">AIC: <span class="literal">NA</span></span><br><span class="line"></span><br><span class="line">Number of Fisher Scoring iterations: <span class="number">5</span></span><br></pre></td></tr></table></figure>
+<p>使用类泊松方法所得的参数估计与泊松方法相同，但标准误变大了许多。此处，标准误越大将会导致<code>Trt</code>(和<code>Age</code>)的p值越大，此处p值已经大于了0.05。</p>
+<p>当考虑过度离势，并控制基础癫痫数和年龄时，得出了与上一个模型相反的结论，即并没有充足的证据表明药物治疗相对于使用安慰剂能显著降低癫痫发病次数。</p>
+<blockquote>
+<p>本例只是用于阐释泊松模型，它的结果并不能用来反映真实世界中的普罗加比(治疗癫痫)药效问题。</p>
+</blockquote>
+<h2 id="扩展的泊松回归">扩展的泊松回归</h2>
+<p>R提供了基本泊松回归模型的一些有用扩展，包括允许时间段变化、存在过多0时会自动修正的模型，以及当数据存在离群点和强影响点时有用的稳健模型：</p>
+<h3 id="时间段变化的泊松回归">时间段变化的泊松回归</h3>
+<p>对于标准的泊松回归，响应变量一直被局限在一个固定长度时间段中进行测量（例如上述例子中的8周）。</p>
+<p>可以拟合允许时间段变化的泊松回归模型。此时结果变量应该被假设为一个与时间但比率，公式变为如下形式：</p>
+<p><span class="math display">\[
+\log _{\mathrm{e}}\left(\frac{\lambda}{time}\right)=\beta_{0}+\sum_{j=1}^{p} \beta_{j} X_{j}
+\]</span></p>
+<p>或者等价的：</p>
+<p><span class="math display">\[
+\log _{\mathrm{e}}(\lambda)=\log _{\mathrm{e}}(time) + \beta_{0}+\sum_{j=1}^{p} \beta_{j} X_{j}
+\]</span></p>
+<p>依旧调用的是<code>glm()</code>函数，只是需要添加一个<code>offset</code>参数。假设已经记录了病人的发病时间，那么可以癫痫发病率（不是发病次数）作为因变量，然后拟合模型：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fit &lt;- glm(sumY ~ Base + Age + Trt, data=breslow.dat, offset= log(time), family=poisson())</span><br></pre></td></tr></table></figure>
+<h3 id="零膨胀的泊松回归">零膨胀的泊松回归</h3>
+<p>在一个数据集中，0计数的数目经常比用泊松模型预测的数目多。当总体的一个子群体无任何被计数的行为时，就可能发生这种问题，例如出现结构零值的情况。</p>
+<blockquote>
+<p>结构零值(structural zeros)：以逻辑回归中的婚外情研究为例，也许调查对象中，就存在那么一批一辈子都不会出轨的人，这群对象的数据就会始终为0，因此被称为结构零值。</p>
+</blockquote>
+<p>此时，可以使用零膨胀的泊松回归(zero-inflated Poisson regression)分析该数据。仍然以婚外情数据为例，它将同时拟合两个模型：一个用来预测哪些人又会发生婚外情，另外一个用来预测排除了婚姻忠诚者后的调查对象会发生多少次婚外情。你可以把该模型看作Logistic回归(预测结构零值)和泊松回归(预测无结构零值观测的计数)的组合。</p>
+<p>pscl包中的<code>zeroinfl()</code>函数可做零膨胀泊松回归。</p>
+<h3 id="稳健泊松回归">稳健泊松回归</h3>
+<p>有离群点和强影响值时可用该方法。</p>
+<p>robust包中的<code>glmRob()</code>函数可以拟合稳健广义线性模型，包含稳健泊松回归。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zuiqiangiron.xyz/2020/05/06/R%E8%AF%AD%E8%A8%80-%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B/" title="R语言-广义线性模型">https://www.zuiqiangiron.xyz/2020/05/06/R语言-广义线性模型/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R%E8%AF%AD%E8%A8%80/" rel="tag"># R语言</a>
+              <a href="/tags/%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 广义线性模型</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/05/R%E8%AF%AD%E8%A8%80-%E9%87%8D%E6%8A%BD%E6%A0%B7%E4%B8%8E%E8%87%AA%E5%8A%A9%E6%B3%95/" rel="prev" title="R语言-重抽样与自助法">
+      <i class="fa fa-chevron-left"></i> R语言-重抽样与自助法
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#思维导图"><span class="nav-number">1.</span> <span class="nav-text">思维导图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#标准线性模型的局限"><span class="nav-number">2.</span> <span class="nav-text">标准线性模型的局限</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#广义线性模型"><span class="nav-number">3.</span> <span class="nav-text">广义线性模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#glm函数"><span class="nav-number">4.</span> <span class="nav-text">glm()函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#glm的配套函数"><span class="nav-number">4.1.</span> <span class="nav-text">glm()的配套函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模型诊断"><span class="nav-number">4.2.</span> <span class="nav-text">模型诊断</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#logistic回归"><span class="nav-number">5.</span> <span class="nav-text">Logistic回归</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#logistic回归示例"><span class="nav-number">5.1.</span> <span class="nav-text">Logistic回归示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#拟合模型"><span class="nav-number">5.2.</span> <span class="nav-text">拟合模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解释回归系数"><span class="nav-number">5.3.</span> <span class="nav-text">解释回归系数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预测"><span class="nav-number">5.4.</span> <span class="nav-text">预测</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检验模型的过度离势overdispersion"><span class="nav-number">5.5.</span> <span class="nav-text">检验模型的过度离势(Overdispersion)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#对过度离势的检验"><span class="nav-number">5.5.1.</span> <span class="nav-text">对过度离势的检验</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#扩展的logistic回归"><span class="nav-number">5.6.</span> <span class="nav-text">扩展的Logistic回归</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#泊松回归"><span class="nav-number">6.</span> <span class="nav-text">泊松回归</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#泊松回归示例"><span class="nav-number">6.1.</span> <span class="nav-text">泊松回归示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#拟合模型-1"><span class="nav-number">6.2.</span> <span class="nav-text">拟合模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解释回归参数"><span class="nav-number">6.3.</span> <span class="nav-text">解释回归参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检验模型的过度离势"><span class="nav-number">6.4.</span> <span class="nav-text">检验模型的过度离势</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#对过度离势的检验-1"><span class="nav-number">6.4.1.</span> <span class="nav-text">对过度离势的检验</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#改进模型"><span class="nav-number">6.5.</span> <span class="nav-text">改进模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#扩展的泊松回归"><span class="nav-number">6.6.</span> <span class="nav-text">扩展的泊松回归</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#时间段变化的泊松回归"><span class="nav-number">6.6.1.</span> <span class="nav-text">时间段变化的泊松回归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#零膨胀的泊松回归"><span class="nav-number">6.6.2.</span> <span class="nav-text">零膨胀的泊松回归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#稳健泊松回归"><span class="nav-number">6.6.3.</span> <span class="nav-text">稳健泊松回归</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="嘴强黑铁"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">77</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://www.zuiqiangiron.xyz/2020/05/06/R%E8%AF%AD%E8%A8%80-%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B/";
+    this.page.identifier = "2020/05/06/R语言-广义线性模型/";
+    this.page.title = "R语言-广义线性模型";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>
