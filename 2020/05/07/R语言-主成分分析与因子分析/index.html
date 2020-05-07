@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="Y0-gFMBzGnbrueUrh8PjkmnvCGItjob2oR3HjG9SVnE">
+  <meta name="msvalidate.01" content="97A49017D4D536B99438C4EE0E9FBA3F">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zuiqiangiron.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《R语言实战》笔记 主成分分析和探索性因子分析是两种用来探索和简化多变量复杂关系的常用方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R语言-主成分分析与因子分析">
+<meta property="og:url" content="https://www.zuiqiangiron.xyz/2020/05/07/R%E8%AF%AD%E8%A8%80-%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E4%B8%8E%E5%9B%A0%E5%AD%90%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《R语言实战》笔记 主成分分析和探索性因子分析是两种用来探索和简化多变量复杂关系的常用方法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588850198/R/%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E5%92%8C%E5%9B%A0%E5%AD%90%E5%88%86%E6%9E%90.svg">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588825519/R/13-PCA-EFA.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588825752/R/13-psych.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588828612/R/13-faparallel.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588839456/R/14-pc-fa.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588843058/R/14-factorplot.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588843056/R/14-fadiagram.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588845073/R/14-pca-fa-step.png">
+<meta property="article:published_time" content="2020-05-07T15:30:00.000Z">
+<meta property="article:modified_time" content="2020-05-07T11:17:24.769Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="R语言">
+<meta property="article:tag" content="主成分分析">
+<meta property="article:tag" content="因子分析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588850198/R/%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E5%92%8C%E5%9B%A0%E5%AD%90%E5%88%86%E6%9E%90.svg">
+
+<link rel="canonical" href="https://www.zuiqiangiron.xyz/2020/05/07/R%E8%AF%AD%E8%A8%80-%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E4%B8%8E%E5%9B%A0%E5%AD%90%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>R语言-主成分分析与因子分析 | 嘴强黑铁</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161480657-1"></script>
+    <script pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161480657-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">天下事以难而废者十之一，以惰而废者十之九</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zuiqiangiron.xyz/2020/05/07/R%E8%AF%AD%E8%A8%80-%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E4%B8%8E%E5%9B%A0%E5%AD%90%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          R语言-主成分分析与因子分析
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-07 23:30:00 / 修改时间：19:17:24" itemprop="dateCreated datePublished" datetime="2020-05-07T23:30:00+08:00">2020-05-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">R语言</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/05/07/R%E8%AF%AD%E8%A8%80-%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E4%B8%8E%E5%9B%A0%E5%AD%90%E5%88%86%E6%9E%90/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/05/07/R语言-主成分分析与因子分析/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《R语言实战》笔记</p>
+<p>主成分分析和探索性因子分析是两种用来探索和简化多变量复杂关系的常用方法。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="思维导图">思维导图</h1>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588850198/R/%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E5%92%8C%E5%9B%A0%E5%AD%90%E5%88%86%E6%9E%90.svg" /></p>
+<h1 id="基本概念">基本概念</h1>
+<p><strong>主成分分析(Principal Component Analysis, PCA)是一种数据降维技巧</strong>，它能将大量相关变量转化为一组很少的不相关变量，这些无关变量称为主成分。主成分是观测变量的线性组合。形成线性组合的权重都是通过最大化各主成分所解释的方差来获得，同时还要保证各主成分间不相关。</p>
+<p><strong>探索性因子分析(Exploratory Factor Analysis, EFA)则是一系列用来发现一组变量的潜在结构的方法</strong>。因子被当作观测变量的结构基础或“原因”，而不是它们的线性组合。在EFA模型中，因子之间相关是常见的，但并不是必需的。</p>
+<blockquote>
+<p>一条经验法则：因子分析需要5~10倍于变量数的样本数。</p>
+</blockquote>
+<p>以下是PCA与EFA的图示：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588825519/R/13-PCA-EFA.png" /></p>
+<h2 id="r中的主成分和因子分析">R中的主成分和因子分析</h2>
+<p>R的基础安装包提供了PCA和EFA的函数，分别为<code>princomp()</code>和<code>factanal()</code>，但本篇主要介绍psych包，它提供的分析函数更全面。以下是psych包中相关度最高的函数：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588825752/R/13-psych.png" /></p>
+<h2 id="分析步骤">分析步骤</h2>
+<p>主要有以下7步：</p>
+<ol type="1">
+<li><strong>数据预处理</strong>：PCA和EFA都根据观测变量间的相关性来推导结果。用户可以输入原始数据矩阵或者相关系数矩阵到<code>principal()</code>和<code>fa()</code>函数中。<strong>若输入初始数据，相关系数矩阵将会被自动计算</strong>。在计算前请确保<strong>数据中没有缺失值</strong>。</li>
+<li><strong>选择因子模型</strong>：根据你是要用于降维还是发现潜在结构，选择不同的方法。如果选择EFA，你还需要选择一种估计因子模型的方法(如最大似然估计)。</li>
+<li><strong>判断要选择的主成分/因子数目</strong>。</li>
+<li><strong>选择主成分/因子</strong>。</li>
+<li><strong>旋转主成分/因子</strong>。</li>
+<li><strong>解释结果</strong>。</li>
+<li><strong>计算主成分或因子得分</strong>。</li>
+</ol>
+<h1 id="主成分分析pca">主成分分析PCA</h1>
+<p>PCA的目标是用一组较少的不相关变量代替大量相关变量，同时尽可能保留初始变量的信息，这些推导所得的变量称为主成分，<strong>它们是观测变量的线性组合</strong>。</p>
+<blockquote>
+<p>注意：主成分是预测变量的线性组合，而不一定是从预测变量中选一些变量（之所以说是"不一定"，是因为如果系数全是0或1，那就是从预测变量中选择一些变量，但这种情况非常少）！</p>
+</blockquote>
+<p>例如第一主成分为：</p>
+<p><span class="math display">\[
+\mathrm{PC}_{1}=a_{1} X_{1}+a_{2} X_{2}+\cdots+a_{k} X_{k}
+\]</span></p>
+<p>它是<span class="math inline">\(k\)</span>个观测变量的加权组合，对初始变量集的方差解释性最大。第二主成分也是初试变量的线性组合，对方差的解释性排第二，同时与第一主成分正交。后面每一个主成分都最大化它对方差的解释程度，同时与之前所有的主成分都正交。</p>
+<blockquote>
+<p>理论上来说，你可以选取与变量数相同的主成分，但实用来说，我们都希望用最少的主成分来近似全变量集。</p>
+</blockquote>
+<h2 id="pca示例">PCA示例</h2>
+<p>本例使用Harman23.cor数据集，它包含305个女孩的8个身体测量指标。本例中，数据集由变量的相关系数组成，而不是原始数据集。</p>
+<blockquote>
+<p>是否对数据进行标准化：看了网上的一些文章，有些说要标准化，有些说不用标准化。看到一个比较有说服力的答案：PCA(主成分分析)所对应的数学理论是SVD(矩阵的奇异值分解），而奇异值分解本身是完全不需要对矩阵中的元素做标准化或者去中心化的。但是对于机器学习，通常会对矩阵（也就是数据）的每一列先进行标准化。这样做可以避免某些数值大的列被过分关照，以及有利于梯度下降法的收敛。目前个人总结来看，上述这些说要标准化的，他们都是在用协方差矩阵进行计算，但在psych包中，是不用标准化的，因为它使用的是相关系数矩阵，已经被标准化了，所以不用自己手动标准化。</p>
+</blockquote>
+<h3 id="判断主成分个数">判断主成分个数</h3>
+<p>最常见的是基于特征值的方法来决定主成分个数。每个主成分都与相关系数矩阵的特征值相关联，第一主成分与最大的特征值相关联，第二主成分与第二大的特征值相关联，依此类推。</p>
+<p>可从3个方面来判断主成分个数：</p>
+<ul>
+<li>特征值大于1：Kaiser-Harris准则<strong>建议保留特征值大于1的主成分</strong>，特征值小于1的成分所解释的方差比包含在单个变量中的方差更少。</li>
+<li>Cattell碎石检验：绘制特征值与主成分数的图形。这类图形可以清晰地展示图形弯曲状况，<strong>在图形变化最大处之上的主成分都可保留</strong>。</li>
+<li>随机数据矩阵：进行模拟，依据与初始矩阵相同大小的随机数据矩阵来判断要提取的特征值。若基于真实数据的某个特征值大于一组随机数据矩阵相应的平均特征值，那么该主成分可以保留。该访法叫作平行分析。</li>
+</ul>
+<p>上述工作可由psych包中的<code>fa.parallel()</code>函数完成：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(psych)</span><br><span class="line">&gt; fa.parallel(Harman23.cor$cov, n.obs=<span class="number">302</span>, fa=<span class="string">"pc"</span>, n.iter=<span class="number">100</span>, </span><br><span class="line">              show.legend=<span class="literal">FALSE</span>, main=<span class="string">"Scree plot with parallel analysis"</span>)</span><br><span class="line"></span><br><span class="line">Parallel analysis suggests that the number of factors =  <span class="literal">NA</span>  and the number of components =  <span class="number">2</span></span><br><span class="line"></span><br><span class="line">&gt; abline(h = <span class="number">1</span>) <span class="comment"># 不知道为什么主成分分析的时候，它并不生成y=1那条线，反而在因子分析的时候会生成那条线</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588828612/R/13-faparallel.png" style="zoom:50%;" /></p>
+<p>图中：</p>
+<ul>
+<li>带x的折线就是碎石图：它再FactorNumber = 3这个点变化明显，其上只有2个点，说明建议保留2个主成分；</li>
+<li>虚曲线是根据100个随机数据矩阵推导出来的特征值均值：虚曲线之上，碎石图中也只有2个点，说明依然建议保留2个主成分；</li>
+<li>水平虚线则是特征值等于1：在该直线上，碎石图中也只有2个点，说明依然建议保留2个主成分。</li>
+</ul>
+<p>综上，建议的主成分数为2，同时函数给出的建议值也是2个。</p>
+<h3 id="提取主成分">提取主成分</h3>
+<p><code>principal()</code>函数可以根据原始数据矩阵或者相关系数矩阵做主成分分析，调用形式如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">principal(r, nfactors=<span class="number">1</span>, rotate=<span class="string">"varimax"</span>, scores=<span class="literal">TRUE</span>)</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li><code>r</code>是相关系数矩阵或原始数据矩阵；</li>
+<li><code>nfactors</code>表示主成分数，默认为1；</li>
+<li><code>rotate</code>指定旋转的方法，默认最大方差旋转(varimax)；</li>
+<li><code>scores</code>设定是否计算主成分得分，默认执行计算。</li>
+</ul>
+<p>以下是对上述数据的分析代码：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(psych)</span><br><span class="line"><span class="comment"># 不旋转</span></span><br><span class="line">&gt; pc &lt;- principal(Harman23.cor$cov, nfactors=<span class="number">2</span>, rotate=<span class="string">"none"</span>)</span><br><span class="line">&gt; pc</span><br><span class="line">Principal Components Analysis</span><br><span class="line">Call: principal(r = Harman23.cor$cov, nfactors = <span class="number">2</span>, rotate = <span class="string">"none"</span>)</span><br><span class="line">Standardized loadings (pattern matrix) based upon correlation matrix</span><br><span class="line">                PC1   PC2   h2    u2 com</span><br><span class="line">height         <span class="number">0.86</span> -<span class="number">0.37</span> <span class="number">0.88</span> <span class="number">0.123</span> <span class="number">1.4</span></span><br><span class="line">arm.span       <span class="number">0.84</span> -<span class="number">0.44</span> <span class="number">0.90</span> <span class="number">0.097</span> <span class="number">1.5</span></span><br><span class="line">forearm        <span class="number">0.81</span> -<span class="number">0.46</span> <span class="number">0.87</span> <span class="number">0.128</span> <span class="number">1.6</span></span><br><span class="line">lower.leg      <span class="number">0.84</span> -<span class="number">0.40</span> <span class="number">0.86</span> <span class="number">0.139</span> <span class="number">1.4</span></span><br><span class="line">weight         <span class="number">0.76</span>  <span class="number">0.52</span> <span class="number">0.85</span> <span class="number">0.150</span> <span class="number">1.8</span></span><br><span class="line">bitro.diameter <span class="number">0.67</span>  <span class="number">0.53</span> <span class="number">0.74</span> <span class="number">0.261</span> <span class="number">1.9</span></span><br><span class="line">chest.girth    <span class="number">0.62</span>  <span class="number">0.58</span> <span class="number">0.72</span> <span class="number">0.283</span> <span class="number">2.0</span></span><br><span class="line">chest.width    <span class="number">0.67</span>  <span class="number">0.42</span> <span class="number">0.62</span> <span class="number">0.375</span> <span class="number">1.7</span></span><br><span class="line"></span><br><span class="line">                       PC1  PC2</span><br><span class="line">SS loadings           <span class="number">4.67</span> <span class="number">1.77</span></span><br><span class="line">Proportion Var        <span class="number">0.58</span> <span class="number">0.22</span></span><br><span class="line">Cumulative Var        <span class="number">0.58</span> <span class="number">0.81</span></span><br><span class="line"><span class="keyword">...</span> <span class="comment"># 省略</span></span><br></pre></td></tr></table></figure>
+<p>两个PC栏包含了<strong>成分载荷(component loadings)，指观测变量与主成分的相关系数</strong>。成分载荷可用来解释主成分的含义。第一主成分与每个身体测量指标都正相关，看起来似乎是一个一般性的衡量因子；第二主成分与前四个变量(height、arm.span、forearm和lower.leg)负相关，与后四个变量(weight、bitro.diameter、chest.girth和chest.width)正相关，因此它看起来似乎是一个长度-容量因子。</p>
+<p>h2栏指成分<strong>公因子方差，即主成分对每个变量的方差解释度</strong>。u2栏指成分唯一性，即方差无法被主成分解释的比例(1–h2)。例如，两个主成分一共解释了<code>arm.span</code> 90%的方差。</p>
+<p><strong>SS loadings行包含了与主成分相关联的特征值，指的是与特定主成分相关联的标准化后的方差值</strong>。</p>
+<p><strong>Proportion Var行表示的是每个主成分对整个数据集的解释程度</strong>。例如，此处PC1解释了整个数据集58%的方差，PC2解释了22%d方差，两者一共解释了81%的方差(Cumulative Var)</p>
+<p>理念上的东西都不容易构建，当提取了多个成分时，对它们进行旋转可使结果更具解释性。</p>
+<h3 id="主成分旋转">主成分旋转</h3>
+<p>旋转是一系列将成分载荷阵变得更容易解释的数学方法，它们尽可能地对成分去噪。</p>
+<p>旋转方法有两种：</p>
+<ul>
+<li><strong>正交旋转</strong>：使选择的成分保持不相关；
+<ul>
+<li>最流行的正交旋转是<strong>方差极大旋转</strong>，它试图对载荷阵的列进行去噪，使得每个成分<strong>只由一组有限的变量来解释</strong>(即载荷阵每列只有少数几个很大的载荷，其他都是很小的载荷)。</li>
+</ul></li>
+<li><strong>斜交旋转</strong>：让它们变得相关。</li>
+</ul>
+<p>以下是对上述主成分进行方差极大旋转：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 默认就是方差极大旋转</span></span><br><span class="line">&gt; rc &lt;- principal(Harman23.cor$cov, nfactors=<span class="number">2</span>)</span><br><span class="line">&gt; rc</span><br><span class="line">Principal Components Analysis</span><br><span class="line">Call: principal(r = Harman23.cor$cov, nfactors = <span class="number">2</span>)</span><br><span class="line">Standardized loadings (pattern matrix) based upon correlation matrix</span><br><span class="line">                RC1  RC2   h2    u2 com</span><br><span class="line">height         <span class="number">0.90</span> <span class="number">0.25</span> <span class="number">0.88</span> <span class="number">0.123</span> <span class="number">1.2</span></span><br><span class="line">arm.span       <span class="number">0.93</span> <span class="number">0.19</span> <span class="number">0.90</span> <span class="number">0.097</span> <span class="number">1.1</span></span><br><span class="line">forearm        <span class="number">0.92</span> <span class="number">0.16</span> <span class="number">0.87</span> <span class="number">0.128</span> <span class="number">1.1</span></span><br><span class="line">lower.leg      <span class="number">0.90</span> <span class="number">0.22</span> <span class="number">0.86</span> <span class="number">0.139</span> <span class="number">1.1</span></span><br><span class="line">weight         <span class="number">0.26</span> <span class="number">0.88</span> <span class="number">0.85</span> <span class="number">0.150</span> <span class="number">1.2</span></span><br><span class="line">bitro.diameter <span class="number">0.19</span> <span class="number">0.84</span> <span class="number">0.74</span> <span class="number">0.261</span> <span class="number">1.1</span></span><br><span class="line">chest.girth    <span class="number">0.11</span> <span class="number">0.84</span> <span class="number">0.72</span> <span class="number">0.283</span> <span class="number">1.0</span></span><br><span class="line">chest.width    <span class="number">0.26</span> <span class="number">0.75</span> <span class="number">0.62</span> <span class="number">0.375</span> <span class="number">1.2</span></span><br><span class="line"></span><br><span class="line">                       RC1  RC2</span><br><span class="line">SS loadings           <span class="number">3.52</span> <span class="number">2.92</span></span><br><span class="line">Proportion Var        <span class="number">0.44</span> <span class="number">0.37</span></span><br><span class="line">Cumulative Var        <span class="number">0.44</span> <span class="number">0.81</span></span><br><span class="line"><span class="keyword">...</span> <span class="comment"># 省略</span></span><br></pre></td></tr></table></figure>
+<p>成分载荷矩阵的列名也变成了RC，可以看到，第一主成分现在变成了主要由前4个变量来解释，第二主成分变成了主要由后4个变量来解释。旋转后，每个主成分对方差的解释性发生了改变，但总的解释性不变，依然是81%。</p>
+<p>各成分的方差解释度趋同，准确来说，此时应该称它们为成分而不是主成分，因为单个主成分方差最大化性质没有保留。</p>
+<h3 id="获取主成分得分">获取主成分得分</h3>
+<p>我们的最终目标是用一组较少的变量替换一组较多的相关变量，因此，你还需要获取<strong>每个观测</strong>(不是变量)在成分上的得分。</p>
+<p>前面讲的都是怎么提取主成分，但是我们最终得出主成分后是要拿去计算的，比如拟合模形，但现在只是知道了主成分与个变量之间的关系，但还没有一个具体的值。知道了映射关系，其实你也可以自行算出来主成分的值，但是很麻烦，而函数<code>principal()</code>提供的计算得分这个功能就是用来计算这个值的。</p>
+<p>如果<strong>输入的是原始数据</strong>，那么<code>principal()</code>将会把得分结果保存到返回值的<code>scores</code>变量中；如果<strong>传入的是相关系数矩阵</strong>，那<code>principal()</code>函数只能返回主成分与原始变量之间的得分权重矩阵，存储在<code>weights</code>变量中，然后你再用这个矩阵去求每条观测的得分。</p>
+<p>以下是上述例子的系数矩阵：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&gt; rc$weights</span><br><span class="line">                       RC1         RC2</span><br><span class="line">height          <span class="number">0.27524417</span> -<span class="number">0.04748169</span></span><br><span class="line">arm.span        <span class="number">0.29673051</span> -<span class="number">0.08005490</span></span><br><span class="line">forearm         <span class="number">0.29823990</span> -<span class="number">0.09158460</span></span><br><span class="line">lower.leg       <span class="number">0.28014088</span> -<span class="number">0.06027214</span></span><br><span class="line">weight         -<span class="number">0.06053059</span>  <span class="number">0.33228637</span></span><br><span class="line">bitro.diameter -<span class="number">0.07752349</span>  <span class="number">0.32477593</span></span><br><span class="line">chest.girth    -<span class="number">0.10366026</span>  <span class="number">0.33763942</span></span><br><span class="line">chest.width    -<span class="number">0.03730720</span>  <span class="number">0.27392667</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果原始数据均已标准化标准化(mean=0，sd=1)，那么上述矩阵表示：</span></span><br><span class="line"><span class="comment"># RC1 = 0.28 * height + 0.3 * arm.span + 0.3 * forearm + 0.29 * lower.leg - 0.06 * </span></span><br><span class="line"><span class="comment">#     weight - 0.08 * bitro.diameter - 0.1 * chest.girth - 0.04 * chest.width</span></span><br><span class="line"><span class="comment"># RC2 = -0.05 * height - 0.08 * arm.span - 0.09 * forearm - 0.06 * lower.leg + 0.33 * </span></span><br><span class="line"><span class="comment">#     weight + 0.32 * bitro.diameter + 0.34 * chest.girth + 0.27 * chest.width</span></span><br></pre></td></tr></table></figure>
+<p>从实际角度考虑，可以进一步简化方法：第一主成分只取前4个变量，第二主成分只取后4个变量。</p>
+<blockquote>
+<p>需要提醒的是，计算出来的得分或者得分权重矩阵，都是针对标准化后的数据，尤其是得分权重矩阵，如果你的原始数据没有标准化，请不要直接套用到原始数据上。</p>
+</blockquote>
+<h1 id="探索性因子分析">探索性因子分析</h1>
+<p><strong>EFA的目标是通过发掘隐藏在数据下的一组较少的、更为基本的无法观测的变量，来解释一组可观测变量的相关性</strong>。这些虚拟的、无法观测的变量称作<strong>因子</strong>。每个因子被认为可解释多个观测变量间共有的方差，因此准确来说，它们应该称作公共因子。</p>
+<p>模型的形式如下（提示，请与PCA的公式比较）：</p>
+<p><span class="math display">\[
+X_{i}=a_{1} F_{1}+a_{2} F_{2}+\cdots+a_{p} F_{p}+U_{i}
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><span class="math inline">\(X_i (i=1...k)\)</span>是第<span class="math inline">\(i\)</span>个可观测变量；</li>
+<li><span class="math inline">\(F_j (j=1...p)\)</span>是公共因子，<span class="math inline">\(p &lt; k\)</span>；</li>
+<li><span class="math inline">\(U_i\)</span>是<span class="math inline">\(X_i\)</span>变量独有的部分(无法被公共因子解释)；</li>
+<li><span class="math inline">\(a_i\)</span>可认为是每个因子对复合而成的可观测变量的贡献值。</li>
+</ul>
+<h2 id="efa示例">EFA示例</h2>
+<p>使用ability.cov数据集，它保存的是协方差矩阵。一共112个对象参与了6个心理学测试，分别是非语言的普通智力测验(general)、画图测验(picture)、积木图案测验(blocks)、迷宫测验(maze)、 阅读测验(reading)和词汇测验(vocab)。</p>
+<h3 id="判断公共因子数">判断公共因子数</h3>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(psych)</span><br><span class="line">&gt; covariances &lt;- ability.cov$cov</span><br><span class="line">&gt; correlations &lt;- cov2cor(covariances)</span><br><span class="line">&gt; fa.parallel(correlations, n.obs = ability.cov$n.obs, fa = <span class="string">"both"</span>, n.iter = <span class="number">100</span>, </span><br><span class="line">              main = <span class="string">"Scree plots with parallel analysis"</span>)</span><br><span class="line">Parallel analysis suggests that the number of factors =  <span class="number">2</span>  and the number of components =  <span class="number">1</span></span><br><span class="line"></span><br><span class="line">&gt; abline(h = <span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588839456/R/14-pc-fa.png" styly="zoom:50%;" /></p>
+<p>图中需要注意几点：</p>
+<ul>
+<li>如果使用PCA方法，你可能会选择一个成分(碎石检验和平行分析)或者两个成分(特征值大于1)。当摇摆不定时，通常多一些成分数要比少一些要好。</li>
+<li>对于EFA，Kaiser-Harris准则的特征值大于0，而不是1。</li>
+</ul>
+<p>不论是图中分析，还是函数的建议，都是选择两个因子。</p>
+<h3 id="提取公共因子">提取公共因子</h3>
+<p>使用<code>fa()</code>函数提取公共因子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fa(r, n.obs, nfactors=<span class="number">1</span>, rotate=<span class="string">"oblimin"</span>, scores=<span class="string">"regression"</span>, fm=<span class="string">"minres"</span>)</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li><code>r</code>是相关系数矩阵或者原始数据矩阵；</li>
+<li><code>n.obs</code>是观测数(输入相关系数矩阵时需要填写)；</li>
+<li><code>nfactors</code>设定提取的因子数(默认为1)；</li>
+<li><code>rotate</code>设定旋转的方法(默认互变异数最小法)；</li>
+<li><code>scores</code>设定如何计算因子得分(默认使用回归的方法计算因子得分)；</li>
+<li><code>fm</code>设定因子化方法(默认极小残差法)。</li>
+</ul>
+<p>本例使用主轴迭代法(<code>fm="pa"</code>)提取未旋转的因子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&gt; fa &lt;- fa(correlations, nfactors=<span class="number">2</span>, rotate=<span class="string">"none"</span>, fm=<span class="string">"pa"</span>)</span><br><span class="line">&gt; fa</span><br><span class="line">Factor Analysis using method =  pa</span><br><span class="line">Call: fa(r = correlations, nfactors = <span class="number">2</span>, rotate = <span class="string">"none"</span>, fm = <span class="string">"pa"</span>)</span><br><span class="line">Standardized loadings (pattern matrix) based upon correlation matrix</span><br><span class="line">         PA1   PA2   h2    u2 com</span><br><span class="line">general <span class="number">0.75</span>  <span class="number">0.07</span> <span class="number">0.57</span> <span class="number">0.432</span> <span class="number">1.0</span></span><br><span class="line">picture <span class="number">0.52</span>  <span class="number">0.32</span> <span class="number">0.38</span> <span class="number">0.623</span> <span class="number">1.7</span></span><br><span class="line">blocks  <span class="number">0.75</span>  <span class="number">0.52</span> <span class="number">0.83</span> <span class="number">0.166</span> <span class="number">1.8</span></span><br><span class="line">maze    <span class="number">0.39</span>  <span class="number">0.22</span> <span class="number">0.20</span> <span class="number">0.798</span> <span class="number">1.6</span></span><br><span class="line">reading <span class="number">0.81</span> -<span class="number">0.51</span> <span class="number">0.91</span> <span class="number">0.089</span> <span class="number">1.7</span></span><br><span class="line">vocab   <span class="number">0.73</span> -<span class="number">0.39</span> <span class="number">0.69</span> <span class="number">0.313</span> <span class="number">1.5</span></span><br><span class="line"></span><br><span class="line">                       PA1  PA2</span><br><span class="line">SS loadings           <span class="number">2.75</span> <span class="number">0.83</span></span><br><span class="line">Proportion Var        <span class="number">0.46</span> <span class="number">0.14</span></span><br><span class="line">Cumulative Var        <span class="number">0.46</span> <span class="number">0.60</span></span><br><span class="line"><span class="keyword">...</span> <span class="comment"># 省略</span></span><br></pre></td></tr></table></figure>
+<p>未旋转时，得到的是因子载荷矩阵，及因子与变量之间的相关系数。</p>
+<p>可以看到，两个因子一共解释了6个变量60%的方差。</p>
+<h3 id="因子旋转">因子旋转</h3>
+<p>由于上述因子载荷矩阵不好解释，将其旋转。我们使用正交旋转和斜交旋转来比较两者的异同。</p>
+<h4 id="正交旋转">正交旋转</h4>
+<p>对于正交旋转，因子分析的重点在于<strong>因子结构矩阵(factor structure matrix，变量与因子的相关系数，又叫因子载荷矩阵)</strong></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&gt; fa.varimax &lt;- fa(correlations, nfactors=<span class="number">2</span>, rotate=<span class="string">"varimax"</span>, fm=<span class="string">"pa"</span>)</span><br><span class="line">&gt; fa.varimax</span><br><span class="line">Factor Analysis using method =  pa</span><br><span class="line">Call: fa(r = correlations, nfactors = <span class="number">2</span>, rotate = <span class="string">"varimax"</span>, fm = <span class="string">"pa"</span>)</span><br><span class="line">Standardized loadings (pattern matrix) based upon correlation matrix</span><br><span class="line">         PA1  PA2   h2    u2 com</span><br><span class="line">general <span class="number">0.49</span> <span class="number">0.57</span> <span class="number">0.57</span> <span class="number">0.432</span> <span class="number">2.0</span></span><br><span class="line">picture <span class="number">0.16</span> <span class="number">0.59</span> <span class="number">0.38</span> <span class="number">0.623</span> <span class="number">1.1</span></span><br><span class="line">blocks  <span class="number">0.18</span> <span class="number">0.89</span> <span class="number">0.83</span> <span class="number">0.166</span> <span class="number">1.1</span></span><br><span class="line">maze    <span class="number">0.13</span> <span class="number">0.43</span> <span class="number">0.20</span> <span class="number">0.798</span> <span class="number">1.2</span></span><br><span class="line">reading <span class="number">0.93</span> <span class="number">0.20</span> <span class="number">0.91</span> <span class="number">0.089</span> <span class="number">1.1</span></span><br><span class="line">vocab   <span class="number">0.80</span> <span class="number">0.23</span> <span class="number">0.69</span> <span class="number">0.313</span> <span class="number">1.2</span></span><br><span class="line"></span><br><span class="line">                       PA1  PA2</span><br><span class="line">SS loadings           <span class="number">1.83</span> <span class="number">1.75</span></span><br><span class="line">Proportion Var        <span class="number">0.30</span> <span class="number">0.29</span></span><br><span class="line">Cumulative Var        <span class="number">0.30</span> <span class="number">0.60</span></span><br><span class="line"><span class="keyword">...</span> <span class="comment"># 省略</span></span><br></pre></td></tr></table></figure>
+<p>PA两栏就是因子结构矩阵。</p>
+<p>从输出可以刊出，阅读和词汇在第一因子上载荷较大，画图、积木图案和迷宫在第二因子上载荷较大，非语言的普通智力测量在两个因子上载荷较为平均，这表明存在一个语言智力因子和一个非语言智力因子。</p>
+<blockquote>
+<p>使用正交旋转将人为地强制两个因子不相关。</p>
+</blockquote>
+<h4 id="斜交旋转">斜交旋转</h4>
+<p>对于斜交旋转，因子分析会考虑三个矩阵:</p>
+<ul>
+<li><strong>因子结构矩阵(factor structure matrix)</strong>；</li>
+<li><strong>因子模式矩阵(factor pattern matrix，变量与因子间标准化的回归系数)</strong>；</li>
+<li><strong>因子关联矩阵(factor intercorrelation matrix，因子间的相关系数)</strong>。</li>
+</ul>
+<blockquote>
+<p>"promax"斜交需要安装GPArotation包。</p>
+</blockquote>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&gt; fa.promax &lt;- fa(correlations, nfactors=<span class="number">2</span>, rotate=<span class="string">"promax"</span>, fm=<span class="string">"pa"</span>)</span><br><span class="line">Loading required namespace: GPArotation</span><br><span class="line">&gt; fa.promax</span><br><span class="line">Factor Analysis using method =  pa</span><br><span class="line">Call: fa(r = correlations, nfactors = <span class="number">2</span>, rotate = <span class="string">"promax"</span>, fm = <span class="string">"pa"</span>)</span><br><span class="line">Standardized loadings (pattern matrix) based upon correlation matrix</span><br><span class="line">          PA1   PA2   h2    u2 com</span><br><span class="line">general  <span class="number">0.37</span>  <span class="number">0.48</span> <span class="number">0.57</span> <span class="number">0.432</span> <span class="number">1.9</span></span><br><span class="line">picture -<span class="number">0.03</span>  <span class="number">0.63</span> <span class="number">0.38</span> <span class="number">0.623</span> <span class="number">1.0</span></span><br><span class="line">blocks  -<span class="number">0.10</span>  <span class="number">0.97</span> <span class="number">0.83</span> <span class="number">0.166</span> <span class="number">1.0</span></span><br><span class="line">maze     <span class="number">0.00</span>  <span class="number">0.45</span> <span class="number">0.20</span> <span class="number">0.798</span> <span class="number">1.0</span></span><br><span class="line">reading  <span class="number">1.00</span> -<span class="number">0.09</span> <span class="number">0.91</span> <span class="number">0.089</span> <span class="number">1.0</span></span><br><span class="line">vocab    <span class="number">0.84</span> -<span class="number">0.01</span> <span class="number">0.69</span> <span class="number">0.313</span> <span class="number">1.0</span></span><br><span class="line"></span><br><span class="line">                       PA1  PA2</span><br><span class="line">SS loadings           <span class="number">1.83</span> <span class="number">1.75</span></span><br><span class="line">Proportion Var        <span class="number">0.30</span> <span class="number">0.29</span></span><br><span class="line">Cumulative Var        <span class="number">0.30</span> <span class="number">0.60</span></span><br><span class="line">Proportion Explained  <span class="number">0.51</span> <span class="number">0.49</span></span><br><span class="line">Cumulative Proportion <span class="number">0.51</span> <span class="number">1.00</span></span><br><span class="line"></span><br><span class="line"> With factor correlations of </span><br><span class="line">     PA1  PA2</span><br><span class="line">PA1 <span class="number">1.00</span> <span class="number">0.55</span></span><br><span class="line">PA2 <span class="number">0.55</span> <span class="number">1.00</span></span><br><span class="line"><span class="keyword">...</span> <span class="comment"># 省略</span></span><br></pre></td></tr></table></figure>
+<p>上述PA两栏中组成了<strong>因子模式矩阵</strong>，它们是标准化的回归系数，而不是相关系数（与PCA不同）。</p>
+<p>上述结果依然表明存在一个语言因子和非语言因子。</p>
+<p><strong>因子关联矩阵</strong>在最下方，这里两个因子的相关系数为0.55，相关性很大。如果相关性不大，你可以使用正交旋转来简化问题。</p>
+<p><strong>因子结构矩阵</strong>并没有输出，可以按如下方法求该矩阵：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; fa.promax$loadings %*% fa.promax$Phi</span><br><span class="line">              PA1       PA2</span><br><span class="line">general <span class="number">0.6362443</span> <span class="number">0.6879280</span></span><br><span class="line">picture <span class="number">0.3203301</span> <span class="number">0.6137902</span></span><br><span class="line">blocks  <span class="number">0.4293252</span> <span class="number">0.9089946</span></span><br><span class="line">maze    <span class="number">0.2491789</span> <span class="number">0.4496446</span></span><br><span class="line">reading <span class="number">0.9510795</span> <span class="number">0.4587468</span></span><br><span class="line">vocab   <span class="number">0.8287066</span> <span class="number">0.4476297</span></span><br></pre></td></tr></table></figure>
+<p>将它们与正交旋转所得因子载荷阵相比，会发现该载荷阵列的噪音比较大，毕竟因子之间可以相关。</p>
+<p>虽然斜交方法更为复杂，但模型将更符合真实数据。</p>
+<h3 id="因子与变量关系绘图">因子与变量关系绘图</h3>
+<p>可以使用<code>factor.plot()</code>和<code>fa.diagram()</code>函数对上述正交或斜交旋转所得结果进行图示。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">factor.plot(fa.promax, labels=rownames(fa.promax$loadings))</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588843058/R/14-factorplot.png" style="zoom:50%;" /></p>
+<p>词汇和阅读在第一个PA1上载荷较大，而积木图案、画图和迷宫在PA2上载荷较大。普通智力测验在两个因子上较为平均。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fa.diagram(fa.promax, simple=<span class="literal">FALSE</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588843056/R/14-fadiagram.png" style="zoom:50%;" /></p>
+<p><code>simple=TRUE</code>将只显示较大的几个载荷。</p>
+<h3 id="因子得分">因子得分</h3>
+<p>相比PCA，EFA并不那么关注计算因子得分。</p>
+<p><code>fa()</code>函数也默认计算得分，如果传入的是实际数据，则得分存储在返回对象的<code>scores</code>变量中；如果传入的是相关系数矩阵，则返回的是得分权重矩阵，存储在<code>weights</code>中。</p>
+<p>与可精确计算的主成分得分不同，因子得分只是估计得到的。<code>fa()</code>使用的是回归方法计算得分。</p>
+<h2 id="其他与efa相关的包">其他与EFA相关的包</h2>
+<p>FactoMineR包不仅提供了PCA和EFA方法，还包含潜变量模型。它有许多此处我们并没考虑的参数选项，比如数值型变量和类别型变量的使用方法。</p>
+<p>FAiR包使用遗传算法来估计因子分析模型，它增强了模型参数估计能力，能够处理不等式的约束条件。</p>
+<p>GPArotation包提供了许多因子旋转方法。</p>
+<p>nFactors包提供了用来判断因子数目的许多复杂方法。</p>
+<h1 id="pca与efa分析流程图">PCA与EFA分析流程图</h1>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588845073/R/14-pca-fa-step.png" /></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zuiqiangiron.xyz/2020/05/07/R%E8%AF%AD%E8%A8%80-%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E4%B8%8E%E5%9B%A0%E5%AD%90%E5%88%86%E6%9E%90/" title="R语言-主成分分析与因子分析">https://www.zuiqiangiron.xyz/2020/05/07/R语言-主成分分析与因子分析/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R%E8%AF%AD%E8%A8%80/" rel="tag"># R语言</a>
+              <a href="/tags/%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90/" rel="tag"># 主成分分析</a>
+              <a href="/tags/%E5%9B%A0%E5%AD%90%E5%88%86%E6%9E%90/" rel="tag"># 因子分析</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/06/R%E8%AF%AD%E8%A8%80-%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B/" rel="prev" title="R语言-广义线性模型">
+      <i class="fa fa-chevron-left"></i> R语言-广义线性模型
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#思维导图"><span class="nav-number">1.</span> <span class="nav-text">思维导图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#r中的主成分和因子分析"><span class="nav-number">2.1.</span> <span class="nav-text">R中的主成分和因子分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析步骤"><span class="nav-number">2.2.</span> <span class="nav-text">分析步骤</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#主成分分析pca"><span class="nav-number">3.</span> <span class="nav-text">主成分分析PCA</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#pca示例"><span class="nav-number">3.1.</span> <span class="nav-text">PCA示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#判断主成分个数"><span class="nav-number">3.1.1.</span> <span class="nav-text">判断主成分个数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#提取主成分"><span class="nav-number">3.1.2.</span> <span class="nav-text">提取主成分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主成分旋转"><span class="nav-number">3.1.3.</span> <span class="nav-text">主成分旋转</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取主成分得分"><span class="nav-number">3.1.4.</span> <span class="nav-text">获取主成分得分</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#探索性因子分析"><span class="nav-number">4.</span> <span class="nav-text">探索性因子分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#efa示例"><span class="nav-number">4.1.</span> <span class="nav-text">EFA示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#判断公共因子数"><span class="nav-number">4.1.1.</span> <span class="nav-text">判断公共因子数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#提取公共因子"><span class="nav-number">4.1.2.</span> <span class="nav-text">提取公共因子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#因子旋转"><span class="nav-number">4.1.3.</span> <span class="nav-text">因子旋转</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#正交旋转"><span class="nav-number">4.1.3.1.</span> <span class="nav-text">正交旋转</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#斜交旋转"><span class="nav-number">4.1.3.2.</span> <span class="nav-text">斜交旋转</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#因子与变量关系绘图"><span class="nav-number">4.1.4.</span> <span class="nav-text">因子与变量关系绘图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#因子得分"><span class="nav-number">4.1.5.</span> <span class="nav-text">因子得分</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他与efa相关的包"><span class="nav-number">4.2.</span> <span class="nav-text">其他与EFA相关的包</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pca与efa分析流程图"><span class="nav-number">5.</span> <span class="nav-text">PCA与EFA分析流程图</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="嘴强黑铁"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">81</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://www.zuiqiangiron.xyz/2020/05/07/R%E8%AF%AD%E8%A8%80-%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E4%B8%8E%E5%9B%A0%E5%AD%90%E5%88%86%E6%9E%90/";
+    this.page.identifier = "2020/05/07/R语言-主成分分析与因子分析/";
+    this.page.title = "R语言-主成分分析与因子分析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>
