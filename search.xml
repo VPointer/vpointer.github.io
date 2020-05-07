@@ -17,7 +17,7 @@
 <p>一条经验法则：因子分析需要5~10倍于变量数的样本数。</p>
 </blockquote>
 <p>以下是PCA与EFA的图示：</p>
-<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588825519/R/13-PCA-EFA.png" /></p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588825519/R/13-PCA-EFA.png" style="zoom:50%;" /></p>
 <h2 id="r中的主成分和因子分析">R中的主成分和因子分析</h2>
 <p>R的基础安装包提供了PCA和EFA的函数，分别为<code>princomp()</code>和<code>factanal()</code>，但本篇主要介绍psych包，它提供的分析函数更全面。以下是psych包中相关度最高的函数：</p>
 <p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588825752/R/13-psych.png" /></p>
@@ -49,6 +49,7 @@
 <p>本例使用Harman23.cor数据集，它包含305个女孩的8个身体测量指标。本例中，数据集由变量的相关系数组成，而不是原始数据集。</p>
 <blockquote>
 <p>是否对数据进行标准化：看了网上的一些文章，有些说要标准化，有些说不用标准化。看到一个比较有说服力的答案：PCA(主成分分析)所对应的数学理论是SVD(矩阵的奇异值分解），而奇异值分解本身是完全不需要对矩阵中的元素做标准化或者去中心化的。但是对于机器学习，通常会对矩阵（也就是数据）的每一列先进行标准化。这样做可以避免某些数值大的列被过分关照，以及有利于梯度下降法的收敛。目前个人总结来看，上述这些说要标准化的，他们都是在用协方差矩阵进行计算，但在psych包中，是不用标准化的，因为它使用的是相关系数矩阵，已经被标准化了，所以不用自己手动标准化。</p>
+<p>究竟要不要标准化，待博主再去研究研究。</p>
 </blockquote>
 <h3 id="判断主成分个数">判断主成分个数</h3>
 <p>最常见的是基于特征值的方法来决定主成分个数。每个主成分都与相关系数矩阵的特征值相关联，第一主成分与最大的特征值相关联，第二主成分与第二大的特征值相关联，依此类推。</p>
@@ -126,7 +127,7 @@ X_{i}=a_{1} F_{1}+a_{2} F_{2}+\cdots+a_{p} F_{p}+U_{i}
 <p>使用ability.cov数据集，它保存的是协方差矩阵。一共112个对象参与了6个心理学测试，分别是非语言的普通智力测验(general)、画图测验(picture)、积木图案测验(blocks)、迷宫测验(maze)、 阅读测验(reading)和词汇测验(vocab)。</p>
 <h3 id="判断公共因子数">判断公共因子数</h3>
 <figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(psych)</span><br><span class="line">&gt; covariances &lt;- ability.cov$cov</span><br><span class="line">&gt; correlations &lt;- cov2cor(covariances)</span><br><span class="line">&gt; fa.parallel(correlations, n.obs = ability.cov$n.obs, fa = <span class="string">"both"</span>, n.iter = <span class="number">100</span>, </span><br><span class="line">              main = <span class="string">"Scree plots with parallel analysis"</span>)</span><br><span class="line">Parallel analysis suggests that the number of factors =  <span class="number">2</span>  and the number of components =  <span class="number">1</span></span><br><span class="line"></span><br><span class="line">&gt; abline(h = <span class="number">0</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588839456/R/14-pc-fa.png" styly="zoom:50%;" /></p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588839456/R/14-pc-fa.png" style="zoom:50%;" /></p>
 <p>图中需要注意几点：</p>
 <ul>
 <li>如果使用PCA方法，你可能会选择一个成分(碎石检验和平行分析)或者两个成分(特征值大于1)。当摇摆不定时，通常多一些成分数要比少一些要好。</li>
