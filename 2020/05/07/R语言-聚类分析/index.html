@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="Y0-gFMBzGnbrueUrh8PjkmnvCGItjob2oR3HjG9SVnE">
+  <meta name="msvalidate.01" content="97A49017D4D536B99438C4EE0E9FBA3F">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zuiqiangiron.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《R语言实战》笔记 本篇主要讲解层次聚类和划分聚类。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R语言-聚类分析">
+<meta property="og:url" content="https://www.zuiqiangiron.xyz/2020/05/07/R%E8%AF%AD%E8%A8%80-%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《R语言实战》笔记 本篇主要讲解层次聚类和划分聚类。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588916291/R/16-%E5%B1%82%E6%AC%A1%E8%81%9A%E7%B1%BB.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588921652/R/16-hclust.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588924098/R/16-hclustplot.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588927073/R/16-wss.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588948386/R/16-pam.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588949117/R/16-2d.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588949582/R/16-noclass.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588949733/R/16-2class.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588950005/R/16-ccc.png">
+<meta property="article:published_time" content="2020-05-07T11:17:46.000Z">
+<meta property="article:modified_time" content="2020-05-08T15:07:24.564Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="R语言">
+<meta property="article:tag" content="聚类分析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588916291/R/16-%E5%B1%82%E6%AC%A1%E8%81%9A%E7%B1%BB.png">
+
+<link rel="canonical" href="https://www.zuiqiangiron.xyz/2020/05/07/R%E8%AF%AD%E8%A8%80-%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>R语言-聚类分析 | 嘴强黑铁</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161480657-1"></script>
+    <script pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161480657-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">天下事以难而废者十之一，以惰而废者十之九</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zuiqiangiron.xyz/2020/05/07/R%E8%AF%AD%E8%A8%80-%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          R语言-聚类分析
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-07 19:17:46" itemprop="dateCreated datePublished" datetime="2020-05-07T19:17:46+08:00">2020-05-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-08 23:07:24" itemprop="dateModified" datetime="2020-05-08T23:07:24+08:00">2020-05-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">R语言</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/05/07/R%E8%AF%AD%E8%A8%80-%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/05/07/R语言-聚类分析/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《R语言实战》笔记</p>
+<p>本篇主要讲解层次聚类和划分聚类。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="基本概念">基本概念</h1>
+<p>聚类分析是一种数据归约技术，它可以把大量的观测值归约为若干个类。</p>
+<p>最常用的两种聚类方法是层次聚类(hierarchical agglomerative clustering)和划分聚类 (partitioning clustering)。在层次聚类中，每一个观测值自成一类，这些类每次两两合并，直到所有的类被聚成一类为止。在划分聚类中，首先指定类的个数K，然后观测值被随机分成K类，再重新形成聚合的类。</p>
+<p>对于层次聚类来说，最常用的算法是单联动(single linkage)、全联动(complete linkage )、平均联动(average linkage)、质心(centroid)和Ward方法。</p>
+<p>对于划分聚类来说，最常用的算法是K均值(K-means)和围绕中心点的划分(PAM)。</p>
+<h1 id="聚类分析的一般步骤">聚类分析的一般步骤</h1>
+<p>11个典型步骤：</p>
+<ol type="1">
+<li><strong>选择合适的变量</strong>：这一步很可能是最重要的一步，根据你的经验或者调查，选择你感觉可能对识别和理解数据中不同观测值分组有重要影响的变量。高级的聚类方法也不能弥补聚类变量选不好的问题。</li>
+<li><strong>缩放数据</strong>：如果选择的变量变化范围很大，那么该变量对结果的影响也是最大的。最常用的方法是<strong>将每个变量标准化为均值为0和标准差为1的变量</strong>。其他的替代方法包括<strong>每个变量除以其最大值</strong>或<strong>该变量减去它的平均值并除以它的平均绝对偏差</strong>。</li>
+<li><strong>寻找异常点</strong>：许多聚类方法对于异常值是十分敏感的，它能扭曲我们得到的聚类方案。可以通过outliers包中的函数来筛选(和删除)异常单变量离群点。mvoutlier包中包含了能识别多元变量的离群点的函数。一个替代的方法是使用对异常值稳健的聚类方法。</li>
+<li><strong>计算距离</strong>：虽然不同的聚类算法差异很大，但是它们通常需要计算被聚类的实体之间的距离。本章默认使用欧几里得距离，其它可选的还有曼哈顿距离、兰氏距离、非对称二元距离、最大距离和闵可夫斯基距离。</li>
+<li><strong>确定聚类算法的类别</strong>：层次聚类对于小样本来说很实用(如150个观测值或更少)，划分的方法能处理更大的数据量。</li>
+<li><strong>获得一种或多种聚类方法</strong>：指选择具体的算法。</li>
+<li><strong>确定类的数目</strong>：常用方法是尝试不同的类数(比如2~K)并比较解的质量。在NbClust包中的<code>NbClust()</code>函数提供了30个不同的指标来帮助进行选择。</li>
+<li><strong>获得最终的聚类解决方案</strong>：也就是执行算法。</li>
+<li><strong>结果可视化</strong>：层次聚类的结果通常表示为一个树状图。划分的结果通常利用可视化双变量聚类图来表示。</li>
+<li><strong>解读类</strong>：一旦聚类方案确定，必须解释这个类，例如这个类中的数据有什么共性。</li>
+<li><strong>验证结果</strong>：相当于问:“这种划分并不是因为数据集或聚类方法的某种特性，而是确实给出了一个某种程度上有实际意义的结果吗?”</li>
+</ol>
+<h1 id="计算距离">计算距离</h1>
+<p>本篇使用欧氏距离，它的公式如下（其实就是中学学的那个两点之间距离的计算公式，只是维度不再是2维）：</p>
+<p><span class="math display">\[
+d_{i j}=\sqrt{\sum_{p=1}^{p}\left(x_{i p}-x_{j p}\right)^{2}}
+\]</span></p>
+<p>其中，<span class="math inline">\(i\)</span>和<span class="math inline">\(j\)</span>代表第<span class="math inline">\(i\)</span>和第<span class="math inline">\(j\)</span>个观测值，<span class="math inline">\(p\)</span>是变量的个数。</p>
+<p>R中<code>dist()</code>函数可计算多种距离，默认就是欧氏距离。</p>
+<blockquote>
+<p>欧氏距离只是连续型变量的距离度量。</p>
+</blockquote>
+<h1 id="层次聚类">层次聚类</h1>
+<p>在层次聚类中，起初每一个实例或观测值属于一类。聚类就是每一次把两类聚成新的一类，直到所有的类聚成单个类为止，算法如下：</p>
+<ol type="1">
+<li>定义每个观测值(行或单元)为一类；</li>
+<li>计算每类和其他各类的距离；</li>
+<li>把距离最短的两类合并成一类，这样类的个数就减少一个；</li>
+<li>重复步骤2和步骤3，直到包含所有观测值的类合并成单个的类为止。</li>
+</ol>
+<p>具体的层次聚类的算法中，主要的区别是它们对类的定义不同：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588916291/R/16-%E5%B1%82%E6%AC%A1%E8%81%9A%E7%B1%BB.png" /></p>
+<p>单联动聚类方法倾向于发现细长的、雪茄型的类。它也通常展示一种链式的现象，即不相似的观测值分到一类中，因为它们和它们的中间值很相像。</p>
+<p>全联动聚类倾向于发现大致相等的直径紧凑类。它对异常值很敏感。</p>
+<p>平均联动提供了以上两种方法的折中。相对来说，它不像链式，而且对异常值没有那么敏感。它倾向于把方差小的类聚合。</p>
+<p>Ward法倾向于把有少量观测值的类聚合到一起，并且倾向于产生与观测值个数大致相等的类。它对异常值也是敏感的。</p>
+<p>质心法是一种很受欢迎的方法，因为其中类距离的定义比较简单、易于理解。相比其他方法，它对异常值不是很敏感。但是它可能不如平均联动法或Ward方法表现得好。</p>
+<h2 id="示例">示例</h2>
+<p>层次聚类方法可以用<code>hclust()</code>函数来实现：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#      d: 是通过dist()函数产生的距离矩阵</span></span><br><span class="line"><span class="comment"># method: "single"、"complete"、"average"、"centroid"或"ward"</span></span><br><span class="line">hclust(d, method)</span><br></pre></td></tr></table></figure>
+<h3 id="初步聚类">初步聚类</h3>
+<p>使用flexclust包中的nutrient数据集，它包含了27种鱼、禽、肉的5中营养信息。以下是对该数据集做平均联动聚类分析：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; data(nutrient, package=<span class="string">"flexclust"</span>)</span><br><span class="line">&gt; row.names(nutrient) &lt;- tolower(row.names(nutrient))</span><br><span class="line">&gt; nutrient.scaled &lt;- scale(nutrient)</span><br><span class="line">&gt; d &lt;- dist(nutrient.scaled)</span><br><span class="line">&gt; fit.average &lt;- hclust(d, method=<span class="string">"average"</span>)</span><br><span class="line">&gt; plot(fit.average, hang=-<span class="number">1</span>, cex=<span class="number">.8</span>, main=<span class="string">"Average Linkage Clustering"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588921652/R/16-hclust.png" /></p>
+<p>树状图应该从下往上读，高度刻度代表了该高度类之间合并的判定值，上图体现的是观测数据之间的<strong>相似性</strong>与<strong>相异性</strong>。</p>
+<h3 id="决定聚类数">决定聚类数</h3>
+<p>如果你想用少量的类来标记这些观测数据，那么还需要额外的分析来选择适当的聚类数目。</p>
+<p>NbClust包提供了众多的标准来确定在一个聚类分析里类的最佳数目。不能保证这些指标得出的结果都一致。<code>NbClust()</code>函数的输入包括需要做聚类的矩阵或是数据框，使用的距离测度和聚类方法，并考虑 最小和最大聚类的个数来进行聚类。它返回每一个聚类指数，同时输出建议聚类的最佳数目。</p>
+<p>以例子使用<code>NbClust()</code>函数获取建议的聚类数</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(NbClust)</span><br><span class="line"><span class="comment"># 这一步其实也会输出数据，这里省略</span></span><br><span class="line">&gt; nc &lt;- NbClust(nutrient.scaled, distance = <span class="string">"euclidean"</span>, min.nc = <span class="number">2</span>, max.nc = <span class="number">15</span>, method = <span class="string">"average"</span>)</span><br><span class="line">&gt; table(nc$Best.n[<span class="number">1</span>,])</span><br><span class="line"> <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>  <span class="number">4</span>  <span class="number">5</span>  <span class="number">9</span> <span class="number">10</span> <span class="number">13</span> <span class="number">14</span> <span class="number">15</span>    <span class="comment"># 这一行表示聚类数</span></span><br><span class="line"> <span class="number">2</span>  <span class="number">1</span>  <span class="number">4</span>  <span class="number">4</span>  <span class="number">2</span>  <span class="number">4</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">1</span>  <span class="number">4</span>    <span class="comment"># 这一行表示有多少个标准支持该聚类数</span></span><br></pre></td></tr></table></figure>
+<p>输出显示，聚类数2，3，5，15都获得了4个判定标准的支持。</p>
+<h3 id="聚类">聚类</h3>
+<p>使用<code>clusters()</code>函数对树状图进行分类。下面以5类聚类为例：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&gt; clusters &lt;- cutree(fit.average, k = <span class="number">5</span>)</span><br><span class="line">&gt; table(clusters)</span><br><span class="line">clusters</span><br><span class="line"> <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>  <span class="number">4</span>  <span class="number">5</span> </span><br><span class="line"> <span class="number">7</span> <span class="number">16</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">1</span> </span><br><span class="line"><span class="comment"># 获取每类的中位数</span></span><br><span class="line">&gt; aggregate(nutrient, by = list(cluster = clusters), median)</span><br><span class="line">  cluster energy protein fat calcium iron</span><br><span class="line"><span class="number">1</span>       <span class="number">1</span>  <span class="number">340.0</span>      <span class="number">19</span>  <span class="number">29</span>       <span class="number">9</span> <span class="number">2.50</span></span><br><span class="line"><span class="number">2</span>       <span class="number">2</span>  <span class="number">170.0</span>      <span class="number">20</span>   <span class="number">8</span>      <span class="number">13</span> <span class="number">1.45</span></span><br><span class="line"><span class="number">3</span>       <span class="number">3</span>  <span class="number">160.0</span>      <span class="number">26</span>   <span class="number">5</span>      <span class="number">14</span> <span class="number">5.90</span></span><br><span class="line"><span class="number">4</span>       <span class="number">4</span>   <span class="number">57.5</span>       <span class="number">9</span>   <span class="number">1</span>      <span class="number">78</span> <span class="number">5.70</span></span><br><span class="line"><span class="number">5</span>       <span class="number">5</span>  <span class="number">180.0</span>      <span class="number">22</span>   <span class="number">9</span>     <span class="number">367</span> <span class="number">2.50</span></span><br><span class="line"><span class="comment"># 绘图</span></span><br><span class="line">&gt; plot(fit.average, hang = -<span class="number">1</span>, cex = <span class="number">0.8</span>, main = <span class="string">"Average Linkage Clustering\n5 Cluster Solution"</span>)</span><br><span class="line">&gt; rect.hclust(fit.average, k = <span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588924098/R/16-hclustplot.png" /></p>
+<p>上述代码中输出了每个类的中位数，诸位可以将途中分类的数据与输出的中位数比对，这可以用于解释为什么这么聚类。</p>
+<h1 id="划分聚类">划分聚类</h1>
+<p>在划分方法中，观测值被分为K组并根据给定的规则改组成最有粘性的类。这一节讨论两种方法：K均值和基于中心点的划分(PAM)。</p>
+<h2 id="k-means聚类">K-means聚类</h2>
+<p>K均值聚类能处理比层次聚类更大的数据集。</p>
+<p>算法步骤如下：</p>
+<ol type="1">
+<li>选择<span class="math inline">\(K\)</span>个中心点(随机选择K行)；</li>
+<li>把每个数据点分配到离它最近的中心点；</li>
+<li>重新计算每类中的点到该类中心点距离的平均值(也就说，得到长度为<span class="math inline">\(p\)</span>的均值向量，这里的<span class="math inline">\(p\)</span>是变量的个数)；</li>
+<li>分配每个数据到它最近的中心点；</li>
+<li>重复步骤3和步骤4直到所有的观测值不再被分配或是达到最大的迭代次数(R把10次作为默认迭代次数)。</li>
+</ol>
+<p>R语言使用Hartigan &amp; Wong(1979)提出的有效算法，这种算法是把观测值分成k组并使得观测值到其指定的聚类中心的平方的总和为最小。</p>
+<p><span class="math display">\[
+s s(k)=\sum_{i=1}^{n} \sum_{j=0}^{p}\left(x_{i j}-\bar{x}_{k j}\right)^{2}
+\]</span></p>
+<p><span class="math inline">\(x_{ij}\)</span>表示第<span class="math inline">\(i\)</span>个观测值中第<span class="math inline">\(j\)</span>个变量的值。<span class="math inline">\(\bar{x}_{k j}\)</span>表示第<span class="math inline">\(k\)</span>个类中第<span class="math inline">\(j\)</span>个变量的均值，其中<span class="math inline">\(p\)</span>是变量的个数。</p>
+<p>均值的使用意味着所有的变量必须是连续的，并且这个方法很有可能被异常值影响。它在非凸聚类(例如U型)情况下也会变得很差。</p>
+<h3 id="示例-1">示例</h3>
+<p>K-means聚类可以使用自带的<code>kmeans(x, center)</code>函数，其中x为输入数据，<code>center</code>为中心数。函数返回类的成员、类中心、平方和(类内平方和、类间平方和、总平方和)和类大小。</p>
+<p>由于<strong>聚类方法对初始中心值的选择很敏感</strong>，所以需要设置<code>nstart</code>参数，它随机生成指定个数的初始中心值方案（也就是进行n次随机初始中心值选择），然后选择效果最好的那一个。</p>
+<p>K-means聚类要求事先确定要提取的聚类个数。依然可以是用NbClust包作为参考。同时，在K均值聚类中，<strong>类中总的平方值对聚类数量的曲线</strong>可能是有帮助的（类似于碎石图），它可以根据以下函数来绘制：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">wssplot &lt;- <span class="keyword">function</span>(data, nc = <span class="number">15</span>, seed = <span class="number">1234</span>) &#123;</span><br><span class="line">    wss &lt;- (nrow(data) - <span class="number">1</span>) * sum(apply(data, <span class="number">2</span>, var))</span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">2</span>:nc) &#123;</span><br><span class="line">        set.seed(seed)</span><br><span class="line">        wss[i] &lt;- sum(kmeans(data, centers = i)$withinss)</span><br><span class="line">    &#125;</span><br><span class="line">    plot(<span class="number">1</span>:nc, wss, type = <span class="string">"b"</span>, xlab = <span class="string">"Number of Clusters"</span>, </span><br><span class="line">         ylab = <span class="string">"Within groups sum of squares"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以下代码使用rattle包中的wine葡萄酒数据集，它包含了178种意大利葡萄酒中13种化学成分，下面对该数据集进行聚类：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&gt; data(wine, package=<span class="string">"rattle"</span>)</span><br><span class="line">&gt; df &lt;- scale(wine[-<span class="number">1</span>])</span><br><span class="line">&gt; wssplot(df)   <span class="comment"># 图像见下方</span></span><br><span class="line">&gt; <span class="keyword">library</span>(NbClust)</span><br><span class="line">&gt; set.seed(<span class="number">1234</span>)</span><br><span class="line">&gt; nc &lt;- NbClust(df, min.nc=<span class="number">2</span>, max.nc=<span class="number">15</span>, method=<span class="string">"kmeans"</span>)</span><br><span class="line">&gt; table(nc$Best.n[<span class="number">1</span>,])</span><br><span class="line"></span><br><span class="line"> <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span> <span class="number">14</span> <span class="number">15</span> </span><br><span class="line"> <span class="number">2</span>  <span class="number">1</span>  <span class="number">2</span> <span class="number">19</span>  <span class="number">1</span>  <span class="number">1</span> </span><br><span class="line">&gt; set.seed(<span class="number">1234</span>)</span><br><span class="line">&gt; fit.km &lt;- kmeans(df, <span class="number">3</span>, nstart=<span class="number">25</span>)</span><br><span class="line"><span class="comment"># fit.km$cluster可以输出每条数据的分类</span></span><br><span class="line"><span class="comment"># fit.km$centers输出分类的中心</span></span><br><span class="line"><span class="comment"># 以下是对分类的评价</span></span><br><span class="line">&gt; ct.km &lt;- table(wine$Type, fit.km$cluster)</span><br><span class="line">&gt; ct.km</span><br><span class="line">   </span><br><span class="line">     <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span></span><br><span class="line">  <span class="number">1</span> <span class="number">59</span>  <span class="number">0</span>  <span class="number">0</span></span><br><span class="line">  <span class="number">2</span>  <span class="number">3</span> <span class="number">65</span>  <span class="number">3</span></span><br><span class="line">  <span class="number">3</span>  <span class="number">0</span>  <span class="number">0</span> <span class="number">48</span></span><br><span class="line">&gt; <span class="keyword">library</span>(flexclust)</span><br><span class="line">&gt; randIndex(ct.km)</span><br><span class="line">     ARI  <span class="comment"># 调整的兰德指数</span></span><br><span class="line"><span class="number">0.897495</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588927073/R/16-wss.png" style="zoom:50%;" /></p>
+<p>上图和<code>NbClust()</code>函数都建议分3类。</p>
+<p>flexclust包中的兰德指数(Rand index)可以用来量化分类的效果。以上输出的是调整的兰德指数，取值范围从-1到1，越大越好。上述结果说明，分类的结果还不错。</p>
+<h2 id="围绕中心点的划分">围绕中心点的划分</h2>
+<p>由于K-means算法是基于均值的，这导致它对异常值很敏感。一个更稳健的方法是围绕中心点的划分(PAM)。与其用质心(变量均值向量)表示类，不如<strong>用一个最有代表性的观测值来表示类(称为中心点)</strong>。</p>
+<p>PAM可以使用任意的距离来计算，这也就意谓着，PAM可以容纳混合数据类型，并不仅限于连续变量。</p>
+<p>PAM算法如下：</p>
+<ol type="1">
+<li>随机选择K个观测值(每个都称为中心点)；</li>
+<li>计算观测值到各个中心的距离/相异性；</li>
+<li>把每个观测值分配到最近的中心点；</li>
+<li>计算每个中心点到每个观测值的距离的总和(总成本)；</li>
+<li>选择一个该类中不是中心的点，并和中心点互换；</li>
+<li>重新把每个点分配到距它最近的中心点；</li>
+<li>再次计算总成本；</li>
+<li>如果总成本比步骤4计算的总成本少，把新的点作为中心点；</li>
+<li>重复步骤5~8，直到中心点不再改变。</li>
+</ol>
+<h3 id="示例-2">示例</h3>
+<p>可以使用cluster包中的<code>pam()</code>函数：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#      x: 数据矩阵或数据框</span></span><br><span class="line"><span class="comment">#      k: 聚类的个数</span></span><br><span class="line"><span class="comment"># metric: 使用的相似性/相异性的度量</span></span><br><span class="line"><span class="comment">#  stand: 表示是否对数据进行标准化</span></span><br><span class="line">pam(x, k, metric=<span class="string">"euclidean"</span>, stand=<span class="literal">FALSE</span>)</span><br></pre></td></tr></table></figure>
+<p>还是之前那个葡萄酒的例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(cluster)</span><br><span class="line">&gt; set.seed(<span class="number">1234</span>)</span><br><span class="line">&gt; fit.pam &lt;- pam(wine[-<span class="number">1</span>], k=<span class="number">3</span>, stand=<span class="literal">TRUE</span>)</span><br><span class="line">&gt; fit.pam$medoids   <span class="comment"># 输出中心点，它是原始数据中的真实值，而不是如K-means那样计算出来的一个质心</span></span><br><span class="line">     Alcohol Malic  Ash Alcalinity Magnesium Phenols Flavanoids Nonflavanoids Proanthocyanins Color  Hue Dilution Proline</span><br><span class="line">[<span class="number">1</span>,]   <span class="number">13.48</span>  <span class="number">1.81</span> <span class="number">2.41</span>       <span class="number">20.5</span>       <span class="number">100</span>    <span class="number">2.70</span>       <span class="number">2.98</span>          <span class="number">0.26</span>            <span class="number">1.86</span>   <span class="number">5.1</span> <span class="number">1.04</span>     <span class="number">3.47</span>     <span class="number">920</span></span><br><span class="line">[<span class="number">2</span>,]   <span class="number">12.25</span>  <span class="number">1.73</span> <span class="number">2.12</span>       <span class="number">19.0</span>        <span class="number">80</span>    <span class="number">1.65</span>       <span class="number">2.03</span>          <span class="number">0.37</span>            <span class="number">1.63</span>   <span class="number">3.4</span> <span class="number">1.00</span>     <span class="number">3.17</span>     <span class="number">510</span></span><br><span class="line">[<span class="number">3</span>,]   <span class="number">13.40</span>  <span class="number">3.91</span> <span class="number">2.48</span>       <span class="number">23.0</span>       <span class="number">102</span>    <span class="number">1.80</span>       <span class="number">0.75</span>          <span class="number">0.43</span>            <span class="number">1.41</span>   <span class="number">7.3</span> <span class="number">0.70</span>     <span class="number">1.56</span>     <span class="number">750</span></span><br><span class="line">&gt; clusplot(fit.pam, main=<span class="string">"Bivariate Cluster Plot"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588948386/R/16-pam.png" /></p>
+<p>途中两个轴是原始数据13个变量的两个主成分，一共解释了解释了55.41%的方差。</p>
+<p>再看一看PAM对这个数据集的表现如何：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; table(wine$Type, fit.pam$clustering)</span><br><span class="line">   </span><br><span class="line">     <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span></span><br><span class="line">  <span class="number">1</span> <span class="number">59</span>  <span class="number">0</span>  <span class="number">0</span></span><br><span class="line">  <span class="number">2</span> <span class="number">16</span> <span class="number">53</span>  <span class="number">2</span></span><br><span class="line">  <span class="number">3</span>  <span class="number">0</span>  <span class="number">1</span> <span class="number">47</span></span><br><span class="line">&gt; randIndex(ct.pam)</span><br><span class="line">      ARI <span class="comment"># 调整的兰德指数</span></span><br><span class="line"><span class="number">0.6994957</span></span><br></pre></td></tr></table></figure>
+<p>可以看到PAM在这个数据集上的表现比K-means弱了很多。</p>
+<h1 id="避免不存在的类">避免不存在的类</h1>
+<p>聚类分析划分类的能力是很强的，这就导致它可能在本不存在分类的数据上硬生生划出几个分类来。</p>
+<p>例如，下方的df变量是随机地从相关系数为0.5的二元正态分布中抽取的1000个观测值，由于这数据是我们生造的，这里面是没有类的：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(fMultivar)</span><br><span class="line">set.seed(<span class="number">1234</span>)</span><br><span class="line">df &lt;- as.data.frame(rnorm2d(<span class="number">1000</span>, rho=<span class="number">.5</span>))</span><br><span class="line">plot(df, main=<span class="string">"Bivariate Normal Distribution with rho=0.5"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588949117/R/16-2d.png" style="zoom:50%;" /></p>
+<p>但如果你用之前的<code>wssplot()</code>函数或者<code>Nbclust()</code>函数来检测一下类的数量：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(NbClust)</span><br><span class="line">&gt; nc &lt;- NbClust(df, min.nc=<span class="number">2</span>, max.nc=<span class="number">15</span>, method=<span class="string">"kmeans"</span>) <span class="comment"># 运行的比较慢</span></span><br><span class="line">&gt; table(nc$Best.n[<span class="number">1</span>,])</span><br><span class="line"></span><br><span class="line"> <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>  <span class="number">4</span>  <span class="number">5</span>  <span class="number">9</span> <span class="number">10</span> <span class="number">13</span> <span class="number">15</span> </span><br><span class="line"> <span class="number">2</span>  <span class="number">1</span>  <span class="number">8</span>  <span class="number">4</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">4</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">3</span> </span><br><span class="line"> &gt; wssplot(df)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588949582/R/16-noclass.png" style="zoom:50%;" /></p>
+<p>可以看到，<code>NbClust()</code>建议2分类，<code>wssplot()</code>建议3分类。如果我们用PAM来划分一下，可以看到如下结果：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(ggplot2)</span><br><span class="line"><span class="keyword">library</span>(cluster)</span><br><span class="line">fit &lt;- pam(df, k = <span class="number">2</span>)</span><br><span class="line">df$clustering &lt;- factor(fit$clustering)</span><br><span class="line">ggplot(data = df, aes(x = V1, y = V2, color = clustering, shape = clustering)) + </span><br><span class="line">    geom_point() + ggtitle(<span class="string">"Clustering of Bivariate Normal Data"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588949733/R/16-2class.png" style="zoom:50%;" /></p>
+<p>PAM将数据硬生生地划分出了两个类。</p>
+<p>正是因为这个原因，我们需要对所做的聚类进行验证。</p>
+<h2 id="验证聚类">验证聚类</h2>
+<p>如果你想验证是否在不存在类的数据集上进行了聚类，可以借助NbClust包中的立方聚类规则(Cubic Cluster Criteria，CCC)来判断：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; plot(nc$All.index[,<span class="number">4</span>], type=<span class="string">"o"</span>, ylab=<span class="string">"CCC"</span>, xlab=<span class="string">"Number of clusters"</span>, col=<span class="string">"blue"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1588950005/R/16-ccc.png" style="zoom:50%;" /></p>
+<p><strong>当CCC的值为负并且对于两类或是更多的类递减时，就是典型的单峰分布</strong>，即该数据集上不存在类。</p>
+<p>如果你试图找出在某种意义上“真实的”类(而不是一个方便的划分)，就要<strong>确保结果是稳健的并且是可重复的</strong>。你可以<strong>尝试不同的聚类方法</strong>，并<strong>用新的样本复制结果</strong>。如果同一类持续复原，你就可以对得出的结果更加自信。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zuiqiangiron.xyz/2020/05/07/R%E8%AF%AD%E8%A8%80-%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90/" title="R语言-聚类分析">https://www.zuiqiangiron.xyz/2020/05/07/R语言-聚类分析/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R%E8%AF%AD%E8%A8%80/" rel="tag"># R语言</a>
+              <a href="/tags/%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90/" rel="tag"># 聚类分析</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/06/R%E8%AF%AD%E8%A8%80-%E5%B9%BF%E4%B9%89%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B/" rel="prev" title="R语言-广义线性模型">
+      <i class="fa fa-chevron-left"></i> R语言-广义线性模型
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/07/R%E8%AF%AD%E8%A8%80-%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E4%B8%8E%E5%9B%A0%E5%AD%90%E5%88%86%E6%9E%90/" rel="next" title="R语言-主成分分析与因子分析">
+      R语言-主成分分析与因子分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#聚类分析的一般步骤"><span class="nav-number">2.</span> <span class="nav-text">聚类分析的一般步骤</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#计算距离"><span class="nav-number">3.</span> <span class="nav-text">计算距离</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#层次聚类"><span class="nav-number">4.</span> <span class="nav-text">层次聚类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#示例"><span class="nav-number">4.1.</span> <span class="nav-text">示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初步聚类"><span class="nav-number">4.1.1.</span> <span class="nav-text">初步聚类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#决定聚类数"><span class="nav-number">4.1.2.</span> <span class="nav-text">决定聚类数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#聚类"><span class="nav-number">4.1.3.</span> <span class="nav-text">聚类</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#划分聚类"><span class="nav-number">5.</span> <span class="nav-text">划分聚类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#k-means聚类"><span class="nav-number">5.1.</span> <span class="nav-text">K-means聚类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-1"><span class="nav-number">5.1.1.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#围绕中心点的划分"><span class="nav-number">5.2.</span> <span class="nav-text">围绕中心点的划分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-2"><span class="nav-number">5.2.1.</span> <span class="nav-text">示例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#避免不存在的类"><span class="nav-number">6.</span> <span class="nav-text">避免不存在的类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#验证聚类"><span class="nav-number">6.1.</span> <span class="nav-text">验证聚类</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="嘴强黑铁"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">79</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">82</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://www.zuiqiangiron.xyz/2020/05/07/R%E8%AF%AD%E8%A8%80-%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90/";
+    this.page.identifier = "2020/05/07/R语言-聚类分析/";
+    this.page.title = "R语言-聚类分析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>
