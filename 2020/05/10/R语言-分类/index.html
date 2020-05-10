@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="Y0-gFMBzGnbrueUrh8PjkmnvCGItjob2oR3HjG9SVnE">
+  <meta name="msvalidate.01" content="97A49017D4D536B99438C4EE0E9FBA3F">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zuiqiangiron.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="《R语言实战》笔记 本篇主要介绍有监督学习中的逻辑回归、决策树、随机森林和支持向量机。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R语言-分类">
+<meta property="og:url" content="https://www.zuiqiangiron.xyz/2020/05/10/R%E8%AF%AD%E8%A8%80-%E5%88%86%E7%B1%BB/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="《R语言实战》笔记 本篇主要介绍有监督学习中的逻辑回归、决策树、随机森林和支持向量机。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1589074944/R/17-cp-dtree.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1589078388/R/17-ctree.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1589085806/R/%E9%A2%84%E6%B5%8B%E5%87%86%E7%A1%AE%E6%80%A7%E6%A0%87%E5%87%86.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1589086380/R/%E6%B7%B7%E6%B7%86%E7%9F%A9%E9%98%B5.png">
+<meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1589092668/R/17-roc.png">
+<meta property="article:published_time" content="2020-05-10T06:56:39.000Z">
+<meta property="article:modified_time" content="2020-05-10T06:57:13.726Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="R语言">
+<meta property="article:tag" content="聚类分析">
+<meta property="article:tag" content="逻辑回归">
+<meta property="article:tag" content="决策树">
+<meta property="article:tag" content="随机森林">
+<meta property="article:tag" content="支持向量机">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/vpointer/image/upload/v1589074944/R/17-cp-dtree.png">
+
+<link rel="canonical" href="https://www.zuiqiangiron.xyz/2020/05/10/R%E8%AF%AD%E8%A8%80-%E5%88%86%E7%B1%BB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>R语言-分类 | 嘴强黑铁</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161480657-1"></script>
+    <script pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161480657-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">天下事以难而废者十之一，以惰而废者十之九</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zuiqiangiron.xyz/2020/05/10/R%E8%AF%AD%E8%A8%80-%E5%88%86%E7%B1%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          R语言-分类
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-10 14:56:39 / 修改时间：14:57:13" itemprop="dateCreated datePublished" datetime="2020-05-10T14:56:39+08:00">2020-05-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">R语言</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/05/10/R%E8%AF%AD%E8%A8%80-%E5%88%86%E7%B1%BB/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/05/10/R语言-分类/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>《R语言实战》笔记</p>
+<p>本篇主要介绍有监督学习中的逻辑回归、决策树、随机森林和支持向量机。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="数据准备">数据准备</h1>
+<p>本章的主要例子来源于UCI机器学习数据库中的威斯康星州乳腺癌数据。数据分析的目的是根据细胞组织细针抽吸活检所反映的特征，来判断被检者是否患有乳腺癌(细胞组织样本单元由空心细针在皮下肿块中抽得)。</p>
+<p>威斯康星州乳腺癌数据集是一个逗号分隔的txt文件，包含699个细针抽吸活检的样本单元，其中458个(65.5%)为良性样本单元，类别编号为2，241个(34.5%)为恶性样本单元，类别编号为4。数据集中共有11个变量，表中未标明变量名。共有16个样本单元中有缺失数据并用问号表示（直接删除）。</p>
+<p>一下随机选取70%的数据作为训练集，剩余的作为验证集：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">loc &lt;- <span class="string">"http://archive.ics.uci.edu/ml/machine-learning-databases/"</span></span><br><span class="line">ds &lt;- <span class="string">"breast-cancer-wisconsin/breast-cancer-wisconsin.data"</span></span><br><span class="line">url &lt;- paste(loc, ds, sep = <span class="string">""</span>)</span><br><span class="line"></span><br><span class="line">breast &lt;- read.table(url, sep = <span class="string">","</span>, header = <span class="literal">FALSE</span>, na.strings = <span class="string">"?"</span>)</span><br><span class="line">breast &lt;- na.omit(breast)</span><br><span class="line">names(breast) &lt;- c(<span class="string">"ID"</span>, <span class="string">"clumpThickness"</span>, <span class="string">"sizeUniformity"</span>, <span class="string">"shapeUniformity"</span>, </span><br><span class="line">                   <span class="string">"maginalAdhesion"</span>,<span class="string">"singleEpithelialCellSize"</span>, <span class="string">"bareNuclei"</span>, </span><br><span class="line">                   <span class="string">"blandChromatin"</span>,<span class="string">"normalNucleoli"</span>, <span class="string">"mitosis"</span>, <span class="string">"class"</span>)</span><br><span class="line">df &lt;- breast[-<span class="number">1</span>]</span><br><span class="line">df$class &lt;- factor(df$class, levels = c(<span class="number">2</span>, <span class="number">4</span>), labels = c(<span class="string">"benign"</span>, <span class="string">"malignant"</span>))</span><br><span class="line"></span><br><span class="line">set.seed(<span class="number">1234</span>)</span><br><span class="line">train &lt;- sample(nrow(df), <span class="number">0.7</span> * nrow(df))</span><br><span class="line">df.train &lt;- df[train, ]</span><br><span class="line">df.validate &lt;- df[-train, ]</span><br><span class="line">table(df.train$class)</span><br><span class="line">table(df.validate$class)</span><br><span class="line"></span><br><span class="line"><span class="comment">################# 输出 #################</span></span><br><span class="line"></span><br><span class="line">   benign malignant </span><br><span class="line">      <span class="number">319</span>       <span class="number">170</span> </span><br><span class="line"></span><br><span class="line">   benign malignant </span><br><span class="line">      <span class="number">139</span>        <span class="number">71</span></span><br></pre></td></tr></table></figure>
+<h1 id="逻辑回归">逻辑回归</h1>
+<p>以下是逻辑回归的例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拟合</span></span><br><span class="line">&gt; fit.logit &lt;- glm(class~., data=df.train, family=binomial())</span><br><span class="line"><span class="comment"># 模型概览</span></span><br><span class="line">&gt; summary(fit.logit)</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">glm(formula = class ~ ., family = binomial(), data = df.train)</span><br><span class="line"></span><br><span class="line">Deviance Residuals: </span><br><span class="line">     Min        1Q    Median        3Q       Max  </span><br><span class="line">-<span class="number">2.24605</span>  -<span class="number">0.08012</span>  -<span class="number">0.03110</span>   <span class="number">0.00266</span>   <span class="number">2.11576</span>  </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">                         Estimate Std. Error z value Pr(&gt;|z|)    </span><br><span class="line">(Intercept)              -<span class="number">12.4412</span>     <span class="number">2.0547</span>  -<span class="number">6.055</span>  <span class="number">1.4e-09</span> ***</span><br><span class="line">clumpThickness             <span class="number">0.7407</span>     <span class="number">0.2262</span>   <span class="number">3.275</span>  <span class="number">0.00106</span> ** </span><br><span class="line">sizeUniformity            -<span class="number">0.0320</span>     <span class="number">0.3399</span>  -<span class="number">0.094</span>  <span class="number">0.92500</span>    </span><br><span class="line">shapeUniformity            <span class="number">0.2073</span>     <span class="number">0.3715</span>   <span class="number">0.558</span>  <span class="number">0.57680</span>    </span><br><span class="line">maginalAdhesion            <span class="number">0.5194</span>     <span class="number">0.1708</span>   <span class="number">3.041</span>  <span class="number">0.00236</span> ** </span><br><span class="line">singleEpithelialCellSize  -<span class="number">0.3217</span>     <span class="number">0.2613</span>  -<span class="number">1.231</span>  <span class="number">0.21831</span>    </span><br><span class="line">bareNuclei                 <span class="number">0.5851</span>     <span class="number">0.1881</span>   <span class="number">3.111</span>  <span class="number">0.00187</span> ** </span><br><span class="line">blandChromatin             <span class="number">0.8599</span>     <span class="number">0.2923</span>   <span class="number">2.942</span>  <span class="number">0.00326</span> ** </span><br><span class="line">normalNucleoli             <span class="number">0.4036</span>     <span class="number">0.1828</span>   <span class="number">2.208</span>  <span class="number">0.02725</span> *  </span><br><span class="line">mitosis                    <span class="number">0.8923</span>     <span class="number">0.3552</span>   <span class="number">2.512</span>  <span class="number">0.01200</span> *  </span><br><span class="line">---</span><br><span class="line">Signif. codes:  <span class="number">0</span> ‘***’ <span class="number">0.001</span> ‘**’ <span class="number">0.01</span> ‘*’ <span class="number">0.05</span> ‘.’ <span class="number">0.1</span> ‘ ’ <span class="number">1</span></span><br><span class="line"></span><br><span class="line">(Dispersion parameter <span class="keyword">for</span> binomial family taken to be <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    Null deviance: <span class="number">621.04</span>  on <span class="number">477</span>  degrees of freedom</span><br><span class="line">Residual deviance:  <span class="number">52.39</span>  on <span class="number">468</span>  degrees of freedom</span><br><span class="line">  (<span class="number">11</span> observations deleted due to missingness)</span><br><span class="line">AIC: <span class="number">72.39</span></span><br><span class="line"></span><br><span class="line">Number of Fisher Scoring iterations: <span class="number">9</span></span><br><span class="line"><span class="comment"># 预测</span></span><br><span class="line">&gt; prob &lt;- predict(fit.logit, df.validate, type=<span class="string">"response"</span>)</span><br><span class="line"><span class="comment"># 阈值设为0.5</span></span><br><span class="line">&gt; logit.pred &lt;- factor(prob &gt; <span class="number">0.5</span>, levels = c(<span class="literal">FALSE</span>, <span class="literal">TRUE</span>), labels = c(<span class="string">"benign"</span>, <span class="string">"malignant"</span>))</span><br><span class="line">&gt; table(df.validate$class, logit.pred, dnn = c(<span class="string">"Actual"</span>, <span class="string">"Predicted"</span>))</span><br><span class="line">           Predicted</span><br><span class="line">Actual      benign malignant</span><br><span class="line">  benign       <span class="number">140</span>         <span class="number">2</span></span><br><span class="line">  malignant      <span class="number">3</span>        <span class="number">60</span></span><br></pre></td></tr></table></figure>
+<p>模型的准确率为：<span class="math inline">\((140+60)/205=97.56\%\)</span>。</p>
+<p>需要注意，模型中有3个预测变量的系数并不显著。从预测的角度来说，我们一般不会将这些变量纳入最终模型。当这类不包含相关信息的变量特别多时，可以直接将其认定为模型中的噪声。在这种情况下，可用逐步逻辑回归生成一个包含更少解释变量的模型，通过增加或移除变量来得到一个更小的AIC值：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logit.fit.reduced &lt;- step(fit.logit)</span><br></pre></td></tr></table></figure>
+<p>这种精简后的模型在验证集上的误差相对全变量模型更小。</p>
+<h1 id="决策树">决策树</h1>
+<p>其基本思想是对预测变量进行二元分离，从而构造一棵可用于预测新样本单元所属类别的树。本节将介绍两类决策树：经典树和条件推断树。</p>
+<h2 id="经典决策树">经典决策树</h2>
+<p>经典决策树以一个二元输出变量和一组预测变量为基础，具体算法如下：</p>
+<ol type="1">
+<li>选定一个最佳预测变量将全部样本单元分为两类，实现两类中的纯度最大化(即一类中 良性样本单元尽可能多，另一类中恶性样本单元尽可能多)。如果预测变量连续，则选定一个分割点进行分类，使得两类纯度最大化；如果预测变量为分类变量(本例中未体现)，则对各类别进行合并再分类。</li>
+<li>对每一个子类别继续执行步骤1。</li>
+<li>重复步骤1~2，直到子类别中所含的样本单元数过少，或者没有分类法能将不纯度下降到一个给定阈值以下。最终集中的子类别即终端节点(terminal node)。根据每一个终端节点中样本单元的类别数众数来判别这一终端节点的所属类别。</li>
+<li>对任一样本单元执行决策树，得到其终端节点，即可根据步骤3得到模型预测的所属类别。</li>
+</ol>
+<p>上述算法通常会得到一棵过大的树，从而出现过拟合现象。为解决这一问题，可采用10折交叉验证法选择预测误差最小的树。这一剪枝后的树即可用于预测。</p>
+<h3 id="示例">示例</h3>
+<p>rpart包中的<code>rpart()</code>函数可构造决策树，<code>prune()</code>函数可对决策树进行剪枝：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(rpart)</span><br><span class="line">&gt; set.seed(<span class="number">1234</span>)</span><br><span class="line">&gt; dtree &lt;- rpart(class ~ ., data=df.train, method=<span class="string">"class"</span>, parms=list(split=<span class="string">"information"</span>))</span><br><span class="line">&gt; dtree$cptable</span><br><span class="line">          CP nsplit rel error    xerror       xstd</span><br><span class="line"><span class="number">1</span> <span class="number">0.77840909</span>      <span class="number">0</span> <span class="number">1.0000000</span> <span class="number">1.0000000</span> <span class="number">0.05991467</span></span><br><span class="line"><span class="number">2</span> <span class="number">0.05397727</span>      <span class="number">1</span> <span class="number">0.2215909</span> <span class="number">0.2556818</span> <span class="number">0.03627635</span></span><br><span class="line"><span class="number">3</span> <span class="number">0.01000000</span>      <span class="number">3</span> <span class="number">0.1136364</span> <span class="number">0.1250000</span> <span class="number">0.02602958</span></span><br><span class="line">&gt; plotcp(dtree) <span class="comment"># 交叉验证误差与复杂度参数的关系图</span></span><br><span class="line">&gt; dtree.pruned &lt;- prune(dtree, cp = <span class="number">0.01</span>) <span class="comment"># 剪枝</span></span><br><span class="line">&gt; <span class="keyword">library</span>(rpart.plot)</span><br><span class="line"><span class="comment"># 画出决策树</span></span><br><span class="line">&gt; prp(dtree.pruned, type = <span class="number">2</span>, extra = <span class="number">104</span>, fallen.leaves = <span class="literal">TRUE</span>, main = <span class="string">"Decision Tree"</span>)</span><br><span class="line">&gt; dtree.pred &lt;- predict(dtree.pruned, df.validate, type = <span class="string">"class"</span>)  <span class="comment"># 预测</span></span><br><span class="line">&gt; table(df.validate$class, dtree.pred, dnn = c(<span class="string">"Actual"</span>, <span class="string">"Predicted"</span>))  <span class="comment"># 验证</span></span><br><span class="line">           Predicted</span><br><span class="line">Actual      benign malignant</span><br><span class="line">  benign       <span class="number">138</span>         <span class="number">4</span></span><br><span class="line">  malignant      <span class="number">6</span>        <span class="number">57</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1589074944/R/17-cp-dtree.png" /></p>
+<p>其中：</p>
+<ol type="1">
+<li><code>cptable</code>值中包括不同大小的树对应的预测误差，因此可用于辅助设定最终的树的大小：
+<ul>
+<li><code>cp</code>为复杂度参数，用于惩罚过大的树；</li>
+<li><code>nsplit</code>表示树的分枝数，有<span class="math inline">\(n\)</span>个分枝的树将有<span class="math inline">\(n+1\)</span>个分枝节点；</li>
+<li><code>rel error</code>表示训练集中各种树对应的误差；</li>
+<li><code>xerror</code>表示交叉验证误差，即基于训练样本所得的10折交叉验证误差；</li>
+<li><code>xstd</code>为为交叉验证误差的标准差。</li>
+</ul></li>
+<li><strong>交叉验证误差与复杂度参数的关系图</strong>可用于判断最优的树：<strong>对于所有交叉验证误差在最小交叉验证误差<em>一个标准差范围内</em>的树中，最小的那颗树即最优的树</strong>。本例中对应于3次分割的那颗树。</li>
+<li><strong><code>prune()</code>函数可以根据复杂度参数剪掉最不重要的枝</strong>，从而将树的大小控制在理想范围内。三次分割对应的复杂度参数为0.01，从而<code>prune(dtree, cp=0.01)</code>可得到一个理想大小的树。</li>
+</ol>
+<p>从最后的结果可以看出，验证集中的准确率到达了95%。</p>
+<blockquote>
+<p>不同于逻辑回归，决策树可以用含有缺失值的预测变量训练模型，但如果缺失值很多的话，决策树可能会有偏。</p>
+</blockquote>
+<h2 id="条件推断树conditional-inference-tree">条件推断树(Conditional Inference Tree)</h2>
+<p>条件推断树与传统决策树类似，但变量和分割的选取是基于显著性检验的，而不是纯净度或同质性一类的度量。其中，显著性检验采用的是置换检验。</p>
+<p>条件推断树的算法如下：</p>
+<ol type="1">
+<li>对输出变量与每个预测变量间的关系计算<span class="math inline">\(p\)</span>值。</li>
+<li>选取<span class="math inline">\(p\)</span>值最小的变量。</li>
+<li>在因变量与被选中的变量间尝试所有可能的二元分割(通过排列检验)，并选取最显著的分割。</li>
+<li>将数据集分成两群，并对每个子群重复上述步骤。</li>
+<li>重复直至所有分割都不显著或已到达最小节点为止。</li>
+</ol>
+<blockquote>
+<p>注意：对于条件推断树来说，剪枝不是必需的，其生成过程相对更自动化一些。</p>
+</blockquote>
+<h3 id="示例-1">示例</h3>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(party)</span><br><span class="line">fit.ctree &lt;- ctree(class ~ ., data = df.train)</span><br><span class="line"><span class="comment"># 画出条件决策树</span></span><br><span class="line">plot(fit.ctree, main = <span class="string">"Conditional Inference Tree"</span>)</span><br><span class="line">ctree.pred &lt;- predict(fit.ctree, df.validate, type = <span class="string">"response"</span>)</span><br><span class="line"><span class="comment"># 验证</span></span><br><span class="line">table(df.validate$class, ctree.pred, dnn = c(<span class="string">"Actual"</span>, <span class="string">"Predicted"</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">######################## 输出 ##################################</span></span><br><span class="line">           Predicted</span><br><span class="line">Actual      benign malignant</span><br><span class="line">  benign       <span class="number">138</span>         <span class="number">4</span></span><br><span class="line">  malignant      <span class="number">2</span>        <span class="number">61</span>    <span class="comment"># 准确率：97%</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1589078388/R/17-ctree.png" /></p>
+<p>说明：每个节点中的阴影区域代表这个节点对应的恶性肿瘤比例。</p>
+<h1 id="随机森林random-forest">随机森林(Random Forest)</h1>
+<p>随机森林是一种组成式的有监督学习方法。随机森林的算法涉及对样本单元和变量进行抽样，从而生成大量决策树。对每个样本单元来说，所有决策树依次对其进行分类。所有决策树预测类别中的众数类别即为随机森林所预测的这一样本单元的类别。</p>
+<p>算法步骤如下（假设训练集中共有<span class="math inline">\(N\)</span>个样本，<span class="math inline">\(M\)</span>个变量）：</p>
+<ol type="1">
+<li>从训练集中<strong>随机有放回</strong>地抽取<span class="math inline">\(N\)</span>个样本单元，生成大量决策树。</li>
+<li>在每一个节点随机抽取<span class="math inline">\(m&lt; M\)</span>个变量，将其作为分割该节点的候选变量。每一个节点处的变量数应一致。</li>
+<li>完整生成所有决策树，无需剪枝(最小节点为1)。</li>
+<li>终端节点的所属类别由节点对应的众数类别决定。</li>
+<li>对于新的观测点，用所有的树对其进行分类，其类别由多数决定原则生成。</li>
+</ol>
+<p>生成树时没用到的样本点所对应的类别可由生成的树估计，与其真实类别比较即可得到<strong>袋外预测(out-of-bag，OOB)误差</strong>。无法获得验证集时，这是随机森林的一大优势。</p>
+<p><strong>随机森林算法还可计算变量的相对重要程度</strong>。</p>
+<h2 id="示例-2">示例</h2>
+<p>randomForest包中的<code>randomForest()</code>函数可用于生成随机森林，它默认生成500棵树，并且默认在每个节点处抽取<code>sqrt(M)</code>个变量，最小节点为1：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(randomForest)</span><br><span class="line">&gt; set.seed(<span class="number">1234</span>)</span><br><span class="line"><span class="comment"># na.action=na.roughfix参数可将数值变量中的缺失值替换成对应列的中位数,</span></span><br><span class="line"><span class="comment"># 将类别变量中的缺失值替换成对应列的众数类(若有多个众数则随机选一个)。</span></span><br><span class="line"><span class="comment"># 本例中由于去掉了缺失值，所以该参数不生效。</span></span><br><span class="line"><span class="comment"># importance=TRUE表示计算变量重要性</span></span><br><span class="line">&gt; fit.forest &lt;- randomForest(class ~ ., data = df.train, </span><br><span class="line">                             na.action = na.roughfix, importance = <span class="literal">TRUE</span>)</span><br><span class="line">&gt; fit.forest</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line"> randomForest(formula = class ~ ., data = df.train, importance = <span class="literal">TRUE</span>, na.action = na.roughfix) </span><br><span class="line">               Type of random forest: classification</span><br><span class="line">                     Number of trees: <span class="number">500</span></span><br><span class="line">No. of variables tried at each split: <span class="number">3</span></span><br><span class="line"></span><br><span class="line">        OOB estimate of  error rate: <span class="number">2.93</span>%</span><br><span class="line">Confusion matrix:</span><br><span class="line">          benign malignant class.error</span><br><span class="line">benign       <span class="number">293</span>         <span class="number">9</span>  <span class="number">0.02980132</span></span><br><span class="line">malignant      <span class="number">5</span>       <span class="number">171</span>  <span class="number">0.02840909</span></span><br><span class="line"><span class="comment"># 显示变量重要性</span></span><br><span class="line"><span class="comment"># 由type=2参数得到的变量相对重要性就是分割该变量时节点不纯度(异质性)的</span></span><br><span class="line"><span class="comment"># 下降总量对所有树取平均。节点不纯度由Gini系数定义。</span></span><br><span class="line">&gt; importance(fit.forest, type=<span class="number">2</span>)</span><br><span class="line">                         MeanDecreaseGini</span><br><span class="line">clumpThickness                   <span class="number">9.794852</span></span><br><span class="line">sizeUniformity                  <span class="number">58.635963</span></span><br><span class="line">shapeUniformity                 <span class="number">49.754466</span></span><br><span class="line">maginalAdhesion                  <span class="number">8.373530</span></span><br><span class="line">singleEpithelialCellSize        <span class="number">16.814313</span></span><br><span class="line">bareNuclei                      <span class="number">36.621347</span></span><br><span class="line">blandChromatin                  <span class="number">25.179804</span></span><br><span class="line">normalNucleoli                  <span class="number">14.177153</span></span><br><span class="line">mitosis                          <span class="number">2.015803</span></span><br><span class="line">&gt; forest.pred &lt;- predict(fit.forest, df.validate)</span><br><span class="line">&gt; table(df.validate$class, forest.pred, dnn = c(<span class="string">"Actual"</span>, <span class="string">"Predicted"</span>))</span><br><span class="line">           Predicted</span><br><span class="line">Actual      benign malignant</span><br><span class="line">  benign       <span class="number">140</span>         <span class="number">2</span></span><br><span class="line">  malignant      <span class="number">3</span>        <span class="number">60</span>    <span class="comment"># 准确率：97.6%</span></span><br></pre></td></tr></table></figure>
+<p><code>randomForest()</code>根据传统决策树生成随机森林，而party包中的<code>cforest()</code>函数则可基于条件推断树生成随机森林。当预测变量间高度相关时，基于条件推断树的随机森林可能效果更好。</p>
+<h2 id="随机森林优缺点">随机森林优缺点</h2>
+<p>优点：</p>
+<ol type="1">
+<li>相较于其他分类方法，随机森林的分类准确率通常更高；</li>
+<li>随机森林算法可处理大规模问题(即多样本单元、多变量)；</li>
+<li>可处理训练集中有大量缺失值的数据；</li>
+<li>可应对变量远多于样本单元的数据；</li>
+<li>可计算袋外预测误差(OOB error)、变量重要性。</li>
+</ol>
+<p>缺点：</p>
+<ol type="1">
+<li>随机森林的一个明显缺点是分类方法(此例中相当于500棵决策树)较难理解和表达；</li>
+<li>需要存储整个随机森林以对新样本单元分类。</li>
+</ol>
+<h1 id="支持向量机support-vector-machine">支持向量机(Support Vector Machine)</h1>
+<p>支持向量机(SVM)是一类可用于分类和回归的有监督机器学习模型。其流行归功于两个方面：一方面，他们可输出较准确的预测结果；另一方面，模型基于较优雅的数学理论。</p>
+<p>SVM也可以应用于变量数远多于样本单元数的问题（常见于医学研究）。与随机森林类似，SVM的一大缺点是分类准则比较难以理解和表述。另外，SVM在对大量样本建模时不如随机森林。</p>
+<p>本节以SVM在二元分类中的应用为例。</p>
+<h2 id="原理">原理</h2>
+<p>SVM的具体原理会在以后章节中详细介绍，这里只是一个概数，主要讲如何使用。</p>
+<p>SVM旨在在多维空间中找到一个能将全部样本单元分成两类的最优平面，这一平面应使两类中距离最近的点的间距(margin)尽可能大，在间距边界上的点被称为支持向量(support vector， 它们决定间距)，分割的超平面位于间距的中间。</p>
+<p>对于一个N维空间(即N个变量)来说，最优超平面(即线性决策面，linear decision surface)为N–1维。</p>
+<p>最优超平面可由一个二次规划问题解得。二次规划问题限制一侧样本点的输出值为+1，另一侧的输出值为–1，在此基础上最优化间距。若样本点大多数是可分的，但又有少数点和非己类混和，则在最优化中加入惩罚项以容许一定误差，从而生成“软”间隔。</p>
+<p>不过有可能数据本身就是非线性的。这种情况下，SVM通过核函数将数据投影到高维，使其在高维线性可分。</p>
+<blockquote>
+<p>SVM算法不允许数据中有缺失值。</p>
+</blockquote>
+<h2 id="示例-3">示例</h2>
+<p>kernlab包的<code>ksvm()</code>函数和e1071包中的<code>svm()</code>函数都能实现SVM算法。<code>ksvm()</code>功能更强大，但<code>svm()</code>相对更简单。</p>
+<p>以下是<code>svm()</code>函数的示例。由于方差较大的预测变量通常对SVM的生成影响更大，<code>svm()</code>函数默认在生成模型前对每个变量标准化，使其均值为0、标准差为1：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(e1071)</span><br><span class="line">&gt; set.seed(<span class="number">1234</span>)</span><br><span class="line"><span class="comment"># 拟合</span></span><br><span class="line">&gt; fit.svm &lt;- svm(class ~ ., data = df.train)</span><br><span class="line">&gt; fit.svm</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">svm(formula = class ~ ., data = df.train)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Parameters:</span><br><span class="line">   SVM-Type:  C-classification </span><br><span class="line"> SVM-Kernel:  radial </span><br><span class="line">       cost:  <span class="number">1</span> </span><br><span class="line"></span><br><span class="line">Number of Support Vectors:  <span class="number">84</span></span><br><span class="line"><span class="comment"># 验证</span></span><br><span class="line">&gt; svm.pred &lt;- predict(fit.svm, na.omit(df.validate))</span><br><span class="line">&gt; table(na.omit(df.validate)$class, svm.pred, dnn = c(<span class="string">"Actual"</span>, <span class="string">"Predicted"</span>))</span><br><span class="line">           Predicted</span><br><span class="line">Actual      benign malignant</span><br><span class="line">  benign       <span class="number">138</span>         <span class="number">4</span></span><br><span class="line">  malignant      <span class="number">0</span>        <span class="number">63</span>    <span class="comment"># 准确率：98%</span></span><br></pre></td></tr></table></figure>
+<h3 id="选择调和参数">选择调和参数</h3>
+<p><code>svm()</code>函数默认通过径向基函数(Radial Basis Function，RBF)将样本单元投射到高维空间，它是一种非线性投影。</p>
+<p>在用带RBF核的SVM拟合样本时，两个参数可能影响最终结果:gamma和成本(cost)：</p>
+<ol type="1">
+<li>gamma是核函数的参数，控制分割超平面的形状。gamma越大，通常导致支持向量越多。可将gamma看作控制训练样本“到达范围”的参数，gamma必须大于0；</li>
+<li>成本参数代表犯错的成本，一个较大的成本意味着模型对误差的惩罚更大，从而将生成一个更复杂的分类边界，这容易导致过拟合，而较小的成本又容易导致欠拟合，所以需要不断尝试。</li>
+</ol>
+<p><code>svm()</code>函数默认设置gamma为预测变量个数的倒数，成本参数为1。对于这两个参数，可以使用格点搜索法选择一个最优的组合，为此需要使用<code>tune.svm()</code>函数：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&gt; set.seed(<span class="number">1234</span>)</span><br><span class="line">&gt; tuned &lt;- tune.svm(class ~ ., data = df.train, gamma = <span class="number">10</span>^(-<span class="number">6</span>:<span class="number">1</span>), cost = <span class="number">10</span>^(-<span class="number">10</span>:<span class="number">10</span>))</span><br><span class="line">&gt; tuned</span><br><span class="line"></span><br><span class="line">Parameter tuning of ‘svm’:</span><br><span class="line"></span><br><span class="line">- sampling method: <span class="number">10</span>-fold cross validation </span><br><span class="line"></span><br><span class="line">- best parameters:</span><br><span class="line"> gamma cost</span><br><span class="line">  <span class="number">0.01</span>    <span class="number">1</span> <span class="comment"># 输入范围内的建议值</span></span><br><span class="line"></span><br><span class="line">- best performance: <span class="number">0.03355496</span> </span><br><span class="line"><span class="comment"># 拟合</span></span><br><span class="line">&gt; fit.svm &lt;- svm(class ~ ., data = df.train, gamma = <span class="number">0.01</span>, cost = <span class="number">1</span>)</span><br><span class="line"><span class="comment"># 预测</span></span><br><span class="line">&gt; svm.pred &lt;- predict(fit.svm, na.omit(df.validate))</span><br><span class="line"><span class="comment"># 验证</span></span><br><span class="line">&gt; table(na.omit(df.validate)$class, svm.pred, dnn = c(<span class="string">"Actual"</span>, <span class="string">"Predicted"</span>))</span><br><span class="line">           Predicted</span><br><span class="line">Actual      benign malignant</span><br><span class="line">  benign       <span class="number">139</span>         <span class="number">3</span></span><br><span class="line">  malignant      <span class="number">1</span>        <span class="number">62</span>    <span class="comment"># 准确率：98%</span></span><br></pre></td></tr></table></figure>
+<p>虽然准确率并没有提升，不过这里只是介绍一种参数调优的方法。</p>
+<h1 id="评价标准">评价标准</h1>
+<p>如何比较众模型的优劣需要一定标准（不仅局限于上述4种方法）。</p>
+<p>最常用的一个统计量是<strong>准确率(accuracy)</strong>，即正确分类的数据占总数据的比例。但它并不是万能的。</p>
+<p>常见的度量如下所示：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1589085806/R/%E9%A2%84%E6%B5%8B%E5%87%86%E7%A1%AE%E6%80%A7%E6%A0%87%E5%87%86.png" /></p>
+<p>解释上述度量，还需要一个混淆矩阵：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1589086380/R/%E6%B7%B7%E6%B7%86%E7%9F%A9%E9%98%B5.png" /></p>
+<p>假设样本总数为<span class="math inline">\(N\)</span>：</p>
+<ul>
+<li>准确率<span class="math inline">\(ACC=\frac{TP+TN}{N}\)</span></li>
+<li>灵敏度(sensitivity)、召回率(recall)、查全率 = <span class="math inline">\(\frac{TP}{TP+FN}\)</span></li>
+<li>特异性(specificity) = <span class="math inline">\(\frac{TN}{FP+TN}\)</span></li>
+<li>正例命中率、精确率、查准率(precision) = <span class="math inline">\(\frac{TP}{TP+FP}\)</span></li>
+<li>负例命中率 = <span class="math inline">\(\frac{TN}{TN+FN}\)</span></li>
+<li><span class="math inline">\(F_1 = \frac{2}{\frac{1}{precision}+\frac{1}{recall}} = \frac{2 \cdot \text { precision } \cdot \text { recall }}{\text { precision }+\text { recall }}\)</span>，它是精确率和召回率的调和平均值，它认为精确率和召回率一样重要</li>
+<li><span class="math inline">\(F_{\beta}=\frac{1+\beta^{2}}{\frac{1}{\text { precision }}+\frac{\beta^{2}}{\text { recall }}}=\frac{\left(1+\beta^{2}\right) \cdot \text { precision } \cdot \text { recall }}{\beta^{2} \cdot \text { precision }+\text { recall }}\)</span>，当<span class="math inline">\(\beta=1\)</span>时，它就是<span class="math inline">\(F_1\)</span>值；当<span class="math inline">\(\beta&gt;1\)</span>时，表示召回率更重要；当<span class="math inline">\(0&lt;\beta&lt;1\)</span>时，表示精确率更重要。常用<span class="math inline">\(F_2\)</span>和<span class="math inline">\(F_{0.5}\)</span></li>
+</ul>
+<h2 id="roc曲线receiver-operating-characteristic-curve">ROC曲线(Receiver Operating Characteristic Curve)</h2>
+<p>以逻辑回归为例说明ROC曲线。逻辑回归的预测值是一个概率，前面例子中，我们以0.5为阈值划分分类，大于0.5的将其划分为恶性，小于0.5的将其划分为良性。但并不是说阈值只能是0.5。通过调节这个阈值，模型可以得到不同的灵敏度和特异性，如果把这些灵敏度和特异性连成一条曲线，这条曲线就是ROC曲线。</p>
+<p>通常，曲线的纵座标为灵敏度(sensitivity)，横座标为(1-specificity)或者specificity，该曲线之下的面积用AUC(Area Under Curve)表示：</p>
+<p><img src="https://res.cloudinary.com/vpointer/image/upload/v1589092668/R/17-roc.png" style="zoom:50%;" /></p>
+<p>这是之前逻辑回归拟合的模型并使用训练集得到的ROC曲线。图中的那条直线表示，不论真实类别是1还是0的样本，分类器预测为1的概率是相等的，换句话说就是这个分类器毫无识别能力，它对应的AUC为0.5。</p>
+<p><strong>一般</strong>：</p>
+<ul>
+<li>模型的AUC的取值范围在[0.5, 1]之间；</li>
+<li>AUC越大越好，也就是ROC曲线越往左上角越好。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zuiqiangiron.xyz/2020/05/10/R%E8%AF%AD%E8%A8%80-%E5%88%86%E7%B1%BB/" title="R语言-分类">https://www.zuiqiangiron.xyz/2020/05/10/R语言-分类/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R%E8%AF%AD%E8%A8%80/" rel="tag"># R语言</a>
+              <a href="/tags/%E5%88%86%E7%B1%BB/" rel="tag"># 分类</a>
+              <a href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/" rel="tag"># 逻辑回归</a>
+              <a href="/tags/%E5%86%B3%E7%AD%96%E6%A0%91/" rel="tag"># 决策树</a>
+              <a href="/tags/%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97/" rel="tag"># 随机森林</a>
+              <a href="/tags/%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA/" rel="tag"># 支持向量机</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/09/R%E8%AF%AD%E8%A8%80-%E5%A4%84%E7%90%86%E7%BC%BA%E5%A4%B1%E5%80%BC%E7%9A%84%E9%AB%98%E7%BA%A7%E6%96%B9%E6%B3%95/" rel="prev" title="R语言-处理缺失值的高级方法">
+      <i class="fa fa-chevron-left"></i> R语言-处理缺失值的高级方法
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据准备"><span class="nav-number">1.</span> <span class="nav-text">数据准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#逻辑回归"><span class="nav-number">2.</span> <span class="nav-text">逻辑回归</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#决策树"><span class="nav-number">3.</span> <span class="nav-text">决策树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#经典决策树"><span class="nav-number">3.1.</span> <span class="nav-text">经典决策树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">3.1.1.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#条件推断树conditional-inference-tree"><span class="nav-number">3.2.</span> <span class="nav-text">条件推断树(Conditional Inference Tree)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">示例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#随机森林random-forest"><span class="nav-number">4.</span> <span class="nav-text">随机森林(Random Forest)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#示例-2"><span class="nav-number">4.1.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#随机森林优缺点"><span class="nav-number">4.2.</span> <span class="nav-text">随机森林优缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#支持向量机support-vector-machine"><span class="nav-number">5.</span> <span class="nav-text">支持向量机(Support Vector Machine)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">5.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#示例-3"><span class="nav-number">5.2.</span> <span class="nav-text">示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#选择调和参数"><span class="nav-number">5.2.1.</span> <span class="nav-text">选择调和参数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#评价标准"><span class="nav-number">6.</span> <span class="nav-text">评价标准</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#roc曲线receiver-operating-characteristic-curve"><span class="nav-number">6.1.</span> <span class="nav-text">ROC曲线(Receiver Operating Characteristic Curve)</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="嘴强黑铁"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">81</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">91</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5e731fa9610694ef" async="async"></script>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://www.zuiqiangiron.xyz/2020/05/10/R%E8%AF%AD%E8%A8%80-%E5%88%86%E7%B1%BB/";
+    this.page.identifier = "2020/05/10/R语言-分类/";
+    this.page.title = "R语言-分类";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>
