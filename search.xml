@@ -1,6 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>R语言-处理缺失值的高级方法</title>
+    <url>/2020/05/11/R%E8%AF%AD%E8%A8%80-%E5%A4%84%E7%90%86%E7%BC%BA%E5%A4%B1%E5%80%BC%E7%9A%84%E9%AB%98%E7%BA%A7%E6%96%B9%E6%B3%95/</url>
+    <content><![CDATA[<blockquote>
+<p>《R语言实战》笔记</p>
+<p>本篇介绍处理数据中缺失值的传统方法和现代方法，主要使用VIM和mice包。数据使用VIM包中的sleep数据集。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="缺失数据的分类">缺失数据的分类</h1>
+<ul>
+<li>完全随机缺失MCAR：若某变量的缺失数据与其他任何观测或未观测变量都不相关，则数据为完全随机缺失。注意，如果每个有缺失值的变量都是MCAR，那么可以将数据完整的实例看作对更大数据集的一个简单随机抽样。</li>
+<li>随机缺失MAR：若某变量上的缺失数据与其他观测变量相关，与它自己的未观测值不相关，则数据为随机缺失。例如，如果体重较小的动物更可能有做梦时长的缺失值(可能因为较小的动物更难观察)，而且该“缺失”与动物的做梦时长无关，那么就可以认为该数据是MAR。此时，一旦控制了体重变量，做梦时长数据的缺失与出现将是随机的。</li>
+<li>非随机缺失NMAR：若缺失数据不属于MCAR和MAR，则数据为非随机缺失(NMAR)。例如，做梦时长越短的动物更可能有做梦数据的缺失(可能由于难以测量时长较短的事件)，那么可认为数据是NMAR。</li>
+</ul>
+<h1 id="处理缺失值的步骤">处理缺失值的步骤</h1>
+<p>一个完整的处理方法通常包含以下几个步骤：</p>
+<ol type="1">
+<li>识别缺失数据(往往只有这一步是最清晰的);</li>
+<li>检查导致数据缺失的原因(依赖于你对数据生成过程的理解);</li>
+<li>删除包含缺失值的实例或用合理的数值代替(插补)缺失值(需要判断哪种方法的结果最为可靠和精确)。</li>
+</ol>
+<p>以下是一些可以用来处理缺失值的方法：</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511152021.png" /></p>
+<h1 id="识别缺失值">识别缺失值</h1>
+<p>R使用<code>NA</code>(不可得)代表缺失值，<code>NaN</code>(不是一个数)代表不可能值，符号<code>Inf</code>和<code>-Inf</code>分别代表正无穷和负无穷。对应的方法为：<code>is.na()</code>, <code>is.nan()</code>, <code>is.infinite()</code>，均是布尔函数。</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511152240.png" /></p>
+<p>函数<code>complete.cases()</code>可以用来识别矩阵或数据框中没有缺失值的行。若每行都包含完整的实例，则返回<code>TRUE</code>的逻辑向量；若每行有一个或多个缺失值，则返回<code>FALSE</code>。该函数仅将<code>NA</code>和<code>NaN</code>识别为缺失值，无穷值被当作有效值。</p>
+<blockquote>
+<p>注意：像<code>myvar == NA</code>这样的逻辑比较无法用于判断缺失值！</p>
+</blockquote>
+<h1 id="探索缺失值模式">探索缺失值模式</h1>
+<p>在决定如何处理缺失数据前，需要先了解哪些变量有缺失值、数目有多少、是什么组合形式等。</p>
+<h2 id="列表显示缺失值">列表显示缺失值</h2>
+<p>mice包中的<code>md.pattern()</code>函数可生成一个以矩阵或数据框形式展示缺失值模式的表格：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(mice)</span><br><span class="line">&gt; data(sleep, package=<span class="string">"VIM"</span>)</span><br><span class="line">&gt; md.pattern(sleep) <span class="comment"># 该函数还会生成一张图用于表示下面的矩阵</span></span><br><span class="line">   BodyWgt BrainWgt Pred Exp Danger Sleep Span Gest Dream NonD   </span><br><span class="line"><span class="number">42</span>       <span class="number">1</span>        <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span>     <span class="number">1</span>    <span class="number">1</span>    <span class="number">1</span>     <span class="number">1</span>    <span class="number">1</span>  <span class="number">0</span></span><br><span class="line"><span class="number">9</span>        <span class="number">1</span>        <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span>     <span class="number">1</span>    <span class="number">1</span>    <span class="number">1</span>     <span class="number">0</span>    <span class="number">0</span>  <span class="number">2</span></span><br><span class="line"><span class="number">3</span>        <span class="number">1</span>        <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span>     <span class="number">1</span>    <span class="number">1</span>    <span class="number">0</span>     <span class="number">1</span>    <span class="number">1</span>  <span class="number">1</span></span><br><span class="line"><span class="number">2</span>        <span class="number">1</span>        <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span>     <span class="number">1</span>    <span class="number">0</span>    <span class="number">1</span>     <span class="number">1</span>    <span class="number">1</span>  <span class="number">1</span></span><br><span class="line"><span class="number">1</span>        <span class="number">1</span>        <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span>     <span class="number">1</span>    <span class="number">0</span>    <span class="number">1</span>     <span class="number">0</span>    <span class="number">0</span>  <span class="number">3</span></span><br><span class="line"><span class="number">1</span>        <span class="number">1</span>        <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span>     <span class="number">1</span>    <span class="number">0</span>    <span class="number">0</span>     <span class="number">1</span>    <span class="number">1</span>  <span class="number">2</span></span><br><span class="line"><span class="number">2</span>        <span class="number">1</span>        <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span>     <span class="number">0</span>    <span class="number">1</span>    <span class="number">1</span>     <span class="number">1</span>    <span class="number">0</span>  <span class="number">2</span></span><br><span class="line"><span class="number">2</span>        <span class="number">1</span>        <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span>     <span class="number">0</span>    <span class="number">1</span>    <span class="number">1</span>     <span class="number">0</span>    <span class="number">0</span>  <span class="number">3</span></span><br><span class="line">         <span class="number">0</span>        <span class="number">0</span>    <span class="number">0</span>   <span class="number">0</span>      <span class="number">0</span>     <span class="number">4</span>    <span class="number">4</span>    <span class="number">4</span>    <span class="number">12</span>   <span class="number">14</span> <span class="number">38</span></span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<ul>
+<li>矩阵中间部份，1表示该变量的列中没有缺失值，0表示该变量的列中有缺失值。</li>
+<li>每一行表示一种缺失值的模式。例如，第一行表示"没有缺失值"的模式，第二行表示"只缺失了Dream和NonD"的模式。</li>
+<li>最左边列表示该模式下有几条数据。例如，没有缺失值的数据一共有42条。</li>
+<li>最右边列表示该模式下有几个变量有缺失值。例如，第二行表示该模式中有2个变量有缺失值。</li>
+<li>最后一行表示缺失该变量的数据有几条。例如最后一行中的12表示缺失了Dream变量的数据有12条。</li>
+<li>最右下角的38表示整个数据中有多少缺失值（是指有多少格缺失值，不是含缺失值的数据有几条），它等于最左列乘最右列之和，也等于最后一行之和。</li>
+</ul>
+<h2 id="图形显示缺失值">图形显示缺失值</h2>
+<p>VIM包提供了大量能可视化数据集中缺失值模式的函数，例如<code>aggr()</code>、<code>matrixplot()</code>和<code>marginplot()</code>。</p>
+<h3 id="aggr函数">aggr()函数</h3>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">library</span>(<span class="string">"VIM"</span>)</span><br><span class="line">aggr(sleep, prop = <span class="literal">FALSE</span>, numbers = <span class="literal">TRUE</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511152326.png" style="zoom:50%;" /></p>
+<p>该图右边可以对照上述的缺失值模式列表。</p>
+<h3 id="matrixplot函数">matrixplot()函数</h3>
+<p>该函数可生成展示每个实例数据的图形(这同时也意味着，数据不能太多)。</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511152408.png" style="zoom:50%;" /></p>
+<p>图中数值型数据被重新转换到[0, 1]区间，并用灰度来表示大小：浅色表示值小，深色表示值大。默认缺失值为红色。</p>
+<h3 id="marginplot函数">marginplot()函数</h3>
+<p>该函数可生成一幅散点图，它在展示两个变量关系的同时，在图形边界还展示列两个变量的缺失值信息：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">marginplot(sleep[c(<span class="string">"Gest"</span>,<span class="string">"Dream"</span>)], pch=c(<span class="number">20</span>), col=c(<span class="string">"darkgray"</span>, <span class="string">"red"</span>, <span class="string">"blue"</span>))</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511152432.png" style="zoom:50%;" /></p>
+<p>说明：</p>
+<ul>
+<li>左边界的箱线图展示的是包含(深灰色)与不包含(红色)Gest值的Dream变量分布。</li>
+<li>左侧4个红点代表缺失了Gest得分的Dream值。</li>
+<li>底部边界上，Gest和Dream间的关系与左侧相反。</li>
+<li>最左下角的数字表示两个变量均有缺失值的数据条数。</li>
+</ul>
+<h2 id="用相关性探索缺失值">用相关性探索缺失值</h2>
+<p>如果用指示变量替代数据集中的数据(1表示缺失， 0表示存在，这样生成的矩阵有时被称作影子矩阵)，那么：</p>
+<ul>
+<li>求这些指示变量之间的相关性有助于观察哪些变量常一起缺失；</li>
+<li>求它们与初始变量之间的相关性可以分析变量“缺失”与其他变量间的关系。</li>
+</ul>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; x &lt;- as.data.frame(abs(is.na(sleep)))</span><br><span class="line">&gt; y &lt;- x[which(apply(x, <span class="number">2</span>, sum) &gt; <span class="number">0</span>)]</span><br><span class="line">&gt; cor(y)</span><br><span class="line">             NonD       Dream       Sleep        Span        Gest</span><br><span class="line">NonD   <span class="number">1.00000000</span>  <span class="number">0.90711474</span>  <span class="number">0.48626454</span>  <span class="number">0.01519577</span> -<span class="number">0.14182716</span></span><br><span class="line">Dream  <span class="number">0.90711474</span>  <span class="number">1.00000000</span>  <span class="number">0.20370138</span>  <span class="number">0.03752394</span> -<span class="number">0.12865350</span></span><br><span class="line">Sleep  <span class="number">0.48626454</span>  <span class="number">0.20370138</span>  <span class="number">1.00000000</span> -<span class="number">0.06896552</span> -<span class="number">0.06896552</span></span><br><span class="line">Span   <span class="number">0.01519577</span>  <span class="number">0.03752394</span> -<span class="number">0.06896552</span>  <span class="number">1.00000000</span>  <span class="number">0.19827586</span></span><br><span class="line">Gest  -<span class="number">0.14182716</span> -<span class="number">0.12865350</span> -<span class="number">0.06896552</span>  <span class="number">0.19827586</span>  <span class="number">1.00000000</span></span><br></pre></td></tr></table></figure>
+<p>此时可以看到，Dream和NonD常常一起缺失(r=0.91)，相对可能性较小的是Sleep和NonD一起缺失(r=0.49)，以及Sleep和Dream(r=0.20)。</p>
+<p>最后，计算含缺失值变量与其他可观测变量间的关系：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; cor(sleep, y, use=<span class="string">"pairwise.complete.obs"</span>)</span><br><span class="line">                NonD       Dream        Sleep        Span        Gest</span><br><span class="line">BodyWgt   <span class="number">0.22682614</span>  <span class="number">0.22259108</span>  <span class="number">0.001684992</span> -<span class="number">0.05831706</span> -<span class="number">0.05396818</span></span><br><span class="line">BrainWgt  <span class="number">0.17945923</span>  <span class="number">0.16321105</span>  <span class="number">0.007859438</span> -<span class="number">0.07921370</span> -<span class="number">0.07332961</span></span><br><span class="line">NonD              <span class="literal">NA</span>          <span class="literal">NA</span>           <span class="literal">NA</span> -<span class="number">0.04314514</span> -<span class="number">0.04553485</span></span><br><span class="line">Dream    -<span class="number">0.18895206</span>          <span class="literal">NA</span> -<span class="number">0.188952059</span>  <span class="number">0.11699247</span>  <span class="number">0.22774685</span></span><br><span class="line">Sleep    -<span class="number">0.08023157</span> -<span class="number">0.08023157</span>           <span class="literal">NA</span>  <span class="number">0.09638044</span>  <span class="number">0.03976464</span></span><br><span class="line">Span      <span class="number">0.08336361</span>  <span class="number">0.05981377</span>  <span class="number">0.005238852</span>          <span class="literal">NA</span> -<span class="number">0.06527277</span></span><br><span class="line">Gest      <span class="number">0.20239201</span>  <span class="number">0.05140232</span>  <span class="number">0.159701523</span> -<span class="number">0.17495305</span>          <span class="literal">NA</span></span><br><span class="line">Pred      <span class="number">0.04758438</span> -<span class="number">0.06834378</span>  <span class="number">0.202462711</span>  <span class="number">0.02313860</span> -<span class="number">0.20101655</span></span><br><span class="line">Exp       <span class="number">0.24546836</span>  <span class="number">0.12740768</span>  <span class="number">0.260772984</span> -<span class="number">0.19291879</span> -<span class="number">0.19291879</span></span><br><span class="line">Danger    <span class="number">0.06528387</span> -<span class="number">0.06724755</span>  <span class="number">0.208883617</span> -<span class="number">0.06666498</span> -<span class="number">0.20443928</span></span><br><span class="line">Warning message:</span><br><span class="line">In cor(sleep, y, use = <span class="string">"pairwise.complete.obs"</span>) : 标准差为零</span><br></pre></td></tr></table></figure>
+<p>从相关系数矩阵的第一列可以看到，体重越大(r=0.227)、妊娠期越长(r=0.202)、睡眠暴露度越大(r=0.245)的动物无梦睡眠的评分更可能缺失。其他列的信息也可以按类似方式得出。</p>
+<blockquote>
+<p>注意，表中的相关系数并不特别大，表明数据是MCAR的可能性比较小，更可能为MAR。不过也绝不能排除数据是NMAR的可能性，只是当缺乏强力的外部证据时，我们通常假设数据是MCAR或者MAR。</p>
+</blockquote>
+<h1 id="理解缺失数据的来由和影响">理解缺失数据的来由和影响</h1>
+<p>识别缺失数据的数目、分布和模式有两个目的:(1) 分析生成缺失数据的潜在机制;(2) 评价缺失数据对回答实质性问题的影响。具体来讲，我们想弄清楚以下几个问题。</p>
+<ul>
+<li>缺失数据的比例多大?</li>
+<li>缺失数据是否集中在少数几个变量上，抑或广泛存在?</li>
+<li>缺失是随机产生的吗?</li>
+<li>缺失数据间的相关性或与可观测数据间的相关性，是否可以表明产生缺失值的机制?</li>
+</ul>
+<p>回答这些问题将有助于判断哪种统计方法最适合用来分析你的数据。例如，如果缺失数据集中在几个相对不太重要的变量上，那么你可以删除这些变量，然后再进行正常的数据分析。如果有一小部分数据(如小于10%)随机分布在整个数据集中(MCAR)，那么你可以分析数据完整的实例，这样仍可以得到可靠且有效的结果。如果可以假定数据是MCAR或者MAR，那么你可以应用多重插补法来获得有效的结论。如果数据是NMAR，你则需要借助专门的方法，收集新数据，或者加入一个相对更容易、更有收益的行业。</p>
+<p>为了判断缺失值的来源，你需要理解研究的主题和数据收集过程。</p>
+<h1 id="理性处理不完整数据">理性处理不完整数据</h1>
+<p>主要介绍3中非常流行的方法：<strong>恢复数据的推理方法</strong>，<strong>涉及删除缺失值的传统方法</strong>和<strong>涉及模拟的现代方法</strong>。</p>
+<h2 id="推理方法">推理方法</h2>
+<p>例如：</p>
+<ul>
+<li>有的项可以通过其他项的四则运算得到；</li>
+<li>出生日期可以通过年龄和填表时间得到；</li>
+<li>性别可以在一定程度上通过名字得到。</li>
+</ul>
+<p>等等。</p>
+<h2 id="行删除法">行删除法</h2>
+<p>行删除法假定数据是MCAR(即完整的观测只是全数据集的一个随机子样本)。</p>
+<p>如果违反了MCAR假设，回归参数的结果将是有偏的。</p>
+<p>由于删除了所有含缺失值的观测，减少了可用的样本，这也将导致统计效力的降低。</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">newdata &lt;- mydata[complete.cases(mydata),]</span><br><span class="line">newdata &lt;- na.omit(mydata)</span><br></pre></td></tr></table></figure>
+<h2 id="多重插补法">多重插补法</h2>
+<p>多重插补(MI)是一种基于重复模拟的处理缺失值的方法。它将从一个包含缺失值的数据集中生成<strong>一组</strong>(不是一个，通常是3到10个)完整的数据集。每个模拟数据集中，缺失数据将用蒙特卡洛方法来填补。此时，标准的统计方法便可应用到每个模拟的数据集上，通过组合输出结果给出估计的结果，以及引入缺失值时的置信区间。</p>
+<p>可用的包：Amelia、mice和mi。本例使用mice包(链式方程的多元插补)。</p>
+<p>mice包的操作过程如下：</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511151921.png" style="zoom:50%;" /></p>
+<p><code>mice()</code>首先从一个包含缺失数据的数据框开始，然后返回一个包含多个(默认为5个)完整数据集的对象。然后，<code>with()</code>函数可依次对每个完整数据集应用统计模型(如线性模型或广义线性模型)，最后，<code>pool()</code>函数将这些单独的分析结果整合为一组结果。</p>
+<blockquote>
+<p>默认地，预测的均值用来替换连续型变量中的缺失数据，而Logistic或多元Logistic回归则分别用来替换二值目标变量(两水平因子)或多值变量(多于两水平的因子)。其他基本插补法包括贝叶斯线性回归、判别分析、两水平正态插补和从观测值中随机抽样。</p>
+</blockquote>
+<p>代码流程如下：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line"><span class="keyword">library</span>(mice)</span><br><span class="line"><span class="comment"># 表示插补数据集个数</span></span><br><span class="line">imp &lt;- mice(data, m=<span class="number">5</span>)</span><br><span class="line"><span class="comment"># analysis是一个表达式对象，用来设定应用于m个插补数据集的统计分析方法</span></span><br><span class="line"><span class="comment"># fit是一个包含m个单独统计分析结果的列表对象</span></span><br><span class="line">fit &lt;- with(imp, analysis) </span><br><span class="line"><span class="comment"># pooled是一个包含这m个统计分析平均结果的列表对象</span></span><br><span class="line">pooled &lt;- pool(fit) </span><br><span class="line">summary(pooled)</span><br></pre></td></tr></table></figure>
+<p>以下是示例：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; <span class="keyword">library</span>(mice)</span><br><span class="line">&gt; data(sleep, package=<span class="string">"VIM"</span>)</span><br><span class="line">&gt; imp &lt;- mice(sleep, seed=<span class="number">1234</span>)</span><br><span class="line"></span><br><span class="line"> [...output deleted to save space...]</span><br><span class="line"></span><br><span class="line">&gt; fit &lt;- with(imp, lm(Dream ~ Span + Gest))</span><br><span class="line">&gt; pooled &lt;- pool(fit)</span><br><span class="line"><span class="comment"># 插值法得到的拟合结果</span></span><br><span class="line">&gt; summary(pooled)</span><br><span class="line">         term     estimate   std.error  statistic       df      p.value</span><br><span class="line"><span class="number">1</span> (Intercept)  <span class="number">2.531560872</span> <span class="number">0.260063277</span>  <span class="number">9.7344035</span> <span class="number">44.41076</span> <span class="number">1.379785e-12</span></span><br><span class="line"><span class="number">2</span>        Span -<span class="number">0.004478330</span> <span class="number">0.011716849</span> -<span class="number">0.3822128</span> <span class="number">55.79406</span> <span class="number">7.037555e-01</span></span><br><span class="line"><span class="number">3</span>        Gest -<span class="number">0.004022046</span> <span class="number">0.001481345</span> -<span class="number">2.7151303</span> <span class="number">53.29365</span> <span class="number">8.909314e-03</span></span><br><span class="line"></span><br><span class="line">&gt; fit.deleted &lt;- lm(Dream ~ Span + Gest, data=na.omit(sleep))</span><br><span class="line"><span class="comment"># 删除缺失值后的拟合结果</span></span><br><span class="line">&gt; summary(fit.deleted)</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">lm(formula = Dream ~ Span + Gest, data = na.omit(sleep))</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line">    Min      1Q  Median      3Q     Max </span><br><span class="line">-<span class="number">2.3335</span> -<span class="number">0.9154</span> -<span class="number">0.2215</span>  <span class="number">0.3818</span>  <span class="number">4.1828</span> </span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">              Estimate Std. Error t value Pr(&gt;|t|)    </span><br><span class="line">(Intercept)  <span class="number">2.4801223</span>  <span class="number">0.2984764</span>   <span class="number">8.309</span> <span class="number">3.68e-10</span> ***</span><br><span class="line">Span        -<span class="number">0.0004724</span>  <span class="number">0.0131298</span>  -<span class="number">0.036</span>   <span class="number">0.9715</span>    </span><br><span class="line">Gest        -<span class="number">0.0043941</span>  <span class="number">0.0020805</span>  -<span class="number">2.112</span>   <span class="number">0.0411</span> *  </span><br><span class="line">---</span><br><span class="line">Signif. codes:  <span class="number">0</span> ‘***’ <span class="number">0.001</span> ‘**’ <span class="number">0.01</span> ‘*’ <span class="number">0.05</span> ‘.’ <span class="number">0.1</span> ‘ ’ <span class="number">1</span></span><br><span class="line"></span><br><span class="line">Residual standard error: <span class="number">1.299</span> on <span class="number">39</span> degrees of freedom</span><br><span class="line">Multiple R-squared:  <span class="number">0.1673</span>,	Adjusted R-squared:  <span class="number">0.1245</span> </span><br><span class="line"><span class="literal">F</span>-statistic: <span class="number">3.916</span> on <span class="number">2</span> and <span class="number">39</span> DF,  p-value: <span class="number">0.02818</span></span><br></pre></td></tr></table></figure>
+<p>此处，你可以看到Span的回归系数不显著(p≈0.7)，Gest的系数在p&lt;0.01的水平下很显著，与删除缺失值所拟合模型的结论相同。</p>
+<p>想要查看更多的插补信息，可以输出imp对象：</p>
+<figure class="highlight r"><table><tr><td class="code"><pre><span class="line">&gt; imp</span><br><span class="line">Class: mids</span><br><span class="line">Number of multiple imputations:  <span class="number">5</span> </span><br><span class="line">Imputation methods:</span><br><span class="line"><span class="comment"># 表示哪些变量被插补了</span></span><br><span class="line"> BodyWgt BrainWgt     NonD    Dream    Sleep     Span     Gest     Pred      Exp   Danger </span><br><span class="line">      <span class="string">""</span>       <span class="string">""</span>    <span class="string">"pmm"</span>    <span class="string">"pmm"</span>    <span class="string">"pmm"</span>    <span class="string">"pmm"</span>    <span class="string">"pmm"</span>       <span class="string">""</span>       <span class="string">""</span>       <span class="string">""</span> </span><br><span class="line">PredictorMatrix:</span><br><span class="line"><span class="comment"># 行表示被插补的对象，列代表为插补提供信息的变量，1和0分别表示使用和未使用。</span></span><br><span class="line">         BodyWgt BrainWgt NonD Dream Sleep Span Gest Pred Exp Danger</span><br><span class="line">BodyWgt        <span class="number">0</span>        <span class="number">1</span>    <span class="number">1</span>     <span class="number">1</span>     <span class="number">1</span>    <span class="number">1</span>    <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span></span><br><span class="line">BrainWgt       <span class="number">1</span>        <span class="number">0</span>    <span class="number">1</span>     <span class="number">1</span>     <span class="number">1</span>    <span class="number">1</span>    <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span></span><br><span class="line">NonD           <span class="number">1</span>        <span class="number">1</span>    <span class="number">0</span>     <span class="number">1</span>     <span class="number">1</span>    <span class="number">1</span>    <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span></span><br><span class="line">Dream          <span class="number">1</span>        <span class="number">1</span>    <span class="number">1</span>     <span class="number">0</span>     <span class="number">1</span>    <span class="number">1</span>    <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span></span><br><span class="line">Sleep          <span class="number">1</span>        <span class="number">1</span>    <span class="number">1</span>     <span class="number">1</span>     <span class="number">0</span>    <span class="number">1</span>    <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span></span><br><span class="line">Span           <span class="number">1</span>        <span class="number">1</span>    <span class="number">1</span>     <span class="number">1</span>     <span class="number">1</span>    <span class="number">0</span>    <span class="number">1</span>    <span class="number">1</span>   <span class="number">1</span>      <span class="number">1</span></span><br><span class="line">Number of logged events:  <span class="number">7</span> </span><br><span class="line">  it im  dep meth   out</span><br><span class="line"><span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span> Span  pmm Sleep</span><br><span class="line"><span class="number">2</span>  <span class="number">1</span>  <span class="number">1</span> Gest  pmm Sleep</span><br><span class="line"><span class="number">3</span>  <span class="number">2</span>  <span class="number">4</span> Span  pmm Sleep</span><br><span class="line"><span class="number">4</span>  <span class="number">2</span>  <span class="number">4</span> Gest  pmm Sleep</span><br><span class="line"><span class="number">5</span>  <span class="number">2</span>  <span class="number">5</span> Span  pmm Sleep</span><br><span class="line"><span class="number">6</span>  <span class="number">2</span>  <span class="number">5</span> Gest  pmm Sleep</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看5次插补，Dream的插补值</span></span><br><span class="line"><span class="comment"># 行表示被插补的数据的index</span></span><br><span class="line">&gt; imp$imp$Dream</span><br><span class="line">     <span class="number">1</span>   <span class="number">2</span>   <span class="number">3</span>   <span class="number">4</span>   <span class="number">5</span></span><br><span class="line"><span class="number">1</span>  <span class="number">0.5</span> <span class="number">0.5</span> <span class="number">0.5</span> <span class="number">0.5</span> <span class="number">0.0</span></span><br><span class="line"><span class="number">3</span>  <span class="number">1.9</span> <span class="number">1.4</span> <span class="number">0.8</span> <span class="number">1.3</span> <span class="number">1.4</span></span><br><span class="line"><span class="number">4</span>  <span class="number">0.7</span> <span class="number">3.6</span> <span class="number">3.9</span> <span class="number">1.4</span> <span class="number">1.2</span></span><br><span class="line"><span class="number">14</span> <span class="number">0.5</span> <span class="number">0.9</span> <span class="number">0.0</span> <span class="number">0.9</span> <span class="number">0.0</span></span><br><span class="line"><span class="number">24</span> <span class="number">3.4</span> <span class="number">1.4</span> <span class="number">1.5</span> <span class="number">1.5</span> <span class="number">1.3</span></span><br><span class="line"><span class="number">26</span> <span class="number">2.0</span> <span class="number">1.0</span> <span class="number">3.9</span> <span class="number">2.1</span> <span class="number">0.5</span></span><br><span class="line"><span class="number">30</span> <span class="number">1.3</span> <span class="number">2.6</span> <span class="number">2.7</span> <span class="number">0.3</span> <span class="number">3.9</span></span><br><span class="line"><span class="number">31</span> <span class="number">0.5</span> <span class="number">1.5</span> <span class="number">0.9</span> <span class="number">2.3</span> <span class="number">1.9</span></span><br><span class="line"><span class="number">47</span> <span class="number">1.4</span> <span class="number">3.4</span> <span class="number">0.9</span> <span class="number">2.6</span> <span class="number">3.1</span></span><br><span class="line"><span class="number">53</span> <span class="number">0.6</span> <span class="number">0.5</span> <span class="number">0.6</span> <span class="number">0.3</span> <span class="number">0.3</span></span><br><span class="line"><span class="number">55</span> <span class="number">2.8</span> <span class="number">3.9</span> <span class="number">0.5</span> <span class="number">1.8</span> <span class="number">0.0</span></span><br><span class="line"><span class="number">62</span> <span class="number">3.4</span> <span class="number">2.7</span> <span class="number">2.6</span> <span class="number">3.9</span> <span class="number">0.0</span></span><br><span class="line"><span class="comment"># complete()函数可以观察m个插补数据集中的任意一个</span></span><br><span class="line">&gt; complete(imp, action=<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="其他方法">其他方法</h2>
+<p>以下方法应用的领域比较专业，不如之前的广泛：</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511160421.png" /></p>
+<h2 id="不再推荐的两种方法">不再推荐的两种方法</h2>
+<p>以下两种方法已过时，容易造成问题，<strong>不推荐</strong>使用！</p>
+<h3 id="成对删除">成对删除</h3>
+<p>对于成对删除，观测只是当它含缺失数据的变量涉及某个特定分析时才会被删除。</p>
+<p>假如一个数据集有A、B、C三个变量，共50条数据。按成对删除的方法，如果你只使用A和B变量，那么去除缺失值后，可能有49条；如果你只使用A和C变量，那么去除缺失值后，可能剩余40条数据。虽然成对删除似乎利用了所有可用数据，但实际上每次计算用的都是不同的数据子集。这会导致一些扭曲的、难以解释的结果。</p>
+<h3 id="简单非随机插补">简单(非随机)插补</h3>
+<p>所谓简单插补，即用某个值(如均值、中位数或众数)来替换变量中的缺失值。这些替换是非随机的，这意味着不会引入随机误差(与多重插补不同)。</p>
+<p>简单插补的一个优点是，解决“缺失值问题”时不会减少分析过程中可用的样本量。</p>
+<p>虽然简单插补用法很简单，但是对于非MCAR的数据会产生有偏的结果。若缺失数据的数目非常大，那么简单插补很可能会低估标准差、曲解变量间的相关性，并会生成不正确的统计检验的p值。</p>
+]]></content>
+      <categories>
+        <category>R语言</category>
+      </categories>
+      <tags>
+        <tag>R语言</tag>
+        <tag>缺失值</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>R语言-分类</title>
     <url>/2020/05/10/R%E8%AF%AD%E8%A8%80-%E5%88%86%E7%B1%BB/</url>
     <content><![CDATA[<blockquote>
@@ -167,23 +308,6 @@
       </tags>
   </entry>
   <entry>
-    <title>R语言-处理缺失值的高级方法</title>
-    <url>/2020/05/09/R%E8%AF%AD%E8%A8%80-%E5%A4%84%E7%90%86%E7%BC%BA%E5%A4%B1%E5%80%BC%E7%9A%84%E9%AB%98%E7%BA%A7%E6%96%B9%E6%B3%95/</url>
-    <content><![CDATA[<blockquote>
-<p>《R语言实战》笔记</p>
-<p>本篇主要介绍对数据中缺失值的处理方法。</p>
-</blockquote>
-<a id="more"></a>
-]]></content>
-      <categories>
-        <category>R语言</category>
-      </categories>
-      <tags>
-        <tag>R语言</tag>
-        <tag>缺失值</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>R语言-聚类分析</title>
     <url>/2020/05/08/R%E8%AF%AD%E8%A8%80-%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90/</url>
     <content><![CDATA[<blockquote>
@@ -336,9 +460,9 @@ s s(k)=\sum_{i=1}^{n} \sum_{j=0}^{p}\left(x_{i j}-\bar{x}_{k j}\right)^{2}
       <tags>
         <tag>R语言</tag>
         <tag>聚类分析</tag>
+        <tag>层次聚类</tag>
         <tag>K-means聚类</tag>
         <tag>围绕中心点的划分PAM</tag>
-        <tag>层次聚类</tag>
       </tags>
   </entry>
   <entry>
