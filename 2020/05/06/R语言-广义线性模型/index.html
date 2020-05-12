@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588742221/R/glm%E5%8F%82%E6%95%B0.png">
 <meta property="og:image" content="https://res.cloudinary.com/vpointer/image/upload/v1588766515/R/12-robust_hist_boxplot.png">
 <meta property="article:published_time" content="2020-05-06T15:50:00.000Z">
-<meta property="article:modified_time" content="2020-05-06T15:58:36.782Z">
+<meta property="article:modified_time" content="2020-05-11T15:13:24.817Z">
 <meta property="article:author" content="嘴强黑铁">
 <meta property="article:tag" content="R语言">
 <meta property="article:tag" content="广义线性模型">
@@ -231,10 +231,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-05-06 23:50:00 / 修改时间：23:58:36" itemprop="dateCreated datePublished" datetime="2020-05-06T23:50:00+08:00">2020-05-06</time>
+              <time title="创建时间：2020-05-06 23:50:00" itemprop="dateCreated datePublished" datetime="2020-05-06T23:50:00+08:00">2020-05-06</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-11 23:13:24" itemprop="dateModified" datetime="2020-05-11T23:13:24+08:00">2020-05-11</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -419,8 +425,8 @@ g\left(\mu_{Y}\right)=\beta_{0}+\sum_{j=1}^{p} \beta_{j} X_{j}
 <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt; exp(coef(fit.reduced))</span><br><span class="line">  (Intercept)           age  yearsmarried religiousness        rating </span><br><span class="line">    <span class="number">6.8952321</span>     <span class="number">0.9653437</span>     <span class="number">1.1058594</span>     <span class="number">0.7196258</span>     <span class="number">0.6304248</span></span><br><span class="line">&gt; exp(confint(fit.reduced)) <span class="comment"># 各回归系数在odds尺度上的95%置信区间</span></span><br><span class="line">                  <span class="number">2.5</span> %     <span class="number">97.5</span> %</span><br><span class="line">(Intercept)   <span class="number">2.1255764</span> <span class="number">23.3506030</span></span><br><span class="line">age           <span class="number">0.9323342</span>  <span class="number">0.9981470</span></span><br><span class="line">yearsmarried  <span class="number">1.0448584</span>  <span class="number">1.1718250</span></span><br><span class="line">religiousness <span class="number">0.6026782</span>  <span class="number">0.8562807</span></span><br><span class="line">rating        <span class="number">0.5286586</span>  <span class="number">0.7493370</span></span><br></pre></td></tr></table></figure>
 <p>可以看到：</p>
 <ol type="1">
-<li>保持其他变量不变，年龄每增加1岁，婚外情的OR值将<strong>乘以</strong>0.965；</li>
-<li>保持其他变量不变，婚龄每增加1年，婚外情的OR值将<strong>乘以</strong>1.106；</li>
+<li>保持其他变量不变，年龄每增加1岁，婚外情的odds将<strong>乘以</strong>0.965；</li>
+<li>保持其他变量不变，婚龄每增加1年，婚外情的odds将<strong>乘以</strong>1.106；</li>
 </ol>
 <p>因为预测变量不能等于0，<strong>截距项在此处没有什么特定含义</strong>。</p>
 <p>最后，预测变量一单位的变化可能并不是我们最关注的，比如此例中，我们更关注结婚10年后的odds变化。对于二值型Logistic回归，某预测变量n单位的变化引起的优势比的变化为<span class="math inline">\(e^{n \beta_{j}}\)</span>，即<span class="math inline">\(odds_{\beta_j}^{n}\)</span>。那么结婚10年，婚外情的odds将乘以<span class="math inline">\(1.106^{10}\)</span>，即2.7。</p>
@@ -668,7 +674,7 @@ g\left(\mu_{Y}\right)=\beta_{0}+\sum_{j=1}^{p} \beta_{j} X_{j}
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">82</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -681,7 +687,7 @@ g\left(\mu_{Y}\right)=\beta_{0}+\sum_{j=1}^{p} \beta_{j} X_{j}
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">93</span>
+        <span class="site-state-item-count">94</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

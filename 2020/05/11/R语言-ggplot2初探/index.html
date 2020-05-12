@@ -24,20 +24,36 @@
     var CONFIG = {"hostname":"www.zuiqiangiron.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="《R语言实战》笔记">
+  <meta name="description" content="《R语言实战》笔记 ggplot2极大地扩展了R绘图的范畴，提高了图形的质量。它通过全面一致的语法帮助我们将多变量的数据集进行可视化，并且很容易生成R自带图形难以生成的图形。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="R语言-ggplot2初探">
 <meta property="og:url" content="https://www.zuiqiangiron.xyz/2020/05/11/R%E8%AF%AD%E8%A8%80-ggplot2%E5%88%9D%E6%8E%A2/index.html">
 <meta property="og:site_name" content="嘴强黑铁">
-<meta property="og:description" content="《R语言实战》笔记">
+<meta property="og:description" content="《R语言实战》笔记 ggplot2极大地扩展了R绘图的范畴，提高了图形的质量。它通过全面一致的语法帮助我们将多变量的数据集进行可视化，并且很容易生成R自带图形难以生成的图形。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-05-11T08:24:00.000Z">
-<meta property="article:modified_time" content="2020-05-11T08:33:34.843Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511182558.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511184014.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511185901.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511191740.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511192521.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511192804.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511193516.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511193914.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511195452.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511200015.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511201112.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511201549.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511201919.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511202704.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511203349.png">
+<meta property="article:published_time" content="2020-05-11T12:37:17.000Z">
+<meta property="article:modified_time" content="2020-05-11T13:06:49.632Z">
 <meta property="article:author" content="嘴强黑铁">
 <meta property="article:tag" content="R语言">
 <meta property="article:tag" content="图表">
 <meta property="article:tag" content="ggplot2">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511182558.png">
 
 <link rel="canonical" href="https://www.zuiqiangiron.xyz/2020/05/11/R%E8%AF%AD%E8%A8%80-ggplot2%E5%88%9D%E6%8E%A2/">
 
@@ -228,7 +244,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-05-11 16:24:00 / 修改时间：16:33:34" itemprop="dateCreated datePublished" datetime="2020-05-11T16:24:00+08:00">2020-05-11</time>
+              <time title="创建时间：2020-05-11 20:37:17 / 修改时间：21:06:49" itemprop="dateCreated datePublished" datetime="2020-05-11T20:37:17+08:00">2020-05-11</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -274,8 +290,141 @@
       
         <blockquote>
 <p>《R语言实战》笔记</p>
+<p>ggplot2极大地扩展了R绘图的范畴，提高了图形的质量。它通过全面一致的语法帮助我们将多变量的数据集进行可视化，并且很容易生成R自带图形难以生成的图形。</p>
 </blockquote>
 <a id="more"></a>
+<h1 id="基本例子">基本例子</h1>
+<p>在ggplot2中，通过加号<code>+</code>将图像中绘制各个元素的函数串联起来，每个函数只修改属于自己的部分。</p>
+<p>例如下面是一个散点图的例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(ggplot2)</span><br><span class="line">ggplot(data = mtcars, aes(x = wt, y = mpg)) + </span><br><span class="line">    geom_point(pch = <span class="number">17</span>, color = <span class="string">"blue"</span>, size = <span class="number">2</span>) + </span><br><span class="line">    geom_smooth(method = <span class="string">"lm"</span>, color = <span class="string">"red"</span>, linetype = <span class="number">2</span>) + </span><br><span class="line">    labs(title = <span class="string">"Automobile Data"</span>, x = <span class="string">"Weight"</span>, y = <span class="string">"Miles Per Gallon"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511182558.png" style="zoom:50%;" /></p>
+<p><code>ggplot()</code>初始化图形并且指定要用到的数据来源(<code>mtcars</code>)和变量(<code>wt</code>、 <code>mpg</code>)，相当于<code>ggplot2()</code>函数设置整个图像的基本信息。<code>aes()</code>函数的功能是指定每个变量扮演的角色(aes是aesthetics的缩写，aesthetics是美术的意思)。</p>
+<p><code>ggplot()</code>函数设置图形但没有自己的视觉输出，需要使用一个或多个几何函数向图中添加了几何对象(简写为geom)，包括点、线、条、箱线图和阴影区域。本例中通过<code>geom_point()</code>添加了散点图，通过<code>geom_smooth()</code>添加了一条平滑的拟合直线，阴影表示95%的置信区间。<code>labs()</code>函数是可选的，可添加注释(包括轴标签和标题)。</p>
+<h1 id="用几何函数指定图的类型">用几何函数指定图的类型</h1>
+<p><code>ggplot()</code>函数指定要绘制的数据源和变量，<strong>几何函数</strong>则指定这些变量如何在视觉上进行表示(使用点、条、线和阴影区)。以下是一些常用的几何函数：</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511184014.png" /></p>
+<p>几何函数常见的参数如下：</p>
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>选项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>color</code></td>
+<td>对点、线和填充区域的边界进行着色</td>
+</tr>
+<tr class="even">
+<td><code>fill</code></td>
+<td>对填充区域着色，如条形和密度区域</td>
+</tr>
+<tr class="odd">
+<td><code>alpha</code></td>
+<td>颜色的透明度，从0(完全透明)到1(不透明)。</td>
+</tr>
+<tr class="even">
+<td><code>linetype</code></td>
+<td>图案的线条(1=实线，2=虚线，3=点，4=点破折号，5=长破折号，6=双破折号)</td>
+</tr>
+<tr class="odd">
+<td><code>size</code></td>
+<td>点的尺寸和线的宽度</td>
+</tr>
+<tr class="even">
+<td><code>shape</code></td>
+<td>点的形状(和<code>pch</code>一样，0=开放的方形，1=开放的圆形，2=开放的三角形，等等)</td>
+</tr>
+<tr class="odd">
+<td><code>position</code></td>
+<td>绘制诸如条形图和点等对象的位置。对条形图来说，<code>"dodge"</code>将分组条形图并排，<code>"stacked"</code>堆叠分 组条形图，<code>"fill"</code>垂直地堆叠分组条形图并规范其高度相等。对于点来说，<code>"jitter"</code>减少点重叠</td>
+</tr>
+<tr class="even">
+<td><code>binwidth</code></td>
+<td>直方图的宽度</td>
+</tr>
+<tr class="odd">
+<td><code>notch</code></td>
+<td>表示方块图是否应为缺口(<code>TRUE</code>/<code>FALSE</code>)</td>
+</tr>
+<tr class="even">
+<td><code>sides</code></td>
+<td>地毯图的安置(<code>"b"</code>=底部，<code>"l"</code>=左部，<code>"t"</code>=顶部，<code>"r"</code>=右部，<code>"bl"</code>=左下部，等等)</td>
+</tr>
+<tr class="odd">
+<td><code>width</code></td>
+<td>箱线图的宽度</td>
+</tr>
+</tbody>
+</table>
+<p>以lattice包中的singer数据集为例，该代码把箱线图和小提琴图结合在一起形成一个新的图形：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">data(singer, package = <span class="string">"lattice"</span>)</span><br><span class="line">ggplot(singer, aes(x = voice.part, y = height)) + </span><br><span class="line">    geom_violin(fill = <span class="string">"lightblue"</span>) + </span><br><span class="line">    geom_boxplot(fill = <span class="string">"lightgreen"</span>, width = <span class="number">0.2</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511185901.png" style="zoom:50%;" /></p>
+<h1 id="分组">分组</h1>
+<p><code>ggplot()</code>声明中的<code>aes()</code>可用于设置分组，但并不是通过一个固定的参数来设置分组。分组通常以颜色、形状来区分。</p>
+<p>以carData中的Salaries数据集为例：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">data(Salaries, package = <span class="string">"carData"</span>)</span><br><span class="line">ggplot(Salaries, aes(x=yrs.since.phd, y=salary, color=rank, shape=sex)) + </span><br><span class="line">    geom_point()</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511191740.png" style="zoom:50%;" /></p>
+<p>通常来说，变量应该设在<code>aes()</code>函数内，分配常数应该在<code>aes()</code>函数外。</p>
+<h1 id="刻面faceting">刻面faceting</h1>
+<p>有些时候为了让关系清晰，我们需要将分组后的数据分开展示，而不是在一个图中展示，这个时候可以使用<code>facet_wrap()</code>函数和<code>facet_grid()</code>函数创建网格图形。</p>
+<p>相关语法如下：</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511192521.png" /></p>
+<p>以下是一个包含了刻面和分组的例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot(Salaries, aes(x = yrs.since.phd, y = salary, color = rank, shape = rank)) + </span><br><span class="line">    geom_point() + </span><br><span class="line">    facet_grid(. ~ sex)</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511192804.png" style="zoom:50%;" /></p>
+<h1 id="添加光滑曲线">添加光滑曲线</h1>
+<p>使用<code>geom_smooth()</code>函数添加光滑曲线，它的参数如下：</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511193516.png" /></p>
+<p>示例，它根据性别来拟合不同的曲线：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot(data = Salaries, aes(x = yrs.since.phd, y = salary, linetype = sex, shape = sex, color = sex)) + </span><br><span class="line">    geom_smooth(method = lm, formula = y ~ poly(x, <span class="number">2</span>), se = <span class="literal">FALSE</span>, size = <span class="number">1</span>) + </span><br><span class="line">    geom_point(size = <span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511193914.png" style="zoom:50%;" /></p>
+<blockquote>
+<p>在探索几何函数如何工作和哪些选项可供选择时，一定要检查这个函数及其相关统计函数。</p>
+</blockquote>
+<h1 id="修改ggplot2图形的外观">修改ggplot2图形的外观</h1>
+<p>ggplot2包提供了特定的函数来改变其图形的外观。</p>
+<h2 id="坐标轴">坐标轴</h2>
+<p>前文已经介绍来可以用<code>labs()</code>函数来添加标题并改变坐标轴标签。以下是另外一些控制坐标轴的函数：</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511195452.png" /></p>
+<p>可以看到，ggplot2的函数区分x轴和y轴，以及变量是连续型还是因子型。</p>
+<p>以下是示例：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ggplot(data = Salaries, aes(x = rank, y = salary, fill = sex)) + </span><br><span class="line">    geom_boxplot() + </span><br><span class="line">    scale_x_discrete(breaks = c(<span class="string">"AsstProf"</span>, <span class="string">"AssocProf"</span>, <span class="string">"Prof"</span>), </span><br><span class="line">                     labels = c(<span class="string">"Assistant\nProfessor"</span>, <span class="string">"Associate\nProfessor"</span>, <span class="string">"Full\nProfessor"</span>)) + </span><br><span class="line">    scale_y_continuous(breaks = c(<span class="number">50000</span>, <span class="number">1e+05</span>, <span class="number">150000</span>, <span class="number">2e+05</span>), </span><br><span class="line">                       labels = c(<span class="string">"$50K"</span>, <span class="string">"$100K"</span>, <span class="string">"$150K"</span>, <span class="string">"$200K"</span>)) + </span><br><span class="line">    labs(title = <span class="string">"Faculty Salary by Rank and Sex"</span>, x = <span class="string">""</span>, y = <span class="string">""</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511200015.png" style="zoom:50%;" /></p>
+<h2 id="图例legend">图例legend</h2>
+<p>将<code>fill</code>参数放到<code>labs()</code>函数中可以用于控制图例的名称。</p>
+<p><code>theme()</code>函数中的<code>legend.position</code>参数可以控制图例的位置。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ggplot(data = Salaries, aes(x = rank, y = salary, fill = sex)) + </span><br><span class="line">    geom_boxplot() + </span><br><span class="line">    scale_x_discrete(breaks = c(<span class="string">"AsstProf"</span>, <span class="string">"AssocProf"</span>, <span class="string">"Prof"</span>), </span><br><span class="line">                     labels = c(<span class="string">"Assistant\nProfessor"</span>, <span class="string">"Associate\nProfessor"</span>, <span class="string">"Full\nProfessor"</span>)) + </span><br><span class="line">    scale_y_continuous(breaks = c(<span class="number">50000</span>, <span class="number">1e+05</span>, <span class="number">150000</span>, <span class="number">2e+05</span>), </span><br><span class="line">                       labels = c(<span class="string">"$50K"</span>, <span class="string">"$100K"</span>, <span class="string">"$150K"</span>, <span class="string">"$200K"</span>)) + </span><br><span class="line">    labs(title = <span class="string">"Faculty Salary by Rank and Sex"</span>, x = <span class="string">""</span>, y = <span class="string">""</span>) +</span><br><span class="line">    labs(title = <span class="string">"Faculty Salary by Rank and Gender"</span>, x = <span class="string">""</span>, y = <span class="string">""</span>, fill = <span class="string">"Gender"</span>) + </span><br><span class="line">    theme(legend.position=c(<span class="number">.1</span>, <span class="number">.8</span>))</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511201112.png" style="zoom:50%;" /></p>
+<p>如果想删除图例，可以使用<code>legend.position="none"</code>。</p>
+<h2 id="标尺scales">标尺Scales</h2>
+<p>标尺既可以应用到连续的变量，也可以应用到离散的变量。</p>
+<p>连续型的标尺可以映射数值型的变量到图的其他特征：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot(mtcars, aes(x = wt, y = mpg, size = disp)) + </span><br><span class="line">    geom_point(shape = <span class="number">21</span>, color = <span class="string">"black"</span>, fill = <span class="string">"cornsilk"</span>) + </span><br><span class="line">    labs(x = <span class="string">"Weight"</span>, y = <span class="string">"Miles Per Gallon"</span>, title = <span class="string">"Bubble Chart"</span>, size = <span class="string">"Engine\nDisplacement"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511201549.png" style="zoom:50%;" /></p>
+<p><code>aes()</code>函数的参数<code>size=disp</code>生成连续型变量<code>disp</code>(发动机排量)的标尺，并使用它来控制点的尺寸。</p>
+<p>以下是手动设置分类颜色的示例：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot(data = Salaries, aes(x = yrs.since.phd, y = salary, color = rank)) + </span><br><span class="line">    scale_color_manual(values = c(<span class="string">"orange"</span>, <span class="string">"olivedrab"</span>, <span class="string">"navy"</span>)) + </span><br><span class="line">    geom_point(size = <span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511201919.png" style="zoom:50%;" /></p>
+<p>也可以使用<code>scale_color_brewer()</code>和<code>scale_fill_brewer()</code>函数来设置能清晰区分的颜色集。</p>
+<h2 id="主题themes">主题Themes</h2>
+<p><code>theme()</code>函数中的选项可以调整字体、背景、颜色和网格线等。主题可以使用一次，也可以保存起来应用到多个图中。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">mytheme &lt;- theme(plot.title = element_text(face = <span class="string">"bold.italic"</span>, size = <span class="string">"14"</span>, color = <span class="string">"brown"</span>), </span><br><span class="line">                 axis.title = element_text(face = <span class="string">"bold.italic"</span>, size = <span class="number">10</span>, color = <span class="string">"brown"</span>), </span><br><span class="line">                 axis.text = element_text(face = <span class="string">"bold"</span>, size = <span class="number">9</span>, color = <span class="string">"darkblue"</span>), </span><br><span class="line">                 <span class="comment"># 背景颜色</span></span><br><span class="line">                 panel.background = element_rect(fill = <span class="string">"white"</span>, color = <span class="string">"darkblue"</span>), </span><br><span class="line">                 <span class="comment"># 主网格线</span></span><br><span class="line">                 panel.grid.major.y = element_line(color = <span class="string">"grey"</span>, linetype = <span class="number">1</span>), </span><br><span class="line">                 <span class="comment"># 次网格线</span></span><br><span class="line">                 panel.grid.minor.y = element_line(color = <span class="string">"grey"</span>, linetype = <span class="number">2</span>), </span><br><span class="line">                 <span class="comment"># 竖直方向不画线</span></span><br><span class="line">                 panel.grid.minor.x = element_blank(), </span><br><span class="line">                 <span class="comment"># 图例位置</span></span><br><span class="line">                 legend.position = <span class="string">"top"</span>)</span><br><span class="line"></span><br><span class="line">ggplot(Salaries, aes(x = rank, y = salary, fill = sex)) + </span><br><span class="line">    geom_boxplot() + </span><br><span class="line">    labs(title = <span class="string">"Salary by Rank and Sex"</span>, x = <span class="string">"Rank"</span>, y = <span class="string">"Salary"</span>) + </span><br><span class="line">    mytheme</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511202704.png" style="zoom:50%;" /></p>
+<h2 id="多图合一">多图合一</h2>
+<p>参数<code>mfrow</code>和基本函数<code>layout()</code>对ggplot2并不生效。</p>
+<p>要实现多图合一需要使用gridExtra包中的<code>grid.arrange()</code>函数。</p>
+<p>示例如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">p1 &lt;- ggplot(data = Salaries, aes(x = rank)) + geom_bar()</span><br><span class="line">p2 &lt;- ggplot(data = Salaries, aes(x = sex)) + geom_bar()</span><br><span class="line">p3 &lt;- ggplot(data = Salaries, aes(x = yrs.since.phd, y = salary)) + geom_point()</span><br><span class="line"></span><br><span class="line"><span class="keyword">library</span>(gridExtra)</span><br><span class="line">grid.arrange(p1, p2, p3, ncol = <span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200511203349.png" style="zoom:50%;" /></p>
+<h1 id="保存图像">保存图像</h1>
+<p>ggplot2保存图像使用<code>ggsave()</code>函数，示例如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 保存指定图像对象</span></span><br><span class="line">myplot &lt;- ggplot(data=mtcars, aes(x=mpg)) + geom_histogram() </span><br><span class="line">ggsave(file=<span class="string">"mygraph.png"</span>, plot=myplot, width=<span class="number">5</span>, height=<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果没有设置plot参数，则保存最近创建的图像</span></span><br><span class="line">ggplot(data=mtcars, aes(x=mpg)) + geom_histogram()</span><br><span class="line">ggsave(file=<span class="string">"mygraph.pdf"</span>)</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -318,8 +467,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/05/11/R%E8%AF%AD%E8%A8%80-%E5%A4%84%E7%90%86%E7%BC%BA%E5%A4%B1%E5%80%BC%E7%9A%84%E9%AB%98%E7%BA%A7%E6%96%B9%E6%B3%95/" rel="prev" title="R语言-处理缺失值的高级方法">
-      <i class="fa fa-chevron-left"></i> R语言-处理缺失值的高级方法
+    <a href="/2020/05/11/R%E8%AF%AD%E8%A8%80-%E9%AB%98%E7%BA%A7%E7%BC%96%E7%A8%8B/" rel="prev" title="R语言-高级编程">
+      <i class="fa fa-chevron-left"></i> R语言-高级编程
     </a></div>
       <div class="post-nav-item"></div>
     </div>
@@ -388,6 +537,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本例子"><span class="nav-number">1.</span> <span class="nav-text">基本例子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#用几何函数指定图的类型"><span class="nav-number">2.</span> <span class="nav-text">用几何函数指定图的类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分组"><span class="nav-number">3.</span> <span class="nav-text">分组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#刻面faceting"><span class="nav-number">4.</span> <span class="nav-text">刻面faceting</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#添加光滑曲线"><span class="nav-number">5.</span> <span class="nav-text">添加光滑曲线</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#修改ggplot2图形的外观"><span class="nav-number">6.</span> <span class="nav-text">修改ggplot2图形的外观</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#坐标轴"><span class="nav-number">6.1.</span> <span class="nav-text">坐标轴</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#图例legend"><span class="nav-number">6.2.</span> <span class="nav-text">图例legend</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标尺scales"><span class="nav-number">6.3.</span> <span class="nav-text">标尺Scales</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主题themes"><span class="nav-number">6.4.</span> <span class="nav-text">主题Themes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多图合一"><span class="nav-number">6.5.</span> <span class="nav-text">多图合一</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#保存图像"><span class="nav-number">7.</span> <span class="nav-text">保存图像</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -403,7 +553,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">82</span>
+          <span class="site-state-item-count">83</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -416,7 +566,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">93</span>
+        <span class="site-state-item-count">94</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
