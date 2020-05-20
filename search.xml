@@ -151,22 +151,6 @@
       </tags>
   </entry>
   <entry>
-    <title>R语言-高级编程</title>
-    <url>/2020/05/11/R%E8%AF%AD%E8%A8%80-%E9%AB%98%E7%BA%A7%E7%BC%96%E7%A8%8B/</url>
-    <content><![CDATA[<blockquote>
-<p>《R语言实战》笔记</p>
-</blockquote>
-<a id="more"></a>
-]]></content>
-      <categories>
-        <category>R语言</category>
-      </categories>
-      <tags>
-        <tag>R语言</tag>
-        <tag>高级编程</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>R语言-处理缺失值的高级方法</title>
     <url>/2020/05/11/R%E8%AF%AD%E8%A8%80-%E5%A4%84%E7%90%86%E7%BC%BA%E5%A4%B1%E5%80%BC%E7%9A%84%E9%AB%98%E7%BA%A7%E6%96%B9%E6%B3%95/</url>
     <content><![CDATA[<blockquote>
@@ -6008,8 +5992,8 @@ g\left(\mu_{Y}\right)=\beta_{0}+\sum_{j=1}^{p} \beta_{j} X_{j}
         <tag>LeetCode</tag>
         <tag>Java</tag>
         <tag>Python</tag>
-        <tag>排序</tag>
         <tag>算法</tag>
+        <tag>排序</tag>
       </tags>
   </entry>
   <entry>
