@@ -1,6 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>算法-动态规划Dynamic Programming</title>
+    <url>/2020/06/12/%E7%AE%97%E6%B3%95-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/</url>
+    <content><![CDATA[<blockquote>
+<p>动态规划的介绍。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="动态规划介绍">动态规划介绍</h1>
+<p>动态规划的基本思想非常简单。简单说就是将一个大问题拆成若干小的子问题，再从子问题求出大问题的解。</p>
+<p><strong>『状态转移方程』</strong>是动态规划的关键。状态转移方程描述的就是将大问题拆解为小的子问题的过程。</p>
+<p>下面通过两个具体的生活例子来解释这两个概念。</p>
+<h2 id="钞票数">钞票数</h2>
+<p>假设有1块，5块，11块三种钞票，现在请用最少的钞票数拼出15块。</p>
+<p>这样一个简单的问题，其实一眼就能看出来：3张5块。但如果要求拼出的钱数比较大，那么一般的思维将会是这样：每次都取最大的，例如，这其实就是贪心算法的核心思想。如果此例按照贪心算法，那么选择的顺序将会是：11，1，1，1，1，一共5张，显然这不是最优解，此时贪心法不适用。</p>
+<p>换一种思路：目前不知道拼出15块<strong>最少</strong>需要多少张钞票，我们假设需要的<strong>最少</strong>钞票数为<span class="math inline">\(f(15)\)</span>，那么<span class="math inline">\(f(15)\)</span>一定等于以下三个值中的最小值： <span class="math display">\[
+f(15) = min\{f(14), f(10), f(4)\} + 1
+\]</span> <span class="math inline">\(f(14) + 1\)</span>表示取1张1块的，那么<span class="math inline">\(f(15)\)</span>就是组成14块的最小钞票数再加1，另外两个以此类推。</p>
+<p>这里的意思就是说，<span class="math inline">\(f(n)\)</span>只与<span class="math inline">\(f(n - 1), f(n - 5), f(n - 11)\)</span>有关，说得更直白些就是，只需要求出一系列小的<span class="math inline">\(f(i)\)</span>，就能从这些小的<span class="math inline">\(f(i)\)</span>推导出<span class="math inline">\(f(n)\)</span>，即<strong>将大问题分解为小问题</strong>。而大问题分解为小问题的关键就是找到<strong>状态转移方程</strong>，此例的状态转移方程就是： <span class="math display">\[
+f(n) = min\{f(n-1),f(n-5),f(n-11)\}+1
+\]</span> 以下是该示例的Java代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] f = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">16</span>];</span><br><span class="line">        f[<span class="number">0</span>] = <span class="number">0</span>; <span class="comment">// 注意设置初始值</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; <span class="number">16</span>; ++i) &#123; <span class="comment">// 从1开始</span></span><br><span class="line">            <span class="keyword">int</span> cost = Integer.MAX_VALUE;</span><br><span class="line">            <span class="keyword">if</span> (i - <span class="number">1</span> &gt;= <span class="number">0</span>)</span><br><span class="line">                cost = Math.min(cost, f[i - <span class="number">1</span>] + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (i - <span class="number">5</span> &gt;= <span class="number">0</span>)</span><br><span class="line">                cost = Math.min(cost, f[i - <span class="number">5</span>] + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (i - <span class="number">11</span> &gt;= <span class="number">0</span>)</span><br><span class="line">                cost = Math.min(cost, f[i - <span class="number">11</span>] + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">            f[i] = cost;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        System.out.println(f[<span class="number">15</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出结果为 3</span></span><br></pre></td></tr></table></figure>
+<p>结合上述的分析以及Java代码，我们发现，一旦算出某个<span class="math inline">\(f(i)\)</span>的值，以后就不用再管<span class="math inline">\(f(i)\)</span>究竟是怎么计算的了，只需要知道它的值是多少就够了。这个特点归结为 <strong>『无后效性』</strong>，更抽象的说法是，子问题的解一旦确定，就不再改变，不受在这之后、包含它的更大的问题的求解决策影响。</p>
+<p>一个问题能不能用动态规划来解决，要求之一就是该问题必须满足无后效性。</p>
+<h2 id="dag最短路径问题">DAG最短路径问题</h2>
+<p>有向无环图最短路径问题也是一类经典的动态规划问题，给出起点S，给出终点T，求S到T的最短路径长度，复杂一点的还要求输出最短路径。</p>
+<p>例如下图：</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/20200612223847.png" /></p>
+<p>假设到点T的最短路径长度用<span class="math inline">\(f(T)\)</span>表示，那么要到达T，要么经过C，要么经过D，没有别的选择，所以，我们可以得到如下的状态转移方程：</p>
+<p><span class="math display">\[
+f(T) = min\{f(C) + 20, f(D) + 10\}
+\]</span></p>
+<p>DAG最短路径更通用的状态转移方程是如下：</p>
+<p><span class="math display">\[
+f(T) = min\{f(R)+w_{R-&gt;T}\}
+\]</span></p>
+<p>其中，<em>R</em>是所有能到达<em>T</em>的路径中的任意一点，<span class="math inline">\(w_{R-&gt;T}\)</span>表示从点<em>R</em>到<em>T</em>的路径长度。</p>
+<p>这其中还涉及到一个子路径是不是最优的问题。即，如果路径<span class="math inline">\(S-&gt;P-&gt;Q-&gt;T\)</span>是最短路径，那么路径<span class="math inline">\(S-&gt;P-&gt;Q\)</span>一定是从S到Q的最短路径（可用反证法证明）。</p>
+<p>这一特点叫作 <strong>『最优子结构』</strong>。能用动态规划解答的问题也必须满足最优子结构这个条件。上方的钞票问题也满足最优子结构。</p>
+<h2 id="动态规划三要点">动态规划三要点</h2>
+<p>从上述分析可以看出，一个问题能够用动态规划来解决，需要满足以下3点：</p>
+<ol type="1">
+<li>子问题重叠性质，即大问题能分解成相似的小问题</li>
+<li>无后效性</li>
+<li>最优子结构</li>
+</ol>
+<h2 id="动态规划远优于暴力破解的原因">动态规划远优于暴力破解的原因</h2>
+<p>动态规划算法的耗时远远小于暴力破解的耗时，这是因为，子问题的解只计算了一次，求出子问题的解后，会将其记录到一张表中，下次在遇到该子问题时直接查表既可。这就大大减少了重复计算。</p>
+<h2 id="动态规划与递归的区别">动态规划与递归的区别</h2>
+<p>动态规划是『自底向上』的，而递归是『自顶向下』的。</p>
+<p>例如上述的钞票问题，我们是从<span class="math inline">\(f(1)\)</span>计算到<span class="math inline">\(f(15)\)</span>，这就是自底向上。如果按照递归的方法，一般情况下，想要计算<span class="math inline">\(f(15)\)</span>，那么就计算<span class="math inline">\(f(14)\)</span>；想要计算<span class="math inline">\(f(14)\)</span>，那么计算<span class="math inline">\(f(13)\)</span>，以此类推，直到计算<span class="math inline">\(f(1)\)</span>，这就是自顶向下，且这个递归的过程中依然会有重复计算的问题，效率不如动态规划高。</p>
+<h2 id="参考资料">参考资料</h2>
+<ol type="1">
+<li><a href="https://houbb.github.io/2020/01/23/data-struct-learn-07-base-dp" target="_blank" rel="noopener">五大基本算法之动态规划算法 DP dynamic programming</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92" target="_blank" rel="noopener">维基百科</a></li>
+<li><a href="https://www.zhihu.com/question/23995189/answer/613096905" target="_blank" rel="noopener">什么是动态规划（Dynamic Programming）？动态规划的意义是什么？ - 阮行止的回答 - 知乎</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>动态规划</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+        <tag>动态规划</tag>
+        <tag>DP</tag>
+        <tag>Dynamic Programming</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>R语言-ggplot2初探</title>
     <url>/2020/05/11/R%E8%AF%AD%E8%A8%80-ggplot2%E5%88%9D%E6%8E%A2/</url>
     <content><![CDATA[<blockquote>
