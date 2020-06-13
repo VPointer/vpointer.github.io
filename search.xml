@@ -52,6 +52,72 @@
       </tags>
   </entry>
   <entry>
+    <title>LeetCode 121. Best Time to Buy and Sell Stock</title>
+    <url>/2020/06/13/LeetCode%20121.%20Best%20Time%20to%20Buy%20and%20Sell%20Stock/</url>
+    <content><![CDATA[<blockquote>
+<p>LeetCode刷题记。</p>
+<p><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock/" target="_blank" rel="noopener">121. Best Time to Buy and Sell Stock</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="题目描述">题目描述</h1>
+<p>Say you have an array for which the <em>ith</em> element is the price of a given stock on day <em>i</em>.</p>
+<p>If you were only permitted to complete at most one transaction (i.e., buy one and sell one share of the stock), design an algorithm to find the maximum profit.</p>
+<p>Note that you cannot sell a stock before you buy one.</p>
+<p><strong>Example 1</strong>:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: [7,1,5,3,6,4]</span><br><span class="line">Output: 5</span><br><span class="line">Explanation: Buy on day 2 (price &#x3D; 1) and sell on day 5 (price &#x3D; 6), profit &#x3D; 6-1 &#x3D; 5.</span><br><span class="line">             Not 7-1 &#x3D; 6, as selling price needs to be larger than buying price.</span><br></pre></td></tr></table></figure>
+<p><strong>Example 2</strong>:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: [7,6,4,3,1]</span><br><span class="line">Output: 0</span><br><span class="line">Explanation: In this case, no transaction is done, i.e. max profit &#x3D; 0.</span><br></pre></td></tr></table></figure>
+<h1 id="解法">解法</h1>
+<p>使用动态规划来解。</p>
+<h2 id="动态规划解法1">动态规划解法1</h2>
+<p>这个解法个人认为是最容易理解的，也是更通用的解法。</p>
+<p>我们知道，求一个数组的最大子序列和可以用动态规划来求解。那么现在的这个问题可以按照最大子序列和来求解吗？当然是可以的。</p>
+<p>如果将该问题抽象一点，无非就是从数组中找到两个下标<span class="math inline">\(i\)</span>和<span class="math inline">\(j\)</span>(<span class="math inline">\(j &gt; i\)</span>)，使得<span class="math inline">\(a_j-a_i\)</span>最大。奇妙的东西来了： <span class="math display">\[
+a_j - a_i = (a_j - a_{j-1}) + (a_{j-1} - a_{j-2})+...+(a_{i+1}-a_i))
+\]</span> 不知道各位发现规律了没有，上述等式右边的每个括号中，不就是相邻元素之差吗！而括号之间是用加号连接的！</p>
+<p>以上述Example 1为例，原始数组为<code>[7, 1, 5, 3, 6, 4]</code>，答案告诉我们，收益最大的是第2天买入，第5天卖出，即<code>a[4] - a[1]</code>。现在我们先计算出相邻元素的差，它们为<code>[-6, 4, -2, 3, -2]</code>，<code>a[4] - a[1]</code>不就刚好等于<code>4 + (-2) + 3</code>吗？！这不就刚好是这个差数组的最大连续子序列和吗？</p>
+<p>当然，上述并不是严格的证明过程，只是为了说明一点：</p>
+<blockquote>
+<p>求数组中任意两元素的最大差（只能后面的元素减前面的元素），可以通过相邻元素做差，将其转换为求数组的最大连续子序列和。</p>
+</blockquote>
+<p>所以解法呼之欲出。</p>
+<blockquote>
+<p>提示：状态转移方程为<span class="math inline">\(dp[i] = max(diff[i], dp[i - 1] + diff[i])\)</span>，其中，<span class="math inline">\(dp[i]\)</span>表示以<span class="math inline">\(i\)</span>结尾的最大连续子序列和。</p>
+</blockquote>
+<h3 id="java代码">Java代码</h3>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="keyword">int</span>[] prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(prices.length &lt;= <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span>[] diff = <span class="keyword">new</span> <span class="keyword">int</span>[prices.length - <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; diff.length; ++i)</span><br><span class="line">            diff[i] = prices[i + <span class="number">1</span>] - prices[i];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[diff.length];</span><br><span class="line">        dp[<span class="number">0</span>] = diff[<span class="number">0</span>];</span><br><span class="line">        <span class="comment">// 注意这行代码，maxSum最小值为0，表示当天买当天卖(股票一直在亏损)</span></span><br><span class="line">        <span class="keyword">int</span> maxSum = Math.max(<span class="number">0</span>, diff[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; diff.length; ++i) &#123;</span><br><span class="line">            dp[i] = Math.max(diff[i], dp[i - <span class="number">1</span>] + diff[i]);</span><br><span class="line">            maxSum = Math.max(maxSum, dp[i]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> maxSum;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意到:</p>
+<ul>
+<li>上述<code>dp[]</code>数组其实每次都只用到了<code>dp[i]</code>的前一个<code>dp[i-1]</code>，所以这个<code>dp[]</code>数组可以简化掉；</li>
+<li><code>diff[]</code>每次也只用到一个，可以现用现求，所以也可以简化掉。</li>
+</ul>
+<p>于是有了如下代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="keyword">int</span>[] prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(prices.length &lt;= <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> last = prices[<span class="number">1</span>] - prices[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> maxSum = Math.max(<span class="number">0</span>, last);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">2</span>; i &lt; prices.length; ++i) &#123;</span><br><span class="line">            <span class="keyword">int</span> diff = prices[i] - prices[i - <span class="number">1</span>];</span><br><span class="line">            last = Math.max(diff, last + diff); <span class="comment">// </span></span><br><span class="line">            maxSum = Math.max(maxSum, last);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> maxSum;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="python代码">Python代码</h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">maxProfit</span><span class="params">(self, prices: List[int])</span> -&gt; int:</span></span><br><span class="line">        <span class="keyword">if</span> len(prices) &lt;= <span class="number">1</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        last = prices[<span class="number">1</span>] - prices[<span class="number">0</span>]</span><br><span class="line">        max_sum = max(<span class="number">0</span>, last)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">2</span>, len(prices)):</span><br><span class="line">            diff = prices[i] - prices[i - <span class="number">1</span>]</span><br><span class="line">            last = max(diff, last + diff)</span><br><span class="line">            max_sum = max(max_sum, last)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> max_sum</span><br></pre></td></tr></table></figure>
+<h2 id="动态规划解法2">动态规划解法2</h2>
+<p>我们可以直接把<code>dp[]</code>数组设置为前<span class="math inline">\(i\)</span>天的最大收益，那么状态转移方程将变为如下形式： <span class="math display">\[
+dp[i]=max(dp[i - 1], prices[i] - minprice)
+\]</span> 其中，<span class="math inline">\(minprice\)</span>表示前<span class="math inline">\(i\)</span>天中的最低价。</p>
+<h3 id="java代码-1">Java代码</h3>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="keyword">int</span>[] prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = prices.length;</span><br><span class="line">        <span class="keyword">if</span> (len &lt;= <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line">        dp[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> minPrice = prices[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; ++i) &#123;</span><br><span class="line">            minPrice = Math.min(minPrice, prices[i]);</span><br><span class="line">            dp[i] = Math.max(dp[i - <span class="number">1</span>], prices[i] - minPrice);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp[len - <span class="number">1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如上一个解法所属，<code>dp[]</code>数组可以省略掉：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="keyword">int</span>[] prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = prices.length;</span><br><span class="line">        <span class="keyword">if</span> (len &lt;= <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> maxPrice = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> minPrice = prices[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; ++i) &#123;</span><br><span class="line">            minPrice = Math.min(minPrice, prices[i]);</span><br><span class="line">            maxPrice = Math.max(maxPrice, prices[i] - minPrice);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> maxPrice;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="python代码-1">Python代码</h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">maxProfit</span><span class="params">(self, prices: List[int])</span> -&gt; int:</span></span><br><span class="line">        size = len(prices)</span><br><span class="line">        <span class="keyword">if</span> size &lt;= <span class="number">1</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        max_earn = <span class="number">0</span></span><br><span class="line">        min_price = prices[<span class="number">0</span>]</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>, size):</span><br><span class="line">            min_price = min(min_price, prices[i])</span><br><span class="line">            max_earn = max(max_earn, prices[i] - min_price)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> max_earn</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>算法题</category>
+        <category>动态规划</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Java</tag>
+        <tag>Python</tag>
+        <tag>动态规划</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>算法-动态规划Dynamic Programming</title>
     <url>/2020/06/12/%E7%AE%97%E6%B3%95-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/</url>
     <content><![CDATA[<blockquote>
@@ -103,6 +169,7 @@ f(T) = min\{f(R)+w_{R-&gt;T}\}
 <p>例如上述的钞票问题，我们是从<span class="math inline">\(f(1)\)</span>计算到<span class="math inline">\(f(15)\)</span>，这就是自底向上。如果按照递归的方法，一般情况下，想要计算<span class="math inline">\(f(15)\)</span>，那么就计算<span class="math inline">\(f(14)\)</span>；想要计算<span class="math inline">\(f(14)\)</span>，那么计算<span class="math inline">\(f(13)\)</span>，以此类推，直到计算<span class="math inline">\(f(1)\)</span>，这就是自顶向下，且这个递归的过程中依然会有重复计算的问题，效率不如动态规划高。</p>
 <h1 id="动态规划相关练习题">动态规划相关练习题</h1>
 <a href="/2020/06/13/LeetCode%201025.Divisor%20Game/" title="LeetCode 1025.Divisor Game">LeetCode 1025.Divisor Game</a>
+<a href="/2020/06/13/LeetCode%20121.%20Best%20Time%20to%20Buy%20and%20Sell%20Stock/" title="LeetCode 121. Best Time to Buy and Sell Stock">LeetCode 121. Best Time to Buy and Sell Stock</a>
 <h1 id="参考资料">参考资料</h1>
 <ol type="1">
 <li><a href="https://houbb.github.io/2020/01/23/data-struct-learn-07-base-dp" target="_blank" rel="noopener">五大基本算法之动态规划算法 DP dynamic programming</a></li>
