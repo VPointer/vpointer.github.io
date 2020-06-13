@@ -1,6 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>LeetCode 1025.Divisor Game</title>
+    <url>/2020/06/13/LeetCode%201025.Divisor%20Game/</url>
+    <content><![CDATA[<blockquote>
+<p>LeetCode刷题记。</p>
+<p><a href="https://leetcode.com/problems/divisor-game/" target="_blank" rel="noopener">1025.Divisor Game</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="题目描述">题目描述</h1>
+<p>Alice and Bob take turns playing a game, with Alice starting first.</p>
+<p>Initially, there is a number <code>N</code> on the chalkboard. On each player's turn, that player makes a move consisting of:</p>
+<p>Choosing any <code>x</code> with <code>0 &lt; x &lt; N</code> and <code>N % x == 0</code>. Replacing the number <code>N</code> on the chalkboard with <code>N - x</code>. Also, if a player cannot make a move, they lose the game.</p>
+<p>Return <code>True</code> if and only if Alice wins the game, assuming both players play optimally.</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: 2</span><br><span class="line">Output: true</span><br><span class="line">Explanation: Alice chooses 1, and Bob has no more moves.</span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: 3</span><br><span class="line">Output: false</span><br><span class="line">Explanation: Alice chooses 1, Bob chooses 1, and Alice has no more moves.</span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">Note:</span><br><span class="line"></span><br><span class="line">1 &lt;&#x3D; N &lt;&#x3D; 1000</span><br></pre></td></tr></table></figure>
+<h1 id="解法">解法</h1>
+<p>一共两个解法：动态规划和恐怖如斯的数学归纳法。</p>
+<h2 id="动态规划解法">动态规划解法</h2>
+<p>如果这道题只从某个选手来考虑的话，那么状态转移方程将很难写，而且也不易于理解。应该同时考虑两个选手的状态。</p>
+<p><span class="math inline">\(dp(N)=True\)</span>表示数字<span class="math inline">\(N\)</span>能使拿到该数字的选手获胜，这里并不区分究竟是哪个选手。但由于Alice总是先手，所以其实<span class="math inline">\(dp(N)\)</span>表示的就是Alice是否能获胜。</p>
+<p>要使Alice获胜，即<span class="math inline">\(dp(N)=True\)</span>，那也就意谓当Bob拿到<span class="math inline">\(N-j\)</span>时，Bob必须输掉，Alice才能胜利，即<span class="math inline">\(dp(N-j)=False\)</span>。</p>
+<p>总结以下，本题状态转移的描述如下：</p>
+<blockquote>
+<p>要使<span class="math inline">\(dp(N)=True\)</span>，那么对于所有符合条件的<span class="math inline">\(j\)</span>，存在至少一个<span class="math inline">\(j\)</span>，使得<span class="math inline">\(dp(N-j)=False\)</span></p>
+</blockquote>
+<h3 id="java代码">Java代码</h3>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">divisorGame</span><span class="params">(<span class="keyword">int</span> N)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (N == <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">if</span> (N == <span class="number">2</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">boolean</span>[] dp = <span class="keyword">new</span> <span class="keyword">boolean</span>[N + <span class="number">1</span>];</span><br><span class="line">        dp[<span class="number">1</span>] = <span class="keyword">false</span>;</span><br><span class="line">        dp[<span class="number">2</span>] = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">3</span>; i &lt;= N; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= i / <span class="number">2</span>; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (i % j == <span class="number">0</span> &amp;&amp; !dp[i - j]) &#123;</span><br><span class="line">                    dp[i] = <span class="keyword">true</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp[N];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="python代码">Python代码</h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">divisorGame</span><span class="params">(self, N: int)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> N == <span class="number">1</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">if</span> N == <span class="number">2</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">        dp = [<span class="literal">False</span>] * (N + <span class="number">1</span>)</span><br><span class="line">        dp[<span class="number">1</span>] = <span class="literal">False</span></span><br><span class="line">        dp[<span class="number">2</span>] = <span class="literal">True</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">3</span>, N + <span class="number">1</span>):</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">1</span>, i // <span class="number">2</span> + <span class="number">1</span>):</span><br><span class="line">                <span class="keyword">if</span> i % j == <span class="number">0</span> <span class="keyword">and</span> <span class="keyword">not</span> dp[i - j]:</span><br><span class="line">                    dp[i] = <span class="literal">True</span></span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp[N]</span><br></pre></td></tr></table></figure>
+<h2 id="残酷的数学归纳法">残酷的数学归纳法</h2>
+<p>如果列举一些数出来，可以发现一个规律：谁先从2减去1使得对方得到数字1，谁就获胜，而2是一个偶数，这一点很重要。那么可以分两种情况考虑：</p>
+<ol type="1">
+<li>若当前的数为奇数，那么它的约数全都是奇数(包括1)，它减去任何约数得到的都是偶数；</li>
+<li>若当前的数为偶数，那么它的约数可以是奇数也可以是偶数，此时减去一个奇数，对方得到的就是奇数，所以直接减1既可，于是又回到了情况1</li>
+</ol>
+<p>根据这两条规则，你可以归纳出结论：谁拿到偶数，他只需每次都减1，他就一定能获胜。</p>
+<p>那么对于这道题，可以直接得出结论：只要N是偶数，Alice就获胜。</p>
+<p>代码实在太简单，所以只列出Java代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">divisorGame</span><span class="params">(<span class="keyword">int</span> N)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> N % <span class="number">2</span> == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>洋洋洒洒十几行，结果别人就一行。。。</p>
+]]></content>
+      <categories>
+        <category>算法题</category>
+        <category>动态规划</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Java</tag>
+        <tag>Python</tag>
+        <tag>动态规划</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>算法-动态规划Dynamic Programming</title>
     <url>/2020/06/12/%E7%AE%97%E6%B3%95-%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/</url>
     <content><![CDATA[<blockquote>
@@ -38,19 +89,21 @@ f(T) = min\{f(R)+w_{R-&gt;T}\}
 <p>其中，<em>R</em>是所有能到达<em>T</em>的路径中的任意一点，<span class="math inline">\(w_{R-&gt;T}\)</span>表示从点<em>R</em>到<em>T</em>的路径长度。</p>
 <p>这其中还涉及到一个子路径是不是最优的问题。即，如果路径<span class="math inline">\(S-&gt;P-&gt;Q-&gt;T\)</span>是最短路径，那么路径<span class="math inline">\(S-&gt;P-&gt;Q\)</span>一定是从S到Q的最短路径（可用反证法证明）。</p>
 <p>这一特点叫作 <strong>『最优子结构』</strong>。能用动态规划解答的问题也必须满足最优子结构这个条件。上方的钞票问题也满足最优子结构。</p>
-<h2 id="动态规划三要点">动态规划三要点</h2>
+<h1 id="动态规划三要点">动态规划三要点</h1>
 <p>从上述分析可以看出，一个问题能够用动态规划来解决，需要满足以下3点：</p>
 <ol type="1">
 <li>子问题重叠性质，即大问题能分解成相似的小问题</li>
 <li>无后效性</li>
 <li>最优子结构</li>
 </ol>
-<h2 id="动态规划远优于暴力破解的原因">动态规划远优于暴力破解的原因</h2>
+<h1 id="动态规划远优于暴力破解的原因">动态规划远优于暴力破解的原因</h1>
 <p>动态规划算法的耗时远远小于暴力破解的耗时，这是因为，子问题的解只计算了一次，求出子问题的解后，会将其记录到一张表中，下次在遇到该子问题时直接查表既可。这就大大减少了重复计算。</p>
-<h2 id="动态规划与递归的区别">动态规划与递归的区别</h2>
+<h1 id="动态规划与递归的区别">动态规划与递归的区别</h1>
 <p>动态规划是『自底向上』的，而递归是『自顶向下』的。</p>
 <p>例如上述的钞票问题，我们是从<span class="math inline">\(f(1)\)</span>计算到<span class="math inline">\(f(15)\)</span>，这就是自底向上。如果按照递归的方法，一般情况下，想要计算<span class="math inline">\(f(15)\)</span>，那么就计算<span class="math inline">\(f(14)\)</span>；想要计算<span class="math inline">\(f(14)\)</span>，那么计算<span class="math inline">\(f(13)\)</span>，以此类推，直到计算<span class="math inline">\(f(1)\)</span>，这就是自顶向下，且这个递归的过程中依然会有重复计算的问题，效率不如动态规划高。</p>
-<h2 id="参考资料">参考资料</h2>
+<h1 id="动态规划相关练习题">动态规划相关练习题</h1>
+
+<h1 id="参考资料">参考资料</h1>
 <ol type="1">
 <li><a href="https://houbb.github.io/2020/01/23/data-struct-learn-07-base-dp" target="_blank" rel="noopener">五大基本算法之动态规划算法 DP dynamic programming</a></li>
 <li><a href="https://zh.wikipedia.org/wiki/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92" target="_blank" rel="noopener">维基百科</a></li>
