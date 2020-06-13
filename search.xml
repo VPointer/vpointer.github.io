@@ -102,7 +102,7 @@ f(T) = min\{f(R)+w_{R-&gt;T}\}
 <p>动态规划是『自底向上』的，而递归是『自顶向下』的。</p>
 <p>例如上述的钞票问题，我们是从<span class="math inline">\(f(1)\)</span>计算到<span class="math inline">\(f(15)\)</span>，这就是自底向上。如果按照递归的方法，一般情况下，想要计算<span class="math inline">\(f(15)\)</span>，那么就计算<span class="math inline">\(f(14)\)</span>；想要计算<span class="math inline">\(f(14)\)</span>，那么计算<span class="math inline">\(f(13)\)</span>，以此类推，直到计算<span class="math inline">\(f(1)\)</span>，这就是自顶向下，且这个递归的过程中依然会有重复计算的问题，效率不如动态规划高。</p>
 <h1 id="动态规划相关练习题">动态规划相关练习题</h1>
-
+<a href="/2020/06/13/LeetCode%201025.Divisor%20Game/" title="LeetCode 1025.Divisor Game">LeetCode 1025.Divisor Game</a>
 <h1 id="参考资料">参考资料</h1>
 <ol type="1">
 <li><a href="https://houbb.github.io/2020/01/23/data-struct-learn-07-base-dp" target="_blank" rel="noopener">五大基本算法之动态规划算法 DP dynamic programming</a></li>
