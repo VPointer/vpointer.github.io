@@ -1,6 +1,472 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>LeetCode 198. House Robber</title>
+    <url>/2020/06/20/LeetCode%20198.%20House%20Robber/</url>
+    <content><![CDATA[<blockquote>
+<p>LeetCode刷题记。</p>
+<p><a href="https://leetcode.com/problems/house-robber/" target="_blank" rel="noopener">198. House Robber</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="题目描述">题目描述</h1>
+<p>You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security system connected and it will automatically contact the police if two adjacent houses were broken into on the same night.</p>
+<p>Given a list of non-negative integers representing the amount of money of each house, determine the maximum amount of money you can rob tonight without alerting the police.</p>
+<p>Example 1:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: nums &#x3D; [1,2,3,1]</span><br><span class="line">Output: 4</span><br><span class="line">Explanation: Rob house 1 (money &#x3D; 1) and then rob house 3 (money &#x3D; 3).</span><br><span class="line">             Total amount you can rob &#x3D; 1 + 3 &#x3D; 4.</span><br></pre></td></tr></table></figure>
+<p>Example 2:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: nums &#x3D; [2,7,9,3,1]</span><br><span class="line">Output: 12</span><br><span class="line">Explanation: Rob house 1 (money &#x3D; 2), rob house 3 (money &#x3D; 9) and rob house 5 (money &#x3D; 1).</span><br><span class="line">             Total amount you can rob &#x3D; 2 + 9 + 1 &#x3D; 12.</span><br></pre></td></tr></table></figure>
+<p>Constraints:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">0 &lt;&#x3D; nums.length &lt;&#x3D; 100</span><br><span class="line">0 &lt;&#x3D; nums[i] &lt;&#x3D; 400</span><br></pre></td></tr></table></figure>
+<h1 id="解法">解法</h1>
+<p>首先，如果输入的数组是空数组，直接返回0；如果数组的长度为1，直接返回<code>nums[0]</code>；如果数组长度为2，返回其中的最大值。</p>
+<p>对于<code>n&gt;2</code>的情况，当小偷经过<code>i</code>时，他有两种选择：</p>
+<ol type="1">
+<li>偷<code>i</code>，那么此时他的收益就是前<code>i - 2</code>栋楼中最大收益<code>dp[i-2]</code>再加上<code>nums[i]</code>；</li>
+<li>不偷<code>i</code>，那么此时他的收益就是前<code>i-1</code>栋楼的最大收益<code>dp[i-1]</code></li>
+</ol>
+<p>所以当小偷经过第<code>i</code>栋楼时，他的最大收益是:</p>
+<p><span class="math display">\[
+dp[i] = max(dp[i-2] + nums[i], dp[i-1])
+\]</span></p>
+<p>又由于整个过程其实只用到了<code>dp[i-2]</code>和<code>dp[i-1]</code>，所以其实并不用创建一个<code>dp[]</code>数组，使用两个变量既可。而为了让计算过程更统一，在原本的房子前面再加两个为0的房子。</p>
+<h2 id="java代码">Java代码</h2>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">rob</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> first = <span class="number">0</span>, second = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> x : nums) &#123;</span><br><span class="line">            <span class="keyword">int</span> temp = Math.max(x + first, second);</span><br><span class="line">            first = second;</span><br><span class="line">            second = temp;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> second;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="python代码">Python代码</h2>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">rob</span><span class="params">(self, nums: List[int])</span> -&gt; int:</span></span><br><span class="line">        first = second = <span class="number">0</span> <span class="comment"># 相当于添加了两栋为0的房子在最前面</span></span><br><span class="line">        <span class="keyword">for</span> x <span class="keyword">in</span> nums:</span><br><span class="line">            first, second = second, max(first + x, second)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> second</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>算法题</category>
+        <category>动态规划</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Java</tag>
+        <tag>Python</tag>
+        <tag>动态规划</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MySQL笔记</title>
+    <url>/2020/06/20/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<blockquote>
+<p>MySQL学习笔记整理</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="mysql中的重要数据类型">MySQL中的重要数据类型</h1>
+<ol type="1">
+<li><p>整型：</p>
+<p><code>tinyint</code>：1字节</p>
+<p><code>smallint</code>：2字节</p>
+<p><code>mediumint</code>：3字节</p>
+<p><code>int</code>：4字节</p>
+<p><code>bigint</code>：8字节</p>
+<p><code>int</code>可以指定长度，但必须和<code>zerofill unsigned</code>结合使用，否则没有意义，例如：<code>id int(8) zerofill unsigned</code></p></li>
+<li><p>浮点型：</p>
+<p><code>float</code>，<code>double</code></p>
+<p><code>double(M, D)</code>表示一共有<code>M</code>位，其中<code>D</code>位为小数。</p></li>
+<li><p>定点型：</p>
+<p><code>DECIMAL</code>和<code>NUMERIC</code>都可以表示小数</p></li>
+<li><p>时间类型：</p>
+<p><code>date</code>：日期</p>
+<p><code>time</code>：时间</p>
+<p><code>timestamp</code>：底层用毫秒表示，可以区分时区，可以表示1970-2038年左右</p>
+<p><code>datatime</code>：直接存储日期时间，不区分时区，可以表示1000-9999年</p>
+<p><code>year</code>：只能表示年</p></li>
+<li><p><code>char</code>：定长，补足的会用<code>0</code>补全，默认长度为1</p>
+<p><code>varchar</code>：变长，必须指定长度，即<code>varchar(M)</code>，最后一个字节存放字符串长度。支持全文检索。</p>
+<p><code>text</code>：也是字符串，但用的很少。</p></li>
+<li><p>其他类型：</p>
+<p><code>xxxbit</code></p>
+<p><code>xxxblob</code>：二进制类型，可以存二维码、小头像等</p>
+<p>枚举类型</p>
+<p>集合类型</p></li>
+<li><p>特殊值：<code>null</code></p>
+<p>所有类型都可以是<code>null</code></p></li>
+</ol>
+<h1 id="sql规范">SQL规范</h1>
+<ol type="1">
+<li>mysql对SQL语句不区分大小写，SQL语句关键字尽量大写，但数据库工具会给你自动转成大写。</li>
+<li>字符型和日期时间类型使用单引号</li>
+<li><code>#</code>表示单行注释；<code>--</code>也是单行注释，但后面要一个空格；<code>/* */</code>多行注释</li>
+<li>只能是<code>A-Z</code>，<code>a-z</code>，<code>0-9</code>和<code>_</code>这63个字符的组合，且命名不要过长</li>
+</ol>
+<h1 id="sql">SQL</h1>
+<p>三种SQL语句：DDL，DML和DCL。</p>
+<h2 id="ddl">DDL</h2>
+<p>数据定义语言，即定义库、表等，如下：</p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 76%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>查看所有数据库</td>
+<td><code>show databases;</code></td>
+</tr>
+<tr class="even">
+<td>创建数据库</td>
+<td><code>create database 数据库名</code></td>
+</tr>
+<tr class="odd">
+<td>删除一个数据库</td>
+<td><code>drop database 数据库名</code></td>
+</tr>
+<tr class="even">
+<td>指定使用某个数据库</td>
+<td><code>use 数据库名</code>：运行本句之后，之后所有的sql语句都针对的是该数据库</td>
+</tr>
+<tr class="odd">
+<td>查看某个库的所有表</td>
+<td><code>show tables;</code>，需要提前使用<code>use</code><br><code>show tables from 数据库名</code></td>
+</tr>
+<tr class="even">
+<td>创建表格</td>
+<td><code>create table [数据库名.]表名(字段名1 数据类型, 字段名2 数据类型，... );</code></td>
+</tr>
+<tr class="odd">
+<td>查看表结构</td>
+<td><code>desc &lt;表名&gt;;</code></td>
+</tr>
+<tr class="even">
+<td>增加一列</td>
+<td><code>alter table 表名 add 字段名 数据类型 [after 字段名]/[first];</code>，其中，<code>after</code>表示在某列之后添加，<code>first</code>表示在第一列添加</td>
+</tr>
+<tr class="odd">
+<td>删除一列</td>
+<td><code>alter table 表名 drop 字段名;</code></td>
+</tr>
+<tr class="even">
+<td>修改列类型，位置等</td>
+<td><code>alter table 表名 modiry 字段名 数据类型 [after 字段名]/[first]</code></td>
+</tr>
+<tr class="odd">
+<td>修改列名</td>
+<td><code>alter table 表名 change 旧字段名 新字段名 数据类型 [after 字段名]/[first]</code></td>
+</tr>
+<tr class="even">
+<td>修改表名</td>
+<td><code>alter table 表名 rename to 新表名</code></td>
+</tr>
+<tr class="odd">
+<td>删除整张表</td>
+<td><code>drop table 表名</code>，它会删除表以及表中所有数据</td>
+</tr>
+</tbody>
+</table>
+<p>创建数据库，选择字符集时，以<code>_ci</code>结尾的表示大小写不敏感，<code>_cs</code>结尾的表示大小写敏感。</p>
+<h2 id="dml">DML</h2>
+<p>数据操作语言，即增删改查</p>
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 88%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>添加数据</td>
+<td><code>insert into 表名 values(值列表);</code><br><code>insert into 表名(字段列表) values(值列表);</code><br><code>insert into 表名 values(值列表1),(值列表2)...;</code>：表示插入多行</td>
+</tr>
+<tr class="even">
+<td>查看数据</td>
+<td>查看所有：<code>select * from 表名 [where 条件];</code><br>只查看某些字段：<code>select 字段列表 from 表名 [where 条件];</code><br>设置别名：<code>select 字段1 as 别名1, 字段2 as 别名2... from 表名 [where 条件];</code>，别名只在结果中显示</td>
+</tr>
+<tr class="odd">
+<td>修改数据</td>
+<td><code>update 表名 set 字段名1=字段值1, 字段名2=字段值2 [where 条件];</code></td>
+</tr>
+<tr class="even">
+<td>删除数据</td>
+<td><code>delete from 表名 [where 条件];</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="dcl">DCL</h2>
+<p>数据控制语言，即权限、事务等控制语句</p>
+<h1 id="函数">函数</h1>
+<p>太多了。</p>
+<h2 id="单行函数">单行函数</h2>
+<p>只作用于一行的函数。</p>
+<p>以下是作用于字符串的函数：</p>
+<ul>
+<li><code>length()</code>：字符串实际字节长度，例如<code>世界</code>的长度是6</li>
+<li><code>char_length()</code>：字符串长度，例如<code>世界</code>的长度是2</li>
+<li><code>concat()</code>：拼接字符串</li>
+</ul>
+<p>以下是时间相关函数：</p>
+<ul>
+<li><code>now()</code>：当前时间</li>
+<li><code>current_date()</code></li>
+<li><code>current_time()</code></li>
+<li><code>year()</code></li>
+<li><code>date_format()</code>和<code>str_to_date()</code></li>
+</ul>
+<p>以下是一些流程控制语句：</p>
+<ul>
+<li><p><code>ifnull()</code>：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select ename, salary + salary * ifnull(commission_pct, 0) as &quot;实发工资&quot; from emp;</span><br></pre></td></tr></table></figure></li>
+<li><p><code>case...when...then</code>：</p>
+<p>相当于java中的<code>if...else if...</code>语句</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select ename, salary,</span><br><span class="line">case</span><br><span class="line">when salary &gt;&#x3D; 20000 then &quot;高富帅&quot;</span><br><span class="line">when salary &gt;&#x3D; 15000 then &quot;潜力股&quot;</span><br><span class="line">when salary &gt;&#x3D; 10000 then &quot;有为青年&quot;</span><br><span class="line">else &quot;屌丝&quot;</span><br><span class="line">end as &quot;标签&quot;</span><br><span class="line">from emp;</span><br></pre></td></tr></table></figure>
+<p><code>case</code>后面加上一个字段则相当于<code>switch</code>语句：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select oid, price,</span><br><span class="line">case state</span><br><span class="line">when 0 then &quot;新建订单&quot;</span><br><span class="line">when 1 then &quot;已付款&quot;</span><br><span class="line">when 2 then &quot;已发货&quot;</span><br><span class="line">end</span><br><span class="line">from order;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="分组函数">分组函数</h2>
+<p>多行合在一起作用的函数。典型的有：</p>
+<ul>
+<li>sum：和函数</li>
+<li>count：计数函数</li>
+<li>avg：平均值函数</li>
+<li>max/min：最大最小值函数</li>
+</ul>
+<h1 id="数据完整性">数据完整性</h1>
+<p>实体完整性(Entity Integrity)：例如，同一个表中，不能存在两条完全相同无法区分的记录</p>
+<p>域完整性(Domain Integrity)：例如，年龄范围，性别范围</p>
+<p>引用完整性(Referential Integrity)：例如，员工所在部门，在部门表中要能找到这个部门</p>
+<p>用户自定义完整性(User-defined Integrity)：例如，用户名唯一，密码不能为空等</p>
+<h2 id="约束">约束</h2>
+<p>MySQL有以下重要约束：</p>
+<ol type="1">
+<li>键约束</li>
+<li>非空约束</li>
+<li>自增约束</li>
+<li>默认值约束</li>
+</ol>
+<p>MySQL暂时没有支持检查约束。</p>
+<h3 id="键约束">键约束</h3>
+<p>需要注意的是，主键、唯一键和外键都会自动创建索引，所以在删除这几个键时，有所区别。</p>
+<h4 id="主键约束">主键约束</h4>
+<p>关键字：<code>primary key</code></p>
+<p>特点：带有主键约束的列的值必须非空且唯一</p>
+<p>作用：保证表中不会出现两条无法区分的记录</p>
+<p>要求：每一张表都必须有主键约束，且每张表只能有一个主键约束</p>
+<p>分类：单列主键约束，复合主键约束</p>
+<p>以下是对主键约束的操作：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 在创建表时添加主键约束</span><br><span class="line">create table dept(</span><br><span class="line">    id int primary key,</span><br><span class="line">    name varchar(20)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">create table dept(</span><br><span class="line">    id int,</span><br><span class="line">    name varchar(20),</span><br><span class="line">    primary key(id, name) # 复合主键</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"># 对已存在的表添加主键约束</span><br><span class="line">alter table dept add primary key(id);</span><br><span class="line">alter table dept add primary key(id, name) # 复合主键</span><br><span class="line"></span><br><span class="line"># 删除主键约束</span><br><span class="line">alter table dept drop primary key;</span><br></pre></td></tr></table></figure>
+<h4 id="唯一键约束">唯一键约束</h4>
+<p>关键字：<code>unique key</code></p>
+<p>特点：指定了唯一键的列的值必须唯一，不能重复，但可以为空</p>
+<p>作用：给主键以外的列限定唯一性</p>
+<p>分类：单列唯一键，复合唯一键</p>
+<p>与主键的区别：</p>
+<ul>
+<li>主键不能为空，唯一键可以；</li>
+<li>主键一张表只能有一个，唯一键可以有多个。</li>
+</ul>
+<p>以下是对唯一键的操作：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 建表时指定唯一键</span><br><span class="line">create table emp(</span><br><span class="line">    eid int primary key,</span><br><span class="line">    ename varchar(20),</span><br><span class="line">    cardid varchar(18) unique key,</span><br><span class="line">    tel varchar(11) unique key</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">create table emp(</span><br><span class="line">    eid int primary key,</span><br><span class="line">    ename varchar(20),</span><br><span class="line">    cardid varchar(18)，</span><br><span class="line">    tel varchar(11)，</span><br><span class="line">    unique key(ename),</span><br><span class="line">    unique key(tel)</span><br><span class="line">    # unique key(ename, tel) 这是复合唯一键，与分开写的方式是不同的！</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"># 建表后指定唯一键</span><br><span class="line">alter table 表名 add unique key(字段); # 单</span><br><span class="line">alter table 表名 add unique key(字段列表); # 复合</span><br><span class="line"></span><br><span class="line"># 删除唯一键(注意最后)</span><br><span class="line">alter table 表名 drop index 索引名; # 一般索引名就是列名</span><br></pre></td></tr></table></figure>
+<h4 id="外键约束">外键约束</h4>
+<p>外键约束不是必须的，现在很多大公司，当数据量比较大时，不建议在数据库层面设计外键，因为效率太低，他们将外键约束挪到了代码层面。</p>
+<p>关键字：<code>foreign key</code></p>
+<p>特点：</p>
+<ul>
+<li>约束的是两张表的关系，所以至少要两张表，也可以一张表虚拟成两张表</li>
+<li>被参考的表称为主表，另一张表称为从表，主表的被参考列必须是主键或唯一键</li>
+<li>一张表可有多个外键</li>
+</ul>
+<p>以下是外键的常规操作：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 创建外键</span><br><span class="line">create table dept(</span><br><span class="line">    did int primary key,</span><br><span class="line">    dname varchar(20) not null unique key,</span><br><span class="line">    description varchar(100)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">create table emp(</span><br><span class="line">    eid int primary key,</span><br><span class="line">    ename varchar(20) not null,</span><br><span class="line">    deptid int,</span><br><span class="line">    foreign key(deptid) references dept(did) # 外键只能这么写</span><br><span class="line">    # foreign key(从表外键列) references 主表名(主表被参考列名)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"># 建表后创建外键</span><br><span class="line">alter table 从表 add foreign key(从表列名) references 主表(主表被参考列);</span><br><span class="line"></span><br><span class="line"># 同一张表自引用</span><br><span class="line">create table emp(</span><br><span class="line">    eid int primary key,</span><br><span class="line">    managerid int,</span><br><span class="line">    foreign key(managerid) references emp(eid)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"># 删除外键</span><br><span class="line">alter table 从表 drop foreign key 外键约束名;</span><br><span class="line"># 如何查看外键约束名</span><br><span class="line">select * from information_schema.table_constraints where table_name&#x3D;&#39;从表名&#39;;</span><br></pre></td></tr></table></figure>
+<p>对于删除/修改主表记录，默认情况下，如果主表的被参考列的值被引用，那么就不能轻易的被删除或修改。但可以<strong>设置级联</strong>，当主表删除/修改是，从表也会自动更新：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">foreign key(从表外键列) references 主表名(主表被参考列) [on update cascade] [on delete cascade]</span><br></pre></td></tr></table></figure>
+<p>如果当删除/修改发生时，也可以将从表相应内容置空，而不是直接删除：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">foreign key(从表外键列) references 主表名(主表被参考列) [on update set null]</span><br></pre></td></tr></table></figure>
+<p>默认情况下，如果主表的被参考列的值被引用，那么就不能轻易的被删除或修改。</p>
+<h3 id="非空约束">非空约束</h3>
+<p>关键字：<code>not null</code></p>
+<p>以下是对非空约束的操作：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 创建时添加</span><br><span class="line">create table emp(</span><br><span class="line">    ename varchar(20) not null default 默认值</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"># 创建后添加</span><br><span class="line">alter table emp modify ename varchar(20) not null;</span><br><span class="line"></span><br><span class="line"># 删除非空约束</span><br><span class="line">alter table emp modify ename varchar(20);</span><br></pre></td></tr></table></figure>
+<h3 id="默认值约束">默认值约束</h3>
+<h3 id="自增约束">自增约束</h3>
+<p>关键字：<code>auto_increment</code></p>
+<p>特点：</p>
+<ul>
+<li>一张表只能有一个自增列</li>
+<li>自增列必须是整型的</li>
+<li>自增列还必须是键列。</li>
+</ul>
+<p>以下是关于自增约束的操作：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">create table emp(</span><br><span class="line">    eid int primary key auto_increment</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h1 id="查询操作">查询操作</h1>
+<p>查询某项为空的语法：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from emp where salary &lt;&#x3D;&gt; null; # 安全等于</span><br><span class="line">select * from emp where salary is null;</span><br></pre></td></tr></table></figure>
+<p>查询区间范围：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from emp where salary between 100 and 200; # [100, 200]闭区间</span><br></pre></td></tr></table></figure>
+<p>查询集合：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from emp where native in (&#39;a&#39;, &#39;b&#39;, &#39;c&#39;);</span><br><span class="line">select * from emp where native not in (&#39;a&#39;, &#39;b&#39;, &#39;c&#39;);</span><br></pre></td></tr></table></figure>
+<p>糢糊查询：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from emp where ename like &#39;_冰%&#39;; # 表示第二个字是”冰“，_ 表示确定的一个字符，%表示任意个字符</span><br></pre></td></tr></table></figure>
+<h2 id="关联查询">关联查询</h2>
+<p>mysql支持的关联查询有如下几种：</p>
+<ol type="1">
+<li>内连接： inner join</li>
+<li>外连接：
+<ul>
+<li>左外连接：left join</li>
+<li>右外连接：right join</li>
+</ul></li>
+</ol>
+<p>mysql不支持全连接查询。</p>
+<p>一共有7种结果：</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/image-20200620134704001.png" /></p>
+<ol type="1">
+<li><p><span class="math inline">\(A\)</span>：左连接</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from emp left join dept on emp.did &#x3D; dept.did;</span><br></pre></td></tr></table></figure></li>
+<li><p><span class="math inline">\(B\)</span>：右连接</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from emp right join dept on emp.did &#x3D; dept.did;</span><br></pre></td></tr></table></figure></li>
+<li><p><span class="math inline">\(A\cup B\)</span>：mysql使用<code>union</code>实现全连接，它的形式是<span class="math inline">\((A)union(B)\)</span></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from emp left join dept on emp.did &#x3D; dept.did</span><br><span class="line">union</span><br><span class="line">select * from emp right join dept on emp.did &#x3D; dept.did;</span><br></pre></td></tr></table></figure></li>
+<li><p><span class="math inline">\(A\cap B\)</span>：内连接</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># select 字段列表 from A inner join B on 关联条件 [where 筛选条件]</span><br><span class="line">select ename, emp.did, dname from emp inner join dept on emp.did &#x3D; dept.did;</span><br><span class="line"></span><br><span class="line"># select 字段列表 from A, B where 关联条件 [其他筛选条件]</span><br><span class="line">select ename, emp.did dname from emp, dept where emp.did &#x3D; dept.did;</span><br></pre></td></tr></table></figure>
+<p>如果不写关联条件，会出现笛卡儿积。</p></li>
+<li><p><span class="math inline">\(A - B\)</span>：左连接</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 其实就是情况1加了个null值判断条件</span><br><span class="line">select * from A left join B on 关联条件 where 从表的关联字段 is null;</span><br></pre></td></tr></table></figure></li>
+<li><p><span class="math inline">\(B - A\)</span>：右连接</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 其实就是情况2加了个null值判断条件</span><br><span class="line">select * from A left join B on 关联条件 where 从表的关联字段 is null;</span><br></pre></td></tr></table></figure></li>
+<li><p><span class="math inline">\(A\cup B-A\cap B\)</span>：也是<code>union</code>，但形式是<span class="math inline">\((A-B)union(B-A)\)</span></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from A left join B on 关联条件 where 从表的关联字段 is null</span><br><span class="line">union</span><br><span class="line">select * from A left join B on 关联条件 where 从表的关联字段 is null;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="自连接">自连接</h3>
+<p>通过给表取别名的方式，将一张表变”两张表“。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select emp.eid, emp.ename, emp.&#96;mid&#96;, mgr.ename </span><br><span class="line">from t_employee as emp </span><br><span class="line">inner join t_employee as mgr </span><br><span class="line">on emp.&#96;mid&#96; &#x3D; mgr.&#96;eid&#96;;</span><br></pre></td></tr></table></figure>
+<h2 id="select的5个子句">select的5个子句</h2>
+<p><code>select</code>后面可以跟：</p>
+<ul>
+<li><code>where</code>：用于筛选行</li>
+<li><code>group by</code>：分组</li>
+<li><code>having</code>：筛选统计结果，只有<code>group by</code>出现，它才能出现</li>
+<li><code>order by</code>：排序，DESC，ASC(默认)</li>
+<li><code>limit</code>：常用于分页</li>
+</ul>
+<p>如果这5个子句都出现，或者只出现一部分，则必须按照这里排列的顺序出现！</p>
+<h3 id="group-by">group by</h3>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select did, gender, AVG(salary) from emp where did is not null group by did, gender;</span><br></pre></td></tr></table></figure>
+<h3 id="having">having</h3>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select did, AVG(salary) from emp where did is not null group by did having avg(salary) &gt; 100;</span><br></pre></td></tr></table></figure>
+<h4 id="where和having的区别">where和having的区别</h4>
+<p><code>where</code>后面不允许使用分组函数</p>
+<p><code>where</code>是用于“原表”中记录的筛选，而<code>having</code>则是用于“统计结果”的筛选。</p>
+<h3 id="order-by">order by</h3>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># order by 字段名1 [desc&#x2F;asc], 字段名2...</span><br><span class="line">select ename, salary from emp order by salary desc;</span><br><span class="line">select did, avg(salary) from emp group by did order by avg(salary) asc;</span><br></pre></td></tr></table></figure>
+<h3 id="limit">limit</h3>
+<p>用于限止结果显示的行数</p>
+<p><code>limit m, n</code>：从0开始计数，表示从第m行开始显示，显示n行</p>
+<ul>
+<li>n：每页的记录数</li>
+<li>分页公式：<span class="math inline">\(m = (page - 1) * n\)</span>，其中<code>page</code>是你要显示第几页</li>
+</ul>
+<h2 id="子查询">子查询</h2>
+<p>先于当前查询执行的，并且是嵌套在当前查询中的查询叫做子查询。</p>
+<p>它分为两种：</p>
+<ul>
+<li><p>where型：子查询嵌套在where中</p>
+<p>条件的运算符分为两类：</p>
+<ul>
+<li>=, &gt;, &gt;=, &lt;, &lt;=, != 后面子查询的结果必须是单值</li>
+<li>in, =any, &gt;all, &lt;all等的后面子查询的结果可以是多值</li>
+</ul></li>
+<li><p>from型：子查询嵌套在from后面</p></li>
+<li><p>exists型</p></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># where型，查询全公司最高工资的员工的信息：</span><br><span class="line">select * from emp where salary &#x3D; (select max(salary) from emp);</span><br><span class="line"></span><br><span class="line"># from型，将结果和另一张表联合查询</span><br><span class="line">select dept.*, temp.average</span><br><span class="line">from dept left join (select did, avg(salary) as average from emp where did is not null group by did) as temp</span><br><span class="line">on dept.did &#x3D; temp.did;</span><br><span class="line"></span><br><span class="line"># 查询部门信息，该部门必须有员工</span><br><span class="line">select * from dept where exists (select * from emp where emp.did &#x3D; dept.did);</span><br></pre></td></tr></table></figure>
+<h1 id="事务">事务</h1>
+<p>表示一组操作，要么同时成功，要么全部失败，这种操作组合就构成了一个事务。</p>
+<p>涉及到的语句如下：</p>
+<ul>
+<li>开启事务：<code>start transaction</code></li>
+<li>提交事务：<code>commit</code></li>
+<li>回滚事务：<code>rollback</code></li>
+</ul>
+<p>对于事务，mysql默认自动提交，即执行一句自动提交一句，一旦提交无法回滚。可通过<code>set autocommit = false;</code>语句开启手动提交。</p>
+<p>两个<code>commit</code>之间的操作算一个事务。</p>
+<h2 id="事务的特性acid">事务的特性：ACID</h2>
+<ul>
+<li>原子性：要么同时成功，要么同时失败。一组事务必须小到不能再小，否则就拆开。</li>
+<li>一致性：指数据的规则，在事务前后必须一致</li>
+<li>隔离性：简单说，就是事务的操作对其他事务不可见。
+<ul>
+<li>为什么要隔离：保证事务是独立的，与java中的线程安全问题类似。</li>
+<li>表现出来的问题：
+<ul>
+<li>脏读：一个事务读取了另一个事务还未提交的数据</li>
+<li>不可重复读：一个事务读取了另一个事务提交的数据，导致一个事务期间对同一个数据的前后两次读取结果不同</li>
+<li>幻读：一个事务读取了另一个事务新增或删除并提交的数据，导致一个事务期间记录数改变了</li>
+</ul></li>
+<li>mysql的隔离级别：
+<ul>
+<li><code>READ-UNCOMMITTED</code>：允许事务读取其他未提及的数据，脏读、不可重复读、幻读都会出现</li>
+<li><code>READ-COMMITTED</code>：只允许事务读取其他事务已经提交的数据，可以避免脏读，但无法避免不可重复读、幻读</li>
+<li><code>REPEATABLE-READ</code>：默认的级别，不会出现以上三种问题，相当于行锁</li>
+<li><code>SERIALIZABLE</code>：相当于表锁，性能非常低</li>
+</ul></li>
+</ul></li>
+<li>持久性：当事务提交完成后，其影响应该保留下来，不能撤销</li>
+</ul>
+<h1 id="权限和安全">权限和安全</h1>
+<p>权限验证分两个阶段：</p>
+<ol type="1">
+<li><p>是否能够连接</p>
+<p>mysql验证连接的要求：主机地址+用户名+密码</p></li>
+<li><p>验证权限</p>
+<ul>
+<li>全局权限：所有库，所有表，所有字段。</li>
+<li>对象级别权限：库-&gt;表-&gt;字段，以及每一种操作单独设置权限</li>
+</ul></li>
+</ol>
+]]></content>
+      <categories>
+        <category>数据库</category>
+        <category>MySQL</category>
+      </categories>
+      <tags>
+        <tag>数据库</tag>
+        <tag>MySQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LeetCode 303. Range Sum Query - Immutable</title>
+    <url>/2020/06/20/LeetCode%20303.%20Range%20Sum%20Query%20-%20Immutable/</url>
+    <content><![CDATA[<blockquote>
+<p>LeetCode刷题记。</p>
+<p><a href="https://leetcode.com/problems/range-sum-query-immutable/" target="_blank" rel="noopener">303. Range Sum Query - Immutable</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="题目描述">题目描述</h1>
+<p>Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.</p>
+<p>Example:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Given nums &#x3D; [-2, 0, 3, -5, 2, -1]</span><br><span class="line"></span><br><span class="line">sumRange(0, 2) -&gt; 1</span><br><span class="line">sumRange(2, 5) -&gt; -1</span><br><span class="line">sumRange(0, 5) -&gt; -3</span><br></pre></td></tr></table></figure>
+<p>Note: You may assume that the array does not change. There are many calls to sumRange function.</p>
+<h1 id="解法">解法</h1>
+<p>有两个思路，最开始想到的第一个思路是，可以用一个二维数组<code>dp[i][j]</code>表示从<code>i</code>到<code>j</code>之和，那么<code>dp[i][j] = dp[i][j-1] + nums[j]</code>。初始条件<code>dp[i][i] = nums[i]</code>。两层循环创建这个二维数组，外层循环表示<code>j</code>与<code>i</code>的间距，<code>j - i</code>的差就是从0到<code>nums.length - 1</code>，内层循环用于计算<code>dp[i][j] = dp[i][j-1] + nums[j]</code>。该方法的缺陷就是，太占内存，数据量一大就超内存了。</p>
+<p>第二个思路则是“前缀和”：<code>sumRange(i, j) = sums[j]- sums[i - 1]</code>，其中，<code>sums[i]</code>表示从坐标0开始到坐标<code>i</code>的和，为了方便计算，<code>sums[]</code>数组比<code>nums[]</code>数组多1位，放在最前，其值为0。</p>
+<h2 id="java代码">Java代码</h2>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 解法1:超内存</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NumArray</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span>[][] sums;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">NumArray</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = nums.length;</span><br><span class="line">        sums = <span class="keyword">new</span> <span class="keyword">int</span>[len][len];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; ++i)</span><br><span class="line">            sums[i][i] = nums[i];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; ++i)</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; len - i; ++j)</span><br><span class="line">                sums[j][j + i] = sums[j][j + i - <span class="number">1</span>] + nums[j + i];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">sumRange</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> sums[i][j];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 解法2</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NumArray</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span>[] sums;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">NumArray</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = nums.length;</span><br><span class="line">        sums = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; ++i) &#123;</span><br><span class="line">            sum += nums[i];</span><br><span class="line">            sums[i] = sum;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">sumRange</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="number">0</span> == i)</span><br><span class="line">            <span class="keyword">return</span> sums[j];</span><br><span class="line">        <span class="keyword">return</span> sums[j] - sums[i - <span class="number">1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="python代码">Python代码</h2>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 解法1:超内存</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NumArray1</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, nums: List[int])</span>:</span></span><br><span class="line">        self.sums = [[<span class="number">0</span>] * len(nums)] * len(nums)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(len(nums)):</span><br><span class="line">            self.sums[i][i] = nums[i]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>, len(nums)):</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> range(len(nums) - i):</span><br><span class="line">                self.sums[j][j + i] = self.sums[j][j + i - <span class="number">1</span>] + nums[j + i]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">sumRange</span><span class="params">(self, i: int, j: int)</span> -&gt; int:</span></span><br><span class="line">        <span class="keyword">return</span> self.sums[i][j]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解法2:</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NumArray2</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, nums: List[int])</span>:</span></span><br><span class="line">        self.sums = [<span class="number">0</span>] * (len(nums) + <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>, len(nums) + <span class="number">1</span>):</span><br><span class="line">            self.sums[i] = self.sums[i - <span class="number">1</span>] + nums[i - <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">sumRange</span><span class="params">(self, i: int, j: int)</span> -&gt; int:</span></span><br><span class="line">        <span class="keyword">return</span> self.sums[j + <span class="number">1</span>] - self.sums[i]</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>算法题</category>
+        <category>动态规划</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Java</tag>
+        <tag>Python</tag>
+        <tag>动态规划</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LeetCode 53. Maximum Subarray</title>
     <url>/2020/06/19/LeetCode%2053.%20Maximum%20Subarray/</url>
     <content><![CDATA[<blockquote>
@@ -1182,8 +1648,43 @@ f(n) = f(n-1)+f(n-2)
 <li><p>中间步骤：即如何处理数据，可以是0到n​步骤</p></li>
 <li><p>终结步骤：取结果，一旦执行此类操作，则这个流就意谓着结束，下次使用需要重新创建。</p></li>
 </ol>
-<h1 id="optional类">Optional类</h1>
-<p>源自谷歌Guava项目，主要是为了避免<code>NullPointerException</code>。</p>
+<h1 id="jdbc">JDBC</h1>
+<p>编写JDBC代码的步骤：</p>
+<ol type="1">
+<li><p>注册驱动，加载驱动类到内存，即在内存中有驱动类的Class对象</p></li>
+<li><p>获取连接，即登录</p>
+<p>需要使用mysql数据库的URL</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// jdbc:子协议://主机地址:端口/数据库名</span></span><br><span class="line">string mysqlUrl = <span class="string">"jdbc:mysql://localhost:3306/test"</span></span><br></pre></td></tr></table></figure></li>
+<li><p>执行sql</p></li>
+<li><p>关闭连接</p></li>
+</ol>
+<p>以下是一个完整的使用JDBC的过程：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestJDBCDemo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 将驱动加载到内存</span></span><br><span class="line">        Class.forName(<span class="string">"com.mysql.jdbc.Driver"</span>); </span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 获取连接</span></span><br><span class="line">        String url = <span class="string">"jdbc:mysql://localhost:3306/test"</span>;</span><br><span class="line">        </span><br><span class="line">        Connection conn = DriverManager.getConnection(url, <span class="string">"root"</span>, <span class="string">"root"</span>); <span class="comment">// 相当于socket对象</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 编写sql语句</span></span><br><span class="line">        String sql = <span class="string">"insert into dept values(null, '测试部门', '测试数据')"</span>;</span><br><span class="line">        Statement st = conn.createStatement();</span><br><span class="line">        <span class="keyword">int</span> len = st.executeUpdate(sql);</span><br><span class="line">        </span><br><span class="line">        String testQuery = <span class="string">"select * from dept"</span>;</span><br><span class="line">        ResultSet res = st.executeQuery(testQuery);</span><br><span class="line">        <span class="keyword">while</span>(res.next()) &#123;</span><br><span class="line">            <span class="keyword">int</span> id = res.getInt(<span class="string">"did"</span>); <span class="comment">// 根据列名</span></span><br><span class="line">            String name = res.getString(<span class="string">"dname"</span>);</span><br><span class="line">            String desc = res.getString(<span class="number">3</span>); <span class="comment">// 根据列号</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">/*</span></span><br><span class="line"><span class="comment">            Object id = res.getObject(1); // 根据列号</span></span><br><span class="line"><span class="comment">            Object name = res.getObject(2);</span></span><br><span class="line"><span class="comment">            Object desc = res.getObject(3);</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        st.close();</span><br><span class="line">        conn.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>insert</code>, <code>update</code>, <code>delete</code>语句都是更新数据库，<code>select</code>则对应<code>query</code>。</p>
+<h2 id="sql拼接preparedstatement">sql拼接：PreparedStatement</h2>
+<p>可以使拼接字符串更方便；可以防sql注入攻击；还可以解决<code>Blob</code>(二进制数据)等类型数据无法传输的问题，只是有可能需要改mysql关于上传文件大小的限止。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestJDBCDemo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 将驱动加载到内存</span></span><br><span class="line">        Class.forName(<span class="string">"com.mysql.jdbc.Driver"</span>); </span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 获取连接</span></span><br><span class="line">        String url = <span class="string">"jdbc:mysql://localhost:3306/test"</span>;</span><br><span class="line">        </span><br><span class="line">        Connection conn = DriverManager.getConnection(url, <span class="string">"root"</span>, <span class="string">"root"</span>); <span class="comment">// 相当于socket对象</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 编写sql语句</span></span><br><span class="line">        String sql = <span class="string">"insert into emp(ename, tel, gender, salary) values(?,?,?,?)"</span>;</span><br><span class="line">        PreparedStatement pst = conn.prepareStatement(sql);</span><br><span class="line">        <span class="comment">// 返回子增长的键值</span></span><br><span class="line">        <span class="comment">// PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);</span></span><br><span class="line">        </span><br><span class="line">        String ename = <span class="string">"test"</span>, tel = <span class="string">"123456"</span>, gender = <span class="string">"male"</span>;</span><br><span class="line">        <span class="keyword">double</span> salary = <span class="number">100</span>;</span><br><span class="line">        pst.setObject(<span class="number">1</span>, ename);</span><br><span class="line">        pst.setObject(<span class="number">2</span>, tel);</span><br><span class="line">        pst.setObject(<span class="number">3</span>, gender);</span><br><span class="line">        pst.setObject(<span class="number">4</span>, salary);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> len = pst.executeUpdate();</span><br><span class="line">        <span class="comment">// 获取子增长的键值</span></span><br><span class="line">        <span class="comment">// ResultSet rs = pst.getGeneratedKeys();</span></span><br><span class="line">        </span><br><span class="line">        pst.close();</span><br><span class="line">        conn.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>mysql中，<code>PreparedStatement</code>是<code>Statement</code>的子类，但<code>PreparedStatement</code>不一定比<code>Statement</code>效率高。</p>
+<h2 id="批处理">批处理</h2>
+<p>MySQL服务器端默认没有开启批处理功能。</p>
+<p>JDBC在连接MySQL的时候，如果要使用批处理功能，需要在<code>url</code>中添加参数<code>?rewriteBatchedStatements=true</code>。</p>
+<p>同时，插入语句需要用<code>values</code>，如果使用<code>value</code>，则依然是一条一条插入。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestJDBCDemo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 将驱动加载到内存</span></span><br><span class="line">        Class.forName(<span class="string">"com.mysql.jdbc.Driver"</span>); </span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 获取连接，添加参数！</span></span><br><span class="line">        String url = <span class="string">"jdbc:mysql://localhost:3306/test?rewriteBatchedStatements=true"</span>;</span><br><span class="line">        </span><br><span class="line">        Connection conn = DriverManager.getConnection(url, <span class="string">"root"</span>, <span class="string">"root"</span>); <span class="comment">// 相当于socket对象</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 编写sql语句</span></span><br><span class="line">        String sql = <span class="string">"insert into emp(ename, tel, gender, salary) values(?,?,?,?)"</span>;</span><br><span class="line">        PreparedStatement pst = conn.prepareStatement(sql);</span><br><span class="line">        <span class="comment">// 返回子增长的键值</span></span><br><span class="line">        <span class="comment">// PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);</span></span><br><span class="line">                </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; ++i) &#123;</span><br><span class="line">            pst.setObject(<span class="number">1</span>, <span class="string">"ename"</span> + i);</span><br><span class="line">        	pst.setObject(<span class="number">2</span>, <span class="string">"tel"</span> + i);</span><br><span class="line">            pst.addBatch(); <span class="comment">// 批处理</span></span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 批处理返回的结果是数组</span></span><br><span class="line">        <span class="keyword">int</span>[] lens = pst.executeBatch();</span><br><span class="line">        </span><br><span class="line">        pst.close();</span><br><span class="line">        conn.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="事务">事务</h2>
+<p>涉及到了<code>Connection</code>中的如下方法：</p>
+<ul>
+<li><code>setAutoCommit()</code>：如果要使用事务，必须设置为<code>false</code>；</li>
+<li><code>commit()</code>：提交事务；</li>
+<li><code>rollback()</code>：回滚事务</li>
+</ul>
+<p>需要注意的是：</p>
+<ul>
+<li><strong>同一个事务的sql语句必须保证是同一个<code>Connection</code>对象</strong>；</li>
+<li>为了和后面连接池保持一致，建议在关闭连接之前，调用一遍<code>setAutoCommit(true)</code></li>
+</ul>
+<h2 id="连接池">连接池</h2>
+<p>一个系统只要一个连接池就够了，它使用的类是<code>javax.sql.DataSource</code>，以后每次需要数据库连接时，使用该对象既可。</p>
+<p>为了保证同一个事务使用同一个连接对象，建议使用<code>ThreadLocal</code>对象保存获取到的连接对象。</p>
 <h1 id="参考">参考</h1>
 <ol type="1">
 <li><a href="https://www.liaoxuefeng.com/wiki/1252599548343744" target="_blank" rel="noopener">廖雪峰老师博客</a></li>
@@ -1425,6 +1926,8 @@ f(T) = min\{f(R)+w_{R-&gt;T}\}
 <p>例如上述的钞票问题，我们是从<span class="math inline">\(f(1)\)</span>计算到<span class="math inline">\(f(15)\)</span>，这就是自底向上。如果按照递归的方法，一般情况下，想要计算<span class="math inline">\(f(15)\)</span>，那么就计算<span class="math inline">\(f(14)\)</span>；想要计算<span class="math inline">\(f(14)\)</span>，那么计算<span class="math inline">\(f(13)\)</span>，以此类推，直到计算<span class="math inline">\(f(1)\)</span>，这就是自顶向下，且这个递归的过程中依然会有重复计算的问题，效率不如动态规划高。</p>
 <h1 id="动态规划相关练习题">动态规划相关练习题</h1>
 <ul>
+<li><a href="/2020/06/20/LeetCode%20303.%20Range%20Sum%20Query%20-%20Immutable/" title="LeetCode 303. Range Sum Query - Immutable">LeetCode 303. Range Sum Query - Immutable</a></li>
+<li><a href="/2020/06/20/LeetCode%20198.%20House%20Robber/" title="LeetCode 198. House Robber">LeetCode 198. House Robber</a></li>
 <li><a href="/2020/06/19/LeetCode%2053.%20Maximum%20Subarray/" title="LeetCode 53. Maximum Subarray">LeetCode 53. Maximum Subarray</a></li>
 <li><a href="/2020/06/19/LeetCode%2070.%20Climbing%20Stairs/" title="LeetCode 70. Climbing Stairs">LeetCode 70. Climbing Stairs</a></li>
 <li><a href="/2020/06/13/LeetCode%201025.Divisor%20Game/" title="LeetCode 1025.Divisor Game">LeetCode 1025.Divisor Game</a></li>

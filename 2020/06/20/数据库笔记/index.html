@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="Y0-gFMBzGnbrueUrh8PjkmnvCGItjob2oR3HjG9SVnE">
+  <meta name="msvalidate.01" content="97A49017D4D536B99438C4EE0E9FBA3F">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zuiqiangiron.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="MySQL学习笔记整理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL笔记">
+<meta property="og:url" content="https://www.zuiqiangiron.xyz/2020/06/20/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="MySQL学习笔记整理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/image-20200620134704001.png">
+<meta property="article:published_time" content="2020-06-20T12:35:38.000Z">
+<meta property="article:modified_time" content="2020-06-21T15:04:11.199Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/image-20200620134704001.png">
+
+<link rel="canonical" href="https://www.zuiqiangiron.xyz/2020/06/20/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MySQL笔记 | 嘴强黑铁</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161480657-1"></script>
+    <script pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161480657-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">天下事以难而废者十之一，以惰而废者十之九</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zuiqiangiron.xyz/2020/06/20/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          MySQL笔记
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-20 20:35:38" itemprop="dateCreated datePublished" datetime="2020-06-20T20:35:38+08:00">2020-06-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-06-21 23:04:11" itemprop="dateModified" datetime="2020-06-21T23:04:11+08:00">2020-06-21</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/06/20/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%AC%94%E8%AE%B0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/06/20/数据库笔记/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>MySQL学习笔记整理</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="mysql中的重要数据类型">MySQL中的重要数据类型</h1>
+<ol type="1">
+<li><p>整型：</p>
+<p><code>tinyint</code>：1字节</p>
+<p><code>smallint</code>：2字节</p>
+<p><code>mediumint</code>：3字节</p>
+<p><code>int</code>：4字节</p>
+<p><code>bigint</code>：8字节</p>
+<p><code>int</code>可以指定长度，但必须和<code>zerofill unsigned</code>结合使用，否则没有意义，例如：<code>id int(8) zerofill unsigned</code></p></li>
+<li><p>浮点型：</p>
+<p><code>float</code>，<code>double</code></p>
+<p><code>double(M, D)</code>表示一共有<code>M</code>位，其中<code>D</code>位为小数。</p></li>
+<li><p>定点型：</p>
+<p><code>DECIMAL</code>和<code>NUMERIC</code>都可以表示小数</p></li>
+<li><p>时间类型：</p>
+<p><code>date</code>：日期</p>
+<p><code>time</code>：时间</p>
+<p><code>timestamp</code>：底层用毫秒表示，可以区分时区，可以表示1970-2038年左右</p>
+<p><code>datatime</code>：直接存储日期时间，不区分时区，可以表示1000-9999年</p>
+<p><code>year</code>：只能表示年</p></li>
+<li><p><code>char</code>：定长，补足的会用<code>0</code>补全，默认长度为1</p>
+<p><code>varchar</code>：变长，必须指定长度，即<code>varchar(M)</code>，最后一个字节存放字符串长度。支持全文检索。</p>
+<p><code>text</code>：也是字符串，但用的很少。</p></li>
+<li><p>其他类型：</p>
+<p><code>xxxbit</code></p>
+<p><code>xxxblob</code>：二进制类型，可以存二维码、小头像等</p>
+<p>枚举类型</p>
+<p>集合类型</p></li>
+<li><p>特殊值：<code>null</code></p>
+<p>所有类型都可以是<code>null</code></p></li>
+</ol>
+<h1 id="sql规范">SQL规范</h1>
+<ol type="1">
+<li>mysql对SQL语句不区分大小写，SQL语句关键字尽量大写，但数据库工具会给你自动转成大写。</li>
+<li>字符型和日期时间类型使用单引号</li>
+<li><code>#</code>表示单行注释；<code>--</code>也是单行注释，但后面要一个空格；<code>/* */</code>多行注释</li>
+<li>只能是<code>A-Z</code>，<code>a-z</code>，<code>0-9</code>和<code>_</code>这63个字符的组合，且命名不要过长</li>
+</ol>
+<h1 id="sql">SQL</h1>
+<p>三种SQL语句：DDL，DML和DCL。</p>
+<h2 id="ddl">DDL</h2>
+<p>数据定义语言，即定义库、表等，如下：</p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 76%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>查看所有数据库</td>
+<td><code>show databases;</code></td>
+</tr>
+<tr class="even">
+<td>创建数据库</td>
+<td><code>create database 数据库名</code></td>
+</tr>
+<tr class="odd">
+<td>删除一个数据库</td>
+<td><code>drop database 数据库名</code></td>
+</tr>
+<tr class="even">
+<td>指定使用某个数据库</td>
+<td><code>use 数据库名</code>：运行本句之后，之后所有的sql语句都针对的是该数据库</td>
+</tr>
+<tr class="odd">
+<td>查看某个库的所有表</td>
+<td><code>show tables;</code>，需要提前使用<code>use</code><br><code>show tables from 数据库名</code></td>
+</tr>
+<tr class="even">
+<td>创建表格</td>
+<td><code>create table [数据库名.]表名(字段名1 数据类型, 字段名2 数据类型，... );</code></td>
+</tr>
+<tr class="odd">
+<td>查看表结构</td>
+<td><code>desc &lt;表名&gt;;</code></td>
+</tr>
+<tr class="even">
+<td>增加一列</td>
+<td><code>alter table 表名 add 字段名 数据类型 [after 字段名]/[first];</code>，其中，<code>after</code>表示在某列之后添加，<code>first</code>表示在第一列添加</td>
+</tr>
+<tr class="odd">
+<td>删除一列</td>
+<td><code>alter table 表名 drop 字段名;</code></td>
+</tr>
+<tr class="even">
+<td>修改列类型，位置等</td>
+<td><code>alter table 表名 modiry 字段名 数据类型 [after 字段名]/[first]</code></td>
+</tr>
+<tr class="odd">
+<td>修改列名</td>
+<td><code>alter table 表名 change 旧字段名 新字段名 数据类型 [after 字段名]/[first]</code></td>
+</tr>
+<tr class="even">
+<td>修改表名</td>
+<td><code>alter table 表名 rename to 新表名</code></td>
+</tr>
+<tr class="odd">
+<td>删除整张表</td>
+<td><code>drop table 表名</code>，它会删除表以及表中所有数据</td>
+</tr>
+</tbody>
+</table>
+<p>创建数据库，选择字符集时，以<code>_ci</code>结尾的表示大小写不敏感，<code>_cs</code>结尾的表示大小写敏感。</p>
+<h2 id="dml">DML</h2>
+<p>数据操作语言，即增删改查</p>
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 88%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>添加数据</td>
+<td><code>insert into 表名 values(值列表);</code><br><code>insert into 表名(字段列表) values(值列表);</code><br><code>insert into 表名 values(值列表1),(值列表2)...;</code>：表示插入多行</td>
+</tr>
+<tr class="even">
+<td>查看数据</td>
+<td>查看所有：<code>select * from 表名 [where 条件];</code><br>只查看某些字段：<code>select 字段列表 from 表名 [where 条件];</code><br>设置别名：<code>select 字段1 as 别名1, 字段2 as 别名2... from 表名 [where 条件];</code>，别名只在结果中显示</td>
+</tr>
+<tr class="odd">
+<td>修改数据</td>
+<td><code>update 表名 set 字段名1=字段值1, 字段名2=字段值2 [where 条件];</code></td>
+</tr>
+<tr class="even">
+<td>删除数据</td>
+<td><code>delete from 表名 [where 条件];</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="dcl">DCL</h2>
+<p>数据控制语言，即权限、事务等控制语句</p>
+<h1 id="函数">函数</h1>
+<p>太多了。</p>
+<h2 id="单行函数">单行函数</h2>
+<p>只作用于一行的函数。</p>
+<p>以下是作用于字符串的函数：</p>
+<ul>
+<li><code>length()</code>：字符串实际字节长度，例如<code>世界</code>的长度是6</li>
+<li><code>char_length()</code>：字符串长度，例如<code>世界</code>的长度是2</li>
+<li><code>concat()</code>：拼接字符串</li>
+</ul>
+<p>以下是时间相关函数：</p>
+<ul>
+<li><code>now()</code>：当前时间</li>
+<li><code>current_date()</code></li>
+<li><code>current_time()</code></li>
+<li><code>year()</code></li>
+<li><code>date_format()</code>和<code>str_to_date()</code></li>
+</ul>
+<p>以下是一些流程控制语句：</p>
+<ul>
+<li><p><code>ifnull()</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select ename, salary + salary * ifnull(commission_pct, 0) as &quot;实发工资&quot; from emp;</span><br></pre></td></tr></table></figure></li>
+<li><p><code>case...when...then</code>：</p>
+<p>相当于java中的<code>if...else if...</code>语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">select ename, salary,</span><br><span class="line">case</span><br><span class="line">when salary &gt;&#x3D; 20000 then &quot;高富帅&quot;</span><br><span class="line">when salary &gt;&#x3D; 15000 then &quot;潜力股&quot;</span><br><span class="line">when salary &gt;&#x3D; 10000 then &quot;有为青年&quot;</span><br><span class="line">else &quot;屌丝&quot;</span><br><span class="line">end as &quot;标签&quot;</span><br><span class="line">from emp;</span><br></pre></td></tr></table></figure>
+<p><code>case</code>后面加上一个字段则相当于<code>switch</code>语句：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">select oid, price,</span><br><span class="line">case state</span><br><span class="line">when 0 then &quot;新建订单&quot;</span><br><span class="line">when 1 then &quot;已付款&quot;</span><br><span class="line">when 2 then &quot;已发货&quot;</span><br><span class="line">end</span><br><span class="line">from order;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="分组函数">分组函数</h2>
+<p>多行合在一起作用的函数。典型的有：</p>
+<ul>
+<li>sum：和函数</li>
+<li>count：计数函数</li>
+<li>avg：平均值函数</li>
+<li>max/min：最大最小值函数</li>
+</ul>
+<h1 id="数据完整性">数据完整性</h1>
+<p>实体完整性(Entity Integrity)：例如，同一个表中，不能存在两条完全相同无法区分的记录</p>
+<p>域完整性(Domain Integrity)：例如，年龄范围，性别范围</p>
+<p>引用完整性(Referential Integrity)：例如，员工所在部门，在部门表中要能找到这个部门</p>
+<p>用户自定义完整性(User-defined Integrity)：例如，用户名唯一，密码不能为空等</p>
+<h2 id="约束">约束</h2>
+<p>MySQL有以下重要约束：</p>
+<ol type="1">
+<li>键约束</li>
+<li>非空约束</li>
+<li>自增约束</li>
+<li>默认值约束</li>
+</ol>
+<p>MySQL暂时没有支持检查约束。</p>
+<h3 id="键约束">键约束</h3>
+<p>需要注意的是，主键、唯一键和外键都会自动创建索引，所以在删除这几个键时，有所区别。</p>
+<h4 id="主键约束">主键约束</h4>
+<p>关键字：<code>primary key</code></p>
+<p>特点：带有主键约束的列的值必须非空且唯一</p>
+<p>作用：保证表中不会出现两条无法区分的记录</p>
+<p>要求：每一张表都必须有主键约束，且每张表只能有一个主键约束</p>
+<p>分类：单列主键约束，复合主键约束</p>
+<p>以下是对主键约束的操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># 在创建表时添加主键约束</span><br><span class="line">create table dept(</span><br><span class="line">    id int primary key,</span><br><span class="line">    name varchar(20)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">create table dept(</span><br><span class="line">    id int,</span><br><span class="line">    name varchar(20),</span><br><span class="line">    primary key(id, name) # 复合主键</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"># 对已存在的表添加主键约束</span><br><span class="line">alter table dept add primary key(id);</span><br><span class="line">alter table dept add primary key(id, name) # 复合主键</span><br><span class="line"></span><br><span class="line"># 删除主键约束</span><br><span class="line">alter table dept drop primary key;</span><br></pre></td></tr></table></figure>
+<h4 id="唯一键约束">唯一键约束</h4>
+<p>关键字：<code>unique key</code></p>
+<p>特点：指定了唯一键的列的值必须唯一，不能重复，但可以为空</p>
+<p>作用：给主键以外的列限定唯一性</p>
+<p>分类：单列唯一键，复合唯一键</p>
+<p>与主键的区别：</p>
+<ul>
+<li>主键不能为空，唯一键可以；</li>
+<li>主键一张表只能有一个，唯一键可以有多个。</li>
+</ul>
+<p>以下是对唯一键的操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># 建表时指定唯一键</span><br><span class="line">create table emp(</span><br><span class="line">    eid int primary key,</span><br><span class="line">    ename varchar(20),</span><br><span class="line">    cardid varchar(18) unique key,</span><br><span class="line">    tel varchar(11) unique key</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">create table emp(</span><br><span class="line">    eid int primary key,</span><br><span class="line">    ename varchar(20),</span><br><span class="line">    cardid varchar(18)，</span><br><span class="line">    tel varchar(11)，</span><br><span class="line">    unique key(ename),</span><br><span class="line">    unique key(tel)</span><br><span class="line">    # unique key(ename, tel) 这是复合唯一键，与分开写的方式是不同的！</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"># 建表后指定唯一键</span><br><span class="line">alter table 表名 add unique key(字段); # 单</span><br><span class="line">alter table 表名 add unique key(字段列表); # 复合</span><br><span class="line"></span><br><span class="line"># 删除唯一键(注意最后)</span><br><span class="line">alter table 表名 drop index 索引名; # 一般索引名就是列名</span><br></pre></td></tr></table></figure>
+<h4 id="外键约束">外键约束</h4>
+<p>外键约束不是必须的，现在很多大公司，当数据量比较大时，不建议在数据库层面设计外键，因为效率太低，他们将外键约束挪到了代码层面。</p>
+<p>关键字：<code>foreign key</code></p>
+<p>特点：</p>
+<ul>
+<li>约束的是两张表的关系，所以至少要两张表，也可以一张表虚拟成两张表</li>
+<li>被参考的表称为主表，另一张表称为从表，主表的被参考列必须是主键或唯一键</li>
+<li>一张表可有多个外键</li>
+</ul>
+<p>以下是外键的常规操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"># 创建外键</span><br><span class="line">create table dept(</span><br><span class="line">    did int primary key,</span><br><span class="line">    dname varchar(20) not null unique key,</span><br><span class="line">    description varchar(100)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">create table emp(</span><br><span class="line">    eid int primary key,</span><br><span class="line">    ename varchar(20) not null,</span><br><span class="line">    deptid int,</span><br><span class="line">    foreign key(deptid) references dept(did) # 外键只能这么写</span><br><span class="line">    # foreign key(从表外键列) references 主表名(主表被参考列名)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"># 建表后创建外键</span><br><span class="line">alter table 从表 add foreign key(从表列名) references 主表(主表被参考列);</span><br><span class="line"></span><br><span class="line"># 同一张表自引用</span><br><span class="line">create table emp(</span><br><span class="line">    eid int primary key,</span><br><span class="line">    managerid int,</span><br><span class="line">    foreign key(managerid) references emp(eid)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"># 删除外键</span><br><span class="line">alter table 从表 drop foreign key 外键约束名;</span><br><span class="line"># 如何查看外键约束名</span><br><span class="line">select * from information_schema.table_constraints where table_name&#x3D;&#39;从表名&#39;;</span><br></pre></td></tr></table></figure>
+<p>对于删除/修改主表记录，默认情况下，如果主表的被参考列的值被引用，那么就不能轻易的被删除或修改。但可以<strong>设置级联</strong>，当主表删除/修改是，从表也会自动更新：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">foreign key(从表外键列) references 主表名(主表被参考列) [on update cascade] [on delete cascade]</span><br></pre></td></tr></table></figure>
+<p>如果当删除/修改发生时，也可以将从表相应内容置空，而不是直接删除：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">foreign key(从表外键列) references 主表名(主表被参考列) [on update set null]</span><br></pre></td></tr></table></figure>
+<p>默认情况下，如果主表的被参考列的值被引用，那么就不能轻易的被删除或修改。</p>
+<h3 id="非空约束">非空约束</h3>
+<p>关键字：<code>not null</code></p>
+<p>以下是对非空约束的操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 创建时添加</span><br><span class="line">create table emp(</span><br><span class="line">    ename varchar(20) not null default 默认值</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"># 创建后添加</span><br><span class="line">alter table emp modify ename varchar(20) not null;</span><br><span class="line"></span><br><span class="line"># 删除非空约束</span><br><span class="line">alter table emp modify ename varchar(20);</span><br></pre></td></tr></table></figure>
+<h3 id="默认值约束">默认值约束</h3>
+<h3 id="自增约束">自增约束</h3>
+<p>关键字：<code>auto_increment</code></p>
+<p>特点：</p>
+<ul>
+<li>一张表只能有一个自增列</li>
+<li>自增列必须是整型的</li>
+<li>自增列还必须是键列。</li>
+</ul>
+<p>以下是关于自增约束的操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create table emp(</span><br><span class="line">    eid int primary key auto_increment</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h1 id="查询操作">查询操作</h1>
+<p>查询某项为空的语法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">select * from emp where salary &lt;&#x3D;&gt; null; # 安全等于</span><br><span class="line">select * from emp where salary is null;</span><br></pre></td></tr></table></figure>
+<p>查询区间范围：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from emp where salary between 100 and 200; # [100, 200]闭区间</span><br></pre></td></tr></table></figure>
+<p>查询集合：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">select * from emp where native in (&#39;a&#39;, &#39;b&#39;, &#39;c&#39;);</span><br><span class="line">select * from emp where native not in (&#39;a&#39;, &#39;b&#39;, &#39;c&#39;);</span><br></pre></td></tr></table></figure>
+<p>糢糊查询：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from emp where ename like &#39;_冰%&#39;; # 表示第二个字是”冰“，_ 表示确定的一个字符，%表示任意个字符</span><br></pre></td></tr></table></figure>
+<h2 id="关联查询">关联查询</h2>
+<p>mysql支持的关联查询有如下几种：</p>
+<ol type="1">
+<li>内连接： inner join</li>
+<li>外连接：
+<ul>
+<li>左外连接：left join</li>
+<li>右外连接：right join</li>
+</ul></li>
+</ol>
+<p>mysql不支持全连接查询。</p>
+<p>一共有7种结果：</p>
+<p><img src="https://raw.githubusercontent.com/SpaceRocket321/ImageBase/master/BlogImgs/image-20200620134704001.png" /></p>
+<ol type="1">
+<li><p><span class="math inline">\(A\)</span>：左连接</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from emp left join dept on emp.did &#x3D; dept.did;</span><br></pre></td></tr></table></figure></li>
+<li><p><span class="math inline">\(B\)</span>：右连接</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from emp right join dept on emp.did &#x3D; dept.did;</span><br></pre></td></tr></table></figure></li>
+<li><p><span class="math inline">\(A\cup B\)</span>：mysql使用<code>union</code>实现全连接，它的形式是<span class="math inline">\((A)union(B)\)</span></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select * from emp left join dept on emp.did &#x3D; dept.did</span><br><span class="line">union</span><br><span class="line">select * from emp right join dept on emp.did &#x3D; dept.did;</span><br></pre></td></tr></table></figure></li>
+<li><p><span class="math inline">\(A\cap B\)</span>：内连接</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># select 字段列表 from A inner join B on 关联条件 [where 筛选条件]</span><br><span class="line">select ename, emp.did, dname from emp inner join dept on emp.did &#x3D; dept.did;</span><br><span class="line"></span><br><span class="line"># select 字段列表 from A, B where 关联条件 [其他筛选条件]</span><br><span class="line">select ename, emp.did dname from emp, dept where emp.did &#x3D; dept.did;</span><br></pre></td></tr></table></figure>
+<p>如果不写关联条件，会出现笛卡儿积。</p></li>
+<li><p><span class="math inline">\(A - B\)</span>：左连接</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 其实就是情况1加了个null值判断条件</span><br><span class="line">select * from A left join B on 关联条件 where 从表的关联字段 is null;</span><br></pre></td></tr></table></figure></li>
+<li><p><span class="math inline">\(B - A\)</span>：右连接</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 其实就是情况2加了个null值判断条件</span><br><span class="line">select * from A left join B on 关联条件 where 从表的关联字段 is null;</span><br></pre></td></tr></table></figure></li>
+<li><p><span class="math inline">\(A\cup B-A\cap B\)</span>：也是<code>union</code>，但形式是<span class="math inline">\((A-B)union(B-A)\)</span></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select * from A left join B on 关联条件 where 从表的关联字段 is null</span><br><span class="line">union</span><br><span class="line">select * from A left join B on 关联条件 where 从表的关联字段 is null;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="自连接">自连接</h3>
+<p>通过给表取别名的方式，将一张表变”两张表“。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">select emp.eid, emp.ename, emp.&#96;mid&#96;, mgr.ename </span><br><span class="line">from t_employee as emp </span><br><span class="line">inner join t_employee as mgr </span><br><span class="line">on emp.&#96;mid&#96; &#x3D; mgr.&#96;eid&#96;;</span><br></pre></td></tr></table></figure>
+<h2 id="select的5个子句">select的5个子句</h2>
+<p><code>select</code>后面可以跟：</p>
+<ul>
+<li><code>where</code>：用于筛选行</li>
+<li><code>group by</code>：分组</li>
+<li><code>having</code>：筛选统计结果，只有<code>group by</code>出现，它才能出现</li>
+<li><code>order by</code>：排序，DESC，ASC(默认)</li>
+<li><code>limit</code>：常用于分页</li>
+</ul>
+<p>如果这5个子句都出现，或者只出现一部分，则必须按照这里排列的顺序出现！</p>
+<h3 id="group-by">group by</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select did, gender, AVG(salary) from emp where did is not null group by did, gender;</span><br></pre></td></tr></table></figure>
+<h3 id="having">having</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select did, AVG(salary) from emp where did is not null group by did having avg(salary) &gt; 100;</span><br></pre></td></tr></table></figure>
+<h4 id="where和having的区别">where和having的区别</h4>
+<p><code>where</code>后面不允许使用分组函数</p>
+<p><code>where</code>是用于“原表”中记录的筛选，而<code>having</code>则是用于“统计结果”的筛选。</p>
+<h3 id="order-by">order by</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># order by 字段名1 [desc&#x2F;asc], 字段名2...</span><br><span class="line">select ename, salary from emp order by salary desc;</span><br><span class="line">select did, avg(salary) from emp group by did order by avg(salary) asc;</span><br></pre></td></tr></table></figure>
+<h3 id="limit">limit</h3>
+<p>用于限止结果显示的行数</p>
+<p><code>limit m, n</code>：从0开始计数，表示从第m行开始显示，显示n行</p>
+<ul>
+<li>n：每页的记录数</li>
+<li>分页公式：<span class="math inline">\(m = (page - 1) * n\)</span>，其中<code>page</code>是你要显示第几页</li>
+</ul>
+<h2 id="子查询">子查询</h2>
+<p>先于当前查询执行的，并且是嵌套在当前查询中的查询叫做子查询。</p>
+<p>它分为两种：</p>
+<ul>
+<li><p>where型：子查询嵌套在where中</p>
+<p>条件的运算符分为两类：</p>
+<ul>
+<li>=, &gt;, &gt;=, &lt;, &lt;=, != 后面子查询的结果必须是单值</li>
+<li>in, =any, &gt;all, &lt;all等的后面子查询的结果可以是多值</li>
+</ul></li>
+<li><p>from型：子查询嵌套在from后面</p></li>
+<li><p>exists型</p></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># where型，查询全公司最高工资的员工的信息：</span><br><span class="line">select * from emp where salary &#x3D; (select max(salary) from emp);</span><br><span class="line"></span><br><span class="line"># from型，将结果和另一张表联合查询</span><br><span class="line">select dept.*, temp.average</span><br><span class="line">from dept left join (select did, avg(salary) as average from emp where did is not null group by did) as temp</span><br><span class="line">on dept.did &#x3D; temp.did;</span><br><span class="line"></span><br><span class="line"># 查询部门信息，该部门必须有员工</span><br><span class="line">select * from dept where exists (select * from emp where emp.did &#x3D; dept.did);</span><br></pre></td></tr></table></figure>
+<h1 id="事务">事务</h1>
+<p>表示一组操作，要么同时成功，要么全部失败，这种操作组合就构成了一个事务。</p>
+<p>涉及到的语句如下：</p>
+<ul>
+<li>开启事务：<code>start transaction</code></li>
+<li>提交事务：<code>commit</code></li>
+<li>回滚事务：<code>rollback</code></li>
+</ul>
+<p>对于事务，mysql默认自动提交，即执行一句自动提交一句，一旦提交无法回滚。可通过<code>set autocommit = false;</code>语句开启手动提交。</p>
+<p>两个<code>commit</code>之间的操作算一个事务。</p>
+<h2 id="事务的特性acid">事务的特性：ACID</h2>
+<ul>
+<li>原子性：要么同时成功，要么同时失败。一组事务必须小到不能再小，否则就拆开。</li>
+<li>一致性：指数据的规则，在事务前后必须一致</li>
+<li>隔离性：简单说，就是事务的操作对其他事务不可见。
+<ul>
+<li>为什么要隔离：保证事务是独立的，与java中的线程安全问题类似。</li>
+<li>表现出来的问题：
+<ul>
+<li>脏读：一个事务读取了另一个事务还未提交的数据</li>
+<li>不可重复读：一个事务读取了另一个事务提交的数据，导致一个事务期间对同一个数据的前后两次读取结果不同</li>
+<li>幻读：一个事务读取了另一个事务新增或删除并提交的数据，导致一个事务期间记录数改变了</li>
+</ul></li>
+<li>mysql的隔离级别：
+<ul>
+<li><code>READ-UNCOMMITTED</code>：允许事务读取其他未提及的数据，脏读、不可重复读、幻读都会出现</li>
+<li><code>READ-COMMITTED</code>：只允许事务读取其他事务已经提交的数据，可以避免脏读，但无法避免不可重复读、幻读</li>
+<li><code>REPEATABLE-READ</code>：默认的级别，不会出现以上三种问题，相当于行锁</li>
+<li><code>SERIALIZABLE</code>：相当于表锁，性能非常低</li>
+</ul></li>
+</ul></li>
+<li>持久性：当事务提交完成后，其影响应该保留下来，不能撤销</li>
+</ul>
+<h1 id="权限和安全">权限和安全</h1>
+<p>权限验证分两个阶段：</p>
+<ol type="1">
+<li><p>是否能够连接</p>
+<p>mysql验证连接的要求：主机地址+用户名+密码</p></li>
+<li><p>验证权限</p>
+<ul>
+<li>全局权限：所有库，所有表，所有字段。</li>
+<li>对象级别权限：库-&gt;表-&gt;字段，以及每一种操作单独设置权限</li>
+</ul></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zuiqiangiron.xyz/2020/06/20/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%AC%94%E8%AE%B0/" title="MySQL笔记">https://www.zuiqiangiron.xyz/2020/06/20/数据库笔记/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 数据库</a>
+              <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/20/LeetCode%20303.%20Range%20Sum%20Query%20-%20Immutable/" rel="prev" title="LeetCode 303. Range Sum Query - Immutable">
+      <i class="fa fa-chevron-left"></i> LeetCode 303. Range Sum Query - Immutable
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/06/20/LeetCode%20198.%20House%20Robber/" rel="next" title="LeetCode 198. House Robber">
+      LeetCode 198. House Robber <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#mysql中的重要数据类型"><span class="nav-number">1.</span> <span class="nav-text">MySQL中的重要数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#sql规范"><span class="nav-number">2.</span> <span class="nav-text">SQL规范</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#sql"><span class="nav-number">3.</span> <span class="nav-text">SQL</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ddl"><span class="nav-number">3.1.</span> <span class="nav-text">DDL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dml"><span class="nav-number">3.2.</span> <span class="nav-text">DML</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dcl"><span class="nav-number">3.3.</span> <span class="nav-text">DCL</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#函数"><span class="nav-number">4.</span> <span class="nav-text">函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#单行函数"><span class="nav-number">4.1.</span> <span class="nav-text">单行函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分组函数"><span class="nav-number">4.2.</span> <span class="nav-text">分组函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据完整性"><span class="nav-number">5.</span> <span class="nav-text">数据完整性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#约束"><span class="nav-number">5.1.</span> <span class="nav-text">约束</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#键约束"><span class="nav-number">5.1.1.</span> <span class="nav-text">键约束</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主键约束"><span class="nav-number">5.1.1.1.</span> <span class="nav-text">主键约束</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#唯一键约束"><span class="nav-number">5.1.1.2.</span> <span class="nav-text">唯一键约束</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#外键约束"><span class="nav-number">5.1.1.3.</span> <span class="nav-text">外键约束</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#非空约束"><span class="nav-number">5.1.2.</span> <span class="nav-text">非空约束</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#默认值约束"><span class="nav-number">5.1.3.</span> <span class="nav-text">默认值约束</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自增约束"><span class="nav-number">5.1.4.</span> <span class="nav-text">自增约束</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#查询操作"><span class="nav-number">6.</span> <span class="nav-text">查询操作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#关联查询"><span class="nav-number">6.1.</span> <span class="nav-text">关联查询</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#自连接"><span class="nav-number">6.1.1.</span> <span class="nav-text">自连接</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#select的5个子句"><span class="nav-number">6.2.</span> <span class="nav-text">select的5个子句</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#group-by"><span class="nav-number">6.2.1.</span> <span class="nav-text">group by</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#having"><span class="nav-number">6.2.2.</span> <span class="nav-text">having</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#where和having的区别"><span class="nav-number">6.2.2.1.</span> <span class="nav-text">where和having的区别</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#order-by"><span class="nav-number">6.2.3.</span> <span class="nav-text">order by</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#limit"><span class="nav-number">6.2.4.</span> <span class="nav-text">limit</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#子查询"><span class="nav-number">6.3.</span> <span class="nav-text">子查询</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#事务"><span class="nav-number">7.</span> <span class="nav-text">事务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#事务的特性acid"><span class="nav-number">7.1.</span> <span class="nav-text">事务的特性：ACID</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#权限和安全"><span class="nav-number">8.</span> <span class="nav-text">权限和安全</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="嘴强黑铁"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">93</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">100</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://www.zuiqiangiron.xyz/2020/06/20/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%AC%94%E8%AE%B0/";
+    this.page.identifier = "2020/06/20/数据库笔记/";
+    this.page.title = "MySQL笔记";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>
