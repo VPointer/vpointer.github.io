@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="Y0-gFMBzGnbrueUrh8PjkmnvCGItjob2oR3HjG9SVnE">
+  <meta name="msvalidate.01" content="97A49017D4D536B99438C4EE0E9FBA3F">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zuiqiangiron.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文主要是学习Redis的笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis笔记">
+<meta property="og:url" content="https://www.zuiqiangiron.xyz/2020/07/13/Redis%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="嘴强黑铁">
+<meta property="og:description" content="本文主要是学习Redis的笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-13T13:34:58.000Z">
+<meta property="article:modified_time" content="2020-07-13T13:43:32.924Z">
+<meta property="article:author" content="嘴强黑铁">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://www.zuiqiangiron.xyz/2020/07/13/Redis%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Redis笔记 | 嘴强黑铁</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161480657-1"></script>
+    <script pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161480657-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">嘴强黑铁</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <h1 class="site-subtitle" itemprop="description">天下事以难而废者十之一，以惰而废者十之九</h1>
+      
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zuiqiangiron.xyz/2020/07/13/Redis%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="嘴强黑铁">
+      <meta itemprop="description" content="一顿操作猛如虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="嘴强黑铁">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          Redis笔记
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-07-13 21:34:58 / 修改时间：21:43:32" itemprop="dateCreated datePublished" datetime="2020-07-13T21:34:58+08:00">2020-07-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2020/07/13/Redis%E7%AC%94%E8%AE%B0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/07/13/Redis笔记/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>本文主要是学习Redis的笔记</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="简介">简介</h1>
+<ol type="1">
+<li>Redis是一个键值对数据库，没有表的概念，也没有CRUD的概念，所以存储的时候，一定要记住你使用的key；</li>
+<li>Redis默认16个数据库，下标从0开始；</li>
+<li>初始默认使用0号库，大多数时候也是使用0号库。选择数据库语句：<code>select i</code>表示使用i号库；</li>
+<li>Redis没有用户，只有密码，且统一密码管理，这16个库使用的都是同一个密码，且要么同时连接上，要么都连接不上；</li>
+<li>Redis使用<strong>单线程+多路IO复用</strong>(memcached使用的是多线程+锁技术)：形像的说就是Redis为每一个请求都贴上一个标签，这个标签表示请求准备完毕了没有，如果准备完毕就执行，没有就看下一个请求，而不是等待；</li>
+</ol>
+<h1 id="基本操作">基本操作</h1>
+<table>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>keys *</code></td>
+<td>查看当前库的所有键</td>
+</tr>
+<tr class="even">
+<td><code>exists &lt;key&gt;</code></td>
+<td>查看是否存在某个键</td>
+</tr>
+<tr class="odd">
+<td><code>type &lt;key&gt;</code></td>
+<td>查看key的类型</td>
+</tr>
+<tr class="even">
+<td><code>del &lt;key&gt;</code></td>
+<td>删除某个键</td>
+</tr>
+<tr class="odd">
+<td><code>expire &lt;key&gt; &lt;seconds&gt;</code></td>
+<td>为某个键值对设置过期时间</td>
+</tr>
+<tr class="even">
+<td><code>ttl &lt;key&gt;</code></td>
+<td>查看某个键值对的还剩多少秒过期，<code>-1</code>表示永不过期，<code>-2</code>表示已过期</td>
+</tr>
+<tr class="odd">
+<td><code>dbsize</code></td>
+<td>查看<strong>当前</strong>数据库中key的数量</td>
+</tr>
+<tr class="even">
+<td><code>Flushdb</code></td>
+<td>清空<strong>当前</strong>库中的所有数据</td>
+</tr>
+<tr class="odd">
+<td><code>Flushall</code></td>
+<td>清空<strong>所有</strong>库中的所有数据</td>
+</tr>
+</tbody>
+</table>
+<h1 id="redis5大基本类型">Redis5大基本类型</h1>
+<p>Redis一共有5种基本类型(这里的类型指的是key-value中value的类型)：</p>
+<ul>
+<li><code>string</code></li>
+<li><code>set</code></li>
+<li><code>list</code></li>
+<li><code>hash</code></li>
+<li><code>zset</code></li>
+</ul>
+<h2 id="string类型">string类型</h2>
+<p><code>string</code>类型是Redis中最基本的数据类型，它是数据安全的，也就是说Redis中的<code>string</code>可以包含任何数据，比如jpg图片或者序列化的对象；一个<code>string</code>最多512MB。</p>
+<p>以下是关于该类型的操作(有些操作并不仅限于该类型)：</p>
+<table>
+<colgroup>
+<col style="width: 39%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>get &lt;key&gt;</code></td>
+<td>查询对应键值</td>
+</tr>
+<tr class="even">
+<td><code>set &lt;key&gt; &lt;value&gt;</code></td>
+<td>存入键值对</td>
+</tr>
+<tr class="odd">
+<td><code>append &lt;key&gt; &lt;value&gt;</code></td>
+<td>在原值上追加<code>&lt;value&gt;</code></td>
+</tr>
+<tr class="even">
+<td><code>strlen &lt;key&gt;</code></td>
+<td>获取值的长度</td>
+</tr>
+<tr class="odd">
+<td><code>setnx &lt;key&gt; &lt;value&gt;</code></td>
+<td>如果该<code>&lt;key&gt;</code>不存在，在存入该键值对，否则不起效</td>
+</tr>
+<tr class="even">
+<td><code>incr &lt;key&gt;</code></td>
+<td>将key对应的value加1，如果key对应的value为空，则最终value为1；如果对应的value不是integer，则报错</td>
+</tr>
+<tr class="odd">
+<td><code>decr &lt;key&gt;</code></td>
+<td>将key对应的value减1，如果key对应的value为空，则最终value为-1；如果对应的value不是integer，则报错</td>
+</tr>
+<tr class="even">
+<td><code>incrby / decrby &lt;key&gt; &lt;步长&gt;</code></td>
+<td>按步长加减对应key的value，其余规则同上</td>
+</tr>
+<tr class="odd">
+<td><code>mset &lt;key1&gt; &lt;value&gt; &lt;key2&gt; &lt;value2&gt;</code></td>
+<td>一次性同时存入多个键值对</td>
+</tr>
+<tr class="even">
+<td><code>mget &lt;key1&gt; &lt;key2&gt;</code></td>
+<td>一次性获取多个值</td>
+</tr>
+<tr class="odd">
+<td><code>msetnx &lt;key1&gt; &lt;value&gt; &lt;key2&gt; &lt;value2&gt;</code></td>
+<td>一次性同时存入多个键值对，当且仅当所有的key都不存在时才生效</td>
+</tr>
+<tr class="even">
+<td><code>getrange &lt;key&gt; &lt;起始位置&gt; &lt;结束位置&gt;</code></td>
+<td>截取某个key对应的value中的值，相当于Java中是<code>substring()</code>方法，但这个方法是<strong>闭区间</strong></td>
+</tr>
+<tr class="odd">
+<td><code>setrange &lt;key&gt; &lt;起始位置&gt; &lt;value&gt;</code></td>
+<td>覆盖某个key对应的value，与<code>getrange</code>相对</td>
+</tr>
+<tr class="even">
+<td><code>setex &lt;key&gt; &lt;过期时间&gt; &lt;value&gt;</code></td>
+<td>设置键值对的同时设置过期时间</td>
+</tr>
+<tr class="odd">
+<td><code>getset &lt;key&gt; &lt;value&gt;</code></td>
+<td>设置新值的同时返回旧值</td>
+</tr>
+</tbody>
+</table>
+<h2 id="list类型">list类型</h2>
+<p>Redis中<code>list</code>默认按插入顺序排序，也可以指定从左(头)插入还是从右(尾)插入。它的底层是双向链表，也就是说，头尾操作性能高，下标操作性能低。</p>
+<p>以下是关于<code>list</code>的操作：</p>
+<table>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>lpush/rpush &lt;key&gt; &lt;value1&gt; &lt;value2&gt;</code></td>
+<td>从左或从右添加一个或多个数据，注意，如果是从左添加，顺序是反的</td>
+</tr>
+<tr class="even">
+<td><code>lpop/rpop &lt;key&gt;</code></td>
+<td>从左或从右弹出一个数据</td>
+</tr>
+<tr class="odd">
+<td><code>rpoplpush &lt;key1&gt; &lt;key2&gt;</code></td>
+<td>从key1的右边弹出一个数据加入到key2的左边</td>
+</tr>
+<tr class="even">
+<td><code>lrange &lt;key&gt; &lt;start&gt; &lt;end&gt;</code></td>
+<td>从key中获取指定下标范围内的数据</td>
+</tr>
+<tr class="odd">
+<td><code>lindex &lt;key&gt; &lt;index&gt;</code></td>
+<td>按照索引下标获取元素</td>
+</tr>
+<tr class="even">
+<td><code>llen &lt;key&gt;</code></td>
+<td>获取列表长度</td>
+</tr>
+<tr class="odd">
+<td><code>linsert &lt;key&gt; BEFORE|AFTER &lt;value&gt; &lt;newvalue&gt;</code></td>
+<td>在key中某个value之前|之后插入某个元素</td>
+</tr>
+<tr class="even">
+<td><code>lrem &lt;key&gt; &lt;n&gt; &lt;value&gt;</code></td>
+<td>从左边删除<code>n</code>个值为<code>value</code>的元素，<code>n</code>为正数表示从左往右删，为负数表示从右往左删</td>
+</tr>
+</tbody>
+</table>
+<h2 id="set类型">set类型</h2>
+<p>跟各种语言中的<code>set</code>类型基本一样。</p>
+<p>可以用于“商品秒杀”场景。</p>
+<p><code>set</code>提供了查询元素是否在集合中的接口，而<code>list</code>类型并没有提供这个接口。</p>
+<p>Redis中<code>set</code>的底层其实是value为<code>null</code>的<code>hash</code>表，所以增删查的时间复杂度都是<span class="math inline">\(O(1)\)</span>。</p>
+<p>以下是关于这个类型的操作：</p>
+<table>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>sadd &lt;k&gt; &lt;v1&gt; &lt;v2&gt; ...</code></td>
+<td>向名为k的set集中添加一个或多个元素</td>
+</tr>
+<tr class="even">
+<td><code>smembers &lt;k&gt;</code></td>
+<td>取出集合中的所有元素</td>
+</tr>
+<tr class="odd">
+<td><code>sismember &lt;k&gt; &lt;v&gt;</code></td>
+<td>判断set集合k中是否有值为v的元素</td>
+</tr>
+<tr class="even">
+<td><code>scard &lt;k&gt;</code></td>
+<td>返回k集合中元素的个数</td>
+</tr>
+<tr class="odd">
+<td><code>srem &lt;k&gt; &lt;v1&gt; &lt;v2&gt;</code></td>
+<td>删除集合k中指定元素</td>
+</tr>
+<tr class="even">
+<td><code>spop &lt;k&gt;</code></td>
+<td>随机从k中弹出一个元素</td>
+</tr>
+<tr class="odd">
+<td><code>srandmember &lt;k&gt; &lt;n&gt;</code></td>
+<td>随机从k中获取n个元素，但不会删除元素</td>
+</tr>
+<tr class="even">
+<td><code>sinter &lt;k1&gt; &lt;k2&gt;</code></td>
+<td>返回两个集合的交集</td>
+</tr>
+<tr class="odd">
+<td><code>sunion &lt;k1&gt; &lt;k2&gt;</code></td>
+<td>返回两个集合的并集</td>
+</tr>
+<tr class="even">
+<td><code>sdiff &lt;k1&gt; &lt;k2&gt;</code></td>
+<td>返回差集：<span class="math inline">\(k1 - k2\)</span></td>
+</tr>
+</tbody>
+</table>
+<h2 id="hash类型">hash类型</h2>
+<p>也跟其他语言中的<code>hash</code>类型基本一样。</p>
+<p>以下是关于<code>hash</code>类型的操作：</p>
+<table>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>hset &lt;k&gt; &lt;f&gt; &lt;v&gt;</code></td>
+<td>在名为<code>k</code>的<code>hash</code>表中添加<code>f-v</code>键值对</td>
+</tr>
+<tr class="even">
+<td><code>hget &lt;k&gt; &lt;f&gt;</code></td>
+<td>从名为<code>k</code>的<code>hash</code>表中取出<code>f</code>对应的值</td>
+</tr>
+<tr class="odd">
+<td><code>hmset &lt;k&gt; &lt;f1&gt; &lt;v1&gt; &lt;f2&gt; &lt;v2&gt;</code></td>
+<td>在名为<code>k</code>的<code>hash</code>表中同时存入多个键值对</td>
+</tr>
+<tr class="even">
+<td><code>hexists &lt;k&gt; &lt;f&gt;</code></td>
+<td>在名为<code>k</code>的<code>hash</code>表中是否存在名为f的键值对</td>
+</tr>
+<tr class="odd">
+<td><code>hkeys &lt;k&gt;</code></td>
+<td>列出名为<code>k</code>的<code>hash</code>表中所有的键</td>
+</tr>
+<tr class="even">
+<td><code>hvals &lt;k&gt;</code></td>
+<td>列出名为<code>k</code>的<code>hash</code>表中所有的值</td>
+</tr>
+<tr class="odd">
+<td><code>hincrby &lt;k&gt; &lt;f&gt; &lt;n&gt;</code></td>
+<td>给名为<code>k</code>的<code>hash</code>表中<code>f</code>键对应的值加上n</td>
+</tr>
+<tr class="even">
+<td><code>hsetnx &lt;k&gt; &lt;f&gt; &lt;v&gt;</code></td>
+<td>当<code>k</code>这个<code>hash</code>表中不存在<code>f</code>键时，添加<code>f-v</code>键值对</td>
+</tr>
+</tbody>
+</table>
+<h2 id="zset类型">zset类型</h2>
+<p>它是Redis中<strong>最复杂</strong>的数据类型。</p>
+<p>它其中的<strong>元素只能是字符串</strong>，且每一个元素都关联一个<code>score</code>，整个集合按元素的<code>score</code>从低到高排序，<code>score</code>可以重复。</p>
+<p>以下是关于<code>zset</code>的操作：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>zadd &lt;k&gt; &lt;s1&gt; &lt;v1&gt; &lt;s2&gt; &lt;v2&gt; ...</code></td>
+<td>给k集合中添加一个或多个元素，其中是<code>&lt;si&gt;</code>表示元素的<code>score</code>，这个命令也可以用于修改元素的分数</td>
+</tr>
+<tr class="even">
+<td><code>zrange &lt;k&gt; &lt;start&gt; &lt;stop&gt; [WITHSCORES]</code></td>
+<td>返回k中下标在<span class="math inline">\([start, stop]\)</span>之间的元素，带有<code>WITHSCORES</code>表示同时返回元素的分数，如果只想获取某一个元素，令<span class="math inline">\(start = stop\)</span>既可</td>
+</tr>
+<tr class="odd">
+<td><code>zrevrange &lt;k&gt; &lt;start&gt; &lt;stop&gt; [WITHSCORES]</code></td>
+<td>同上，只是顺序相反</td>
+</tr>
+<tr class="even">
+<td><code>zrangebyscore &lt;k&gt; &lt;min&gt; &lt;max&gt; [WITHSCORES] [LIMIT OFFSET COUNT]</code></td>
+<td>返回k中<code>score</code>在<span class="math inline">\([min, max]\)</span>之间的元素，元素按从小到大排序；如果只想获取某一个元素，令<span class="math inline">\(min = max\)</span>既可；带有<code>WITHSCORES</code>表示同时返回元素的分数，</td>
+</tr>
+<tr class="odd">
+<td><code>zrevrangebyscore &lt;k&gt; &lt;max&gt; &lt;min&gt; [WITHSCORES] [LIMIT OFFSET COUNT]</code></td>
+<td>同上，只是元素按从大到小排序</td>
+</tr>
+<tr class="even">
+<td><code>zincrby &lt;k&gt; &lt;n&gt; &lt;v&gt;</code></td>
+<td>为<code>k</code>集合中<code>v</code>元素的<code>score</code>增加<code>n</code></td>
+</tr>
+<tr class="odd">
+<td><code>zrem &lt;k&gt; &lt;v&gt;</code></td>
+<td>删除<code>k</code>中的元素<code>v</code></td>
+</tr>
+<tr class="even">
+<td><code>zcount &lt;k&gt; &lt;min&gt; &lt;max&gt;</code></td>
+<td>统计<code>k</code>中<code>score</code>在区间<span class="math inline">\([min, max]\)</span>中元素的个数</td>
+</tr>
+<tr class="odd">
+<td><code>zrank &lt;k&gt; &lt;v&gt;</code></td>
+<td>返回<code>v</code>在<code>k</code>集合中的排名(从0开始)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="redis事务">Redis事务</h1>
+<p>Redis事务的本质：串联过个命令，防止别的命令插队。它更像是批量执行指令的功能。</p>
+<p>一共有三个执行令：</p>
+<ul>
+<li><code>multi</code>：开启事务(组队)</li>
+<li><code>exec</code>：执行事务(执行)</li>
+<li><code>discard</code>：取消事务(取消)</li>
+</ul>
+<h2 id="redis事务的错误处理">Redis事务的错误处理</h2>
+<p>输入指令阶段(multi-exec)：如果输出时发生了错误，直接取消事务(执行exec会提示事务已经被取消)。</p>
+<p>执行阶段(exec)：如果某个指令报错，只有报错的这个指令不执行，其他指令依然会执行，不会被回滚，<strong>也正是这一特点让Redis的事务更像是批量处理</strong>，同时这也说明，<strong>Redis的事务没有原子性</strong>。</p>
+<p>直接输入discard将取消正在输入的事务。</p>
+<h2 id="watch关键字">watch关键字</h2>
+<p>命令<code>watch key1, key2...</code>可以监视多个键，如果事务执行之前这些被监视的key被其他命令改动了，那么事务将被取消。</p>
+<p>该命令需要在<code>multi</code>之前执行。</p>
+<h1 id="rexis持久化">Rexis持久化</h1>
+<p>Redis有两种持久化方式：</p>
+<ul>
+<li>RDB(Redis DabaBase)：将数据库中的数据保存到磁盘中。</li>
+<li>AOF(Append Of File)：将操作追加到记录文件中。</li>
+</ul>
+<h2 id="rdb">RDB</h2>
+<p>在指定时间间隔内将内存中的数据集快照写入磁盘(其实就是将内存中的数据保存到磁盘)，在恢复时直接将快照中的数据读入到内存，随意这种方式恢复的速度特别快。</p>
+<p>Redis会单独创建一个子进程来进行持久化，会先将数据写入到一个临时文件中，待持久化过程都结束了，再用这个临时文件替换上次持久化好的文件。整个过程中，主进程是不进行任何IO操作的，这就确保了极高的性能。如果需要进行大规模数据的恢复，且对数据恢复的完整性不是非常敏感，那RDB方式要比AOF方式更加高效。RDB的缺点就是最后一次持久化后改动的数据可能丢失。</p>
+<p>默认的文件名为<code>dump.rdb</code>，保存在你开启redis时所在的目录之下。</p>
+<p>Redis按两种模式进行持久化，一种是满足持久化策略的时候进行持久化(多少秒之内进行了多少次增删改操作就进行RDB操作)，一种是当执行<code>shutdown</code>正常关闭Redis时也会进行RDB。</p>
+<p>当然也可以执行手动保存命令<code>save</code>，但此时会阻塞所有进程，所以一般不会执行这个命令。</p>
+<h2 id="aof">AOF</h2>
+<p>以日志的形式来记录每个写操作，将Redis执行过的所有写指令记录下来(读操作不记录)，只许追加不许改写该文件。Redis启动之初会读取该文件重新构建数据，也就是把AOF文件中所有的指令重新执行一遍。</p>
+<p>AOF默认不开启，默认文件名为<code>appendonly.aof</code>，和<code>dump.rdb</code>保存在同一目录下。</p>
+<p><strong>如果RDB和AOF同时开启，以AOF为准！</strong></p>
+<p>AOF有三种同步策略：</p>
+<ul>
+<li>每一次操作增删改操作都同步；</li>
+<li>每一秒同步，但宕机时可能丢失本秒数据；</li>
+<li>不同步，将如何同步交给操作系统来决定</li>
+</ul>
+<p>为避免AOF文件过大，AOF还引入了重写机制，而Redis的重写并不会读取旧的aof文件，而是将整个内存中的数据按内容用命令的方式重新写一个aof文件，不同于普通的重写机制。</p>
+<blockquote>
+<p>普通的重写机制：比如连续对同一个key进行<code>set</code>操作，那就只保留最后一次<code>set</code>操作。</p>
+</blockquote>
+<h1 id="主从复制">主从复制</h1>
+<p>就是将主机数据更新后根据配置和策略，自动同步到备机的master/slave机制，master以写为主，slave以读为主(其实<strong>实际情况就是从服务器只能读，不能写</strong>)。</p>
+<p>用处：</p>
+<ul>
+<li>读写分离，性能扩展；</li>
+<li>容灾快速恢复</li>
+</ul>
+<p>配置的原则是：配从不配主。</p>
+<p>相关命令：</p>
+<table>
+<thead>
+<tr class="header">
+<th>命令</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>info replication</code></td>
+<td>输出主从复制的相关信息</td>
+</tr>
+<tr class="even">
+<td><code>slaveof &lt;ip&gt; &lt;port&gt;</code></td>
+<td>成为某个实例的从服务器</td>
+</tr>
+<tr class="odd">
+<td><code>slaveof no one</code></td>
+<td>将该服务器变更为主服务器</td>
+</tr>
+</tbody>
+</table>
+<p>注意：</p>
+<ul>
+<li>从服务器始终要和主服务器保持一致，也就是说，不管从服务器是什么时候加入的，它都会从主服务器中拷贝所有的数据；</li>
+<li>从服务器不能进行写操作；</li>
+<li>当主服务器shutdown后，从服务器不会自动升格为主服务器，而是原地待命等待主服务器上线；</li>
+<li>使用命令的方式配置主从关系只是临时的，如果要配置永久的，需要在配置文件中配置<code>slaveof &lt;masterip&gt; &lt;masterport&gt;</code></li>
+</ul>
+<h2 id="主从复制原理">主从复制原理</h2>
+<ol type="1">
+<li>每次从机加入之后，都会给主机发送sync指令；</li>
+<li>主机立刻进行存盘操作，发送rdb文件给从机；</li>
+<li>从机收到rdb文件后，进行全盘加载；</li>
+<li>之后每次主机的写操作，都会立刻发送给从机，从机执行相同的命令。</li>
+</ol>
+<h3 id="传递">传递</h3>
+<p>上一个slave可以是下一个slave的master，那么此时slave同样可以接收其他slave的连接和同步请求，这样可以有效减轻master的写压力，去中心化以降低风险。</p>
+<p>但这种操作也有风险：如果中间某个slave宕机，链条后面的slave都没法更新数据</p>
+<h2 id="哨兵模式">哨兵模式</h2>
+<p>之前配置的主从模式当主机宕机后，从机依然是从机，它会等待主机上线。而哨兵模式则是当主机宕机后，会自动从从机中投票选择出一个作为主机。</p>
+<p>为了实现该功能，需要编写一个sentinel.conf文件，它只需要一句话既可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; sentinel monitor [给主服务器起个名] [主服务器ip] [主服务器port] [用于决策的最小投票数n]</span><br><span class="line">sentinel monitor mymaster 127.0.0.1 6379 1</span><br></pre></td></tr></table></figure>
+<p>其中的<code>n</code>表示，至少需要需要<code>n</code>个哨兵同意，决策才能通过，例如上述<code>n=1</code>，它表示，只要有1个哨兵说主服务器宕机了，那主服务器就是宕机了。</p>
+<p>启动哨兵模式，执行如下命令既可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-sentinel sentinel.conf</span><br></pre></td></tr></table></figure>
+<p>选择策略依次为：</p>
+<ol type="1">
+<li>优先级靠前的优先：在配置文件中配置(<code>slave-priority</code>)</li>
+<li>偏移量越大的越优先：指获得原master数据量最多的slave</li>
+<li><code>runid</code>越小的越优先：每个redis实例启动后都会随机生成一个40位的<code>runid</code></li>
+</ol>
+<p>当挑选出新的master之后，新master会向之前所有的slave发送slaveof指令，将之前的主从关系转移到新master上。</p>
+<p>当下线的旧master重新上线后，新master也会发送slaveof指令给旧master，让其成为slave。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>嘴强黑铁
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zuiqiangiron.xyz/2020/07/13/Redis%E7%AC%94%E8%AE%B0/" title="Redis笔记">https://www.zuiqiangiron.xyz/2020/07/13/Redis笔记/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/11/Spring%20Boot%E4%B8%8E%E6%B6%88%E6%81%AF/" rel="prev" title="Spring Boot与消息">
+      <i class="fa fa-chevron-left"></i> Spring Boot与消息
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本操作"><span class="nav-number">2.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#redis5大基本类型"><span class="nav-number">3.</span> <span class="nav-text">Redis5大基本类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#string类型"><span class="nav-number">3.1.</span> <span class="nav-text">string类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#list类型"><span class="nav-number">3.2.</span> <span class="nav-text">list类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#set类型"><span class="nav-number">3.3.</span> <span class="nav-text">set类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hash类型"><span class="nav-number">3.4.</span> <span class="nav-text">hash类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zset类型"><span class="nav-number">3.5.</span> <span class="nav-text">zset类型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#redis事务"><span class="nav-number">4.</span> <span class="nav-text">Redis事务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#redis事务的错误处理"><span class="nav-number">4.1.</span> <span class="nav-text">Redis事务的错误处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#watch关键字"><span class="nav-number">4.2.</span> <span class="nav-text">watch关键字</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#rexis持久化"><span class="nav-number">5.</span> <span class="nav-text">Rexis持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#rdb"><span class="nav-number">5.1.</span> <span class="nav-text">RDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#aof"><span class="nav-number">5.2.</span> <span class="nav-text">AOF</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#主从复制"><span class="nav-number">6.</span> <span class="nav-text">主从复制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#主从复制原理"><span class="nav-number">6.1.</span> <span class="nav-text">主从复制原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#传递"><span class="nav-number">6.1.1.</span> <span class="nav-text">传递</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#哨兵模式"><span class="nav-number">6.2.</span> <span class="nav-text">哨兵模式</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="嘴强黑铁"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">嘴强黑铁</p>
+  <div class="site-description" itemprop="description">一顿操作猛如虎</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">103</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">37</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">110</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘴强黑铁</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/medium-zoom@1/dist/medium-zoom.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.getAttribute('pjax') !== null) {
+      script.setAttribute('pjax', '');
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+  <script pjax>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 24025,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://zuiqiangiron.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "https://www.zuiqiangiron.xyz/2020/07/13/Redis%E7%AC%94%E8%AE%B0/";
+    this.page.identifier = "2020/07/13/Redis笔记/";
+    this.page.title = "Redis笔记";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zuiqiangiron.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

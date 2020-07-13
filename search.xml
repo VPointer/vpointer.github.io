@@ -1,6 +1,550 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Redis笔记</title>
+    <url>/2020/07/13/Redis%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<blockquote>
+<p>本文主要是学习Redis的笔记</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="简介">简介</h1>
+<ol type="1">
+<li>Redis是一个键值对数据库，没有表的概念，也没有CRUD的概念，所以存储的时候，一定要记住你使用的key；</li>
+<li>Redis默认16个数据库，下标从0开始；</li>
+<li>初始默认使用0号库，大多数时候也是使用0号库。选择数据库语句：<code>select i</code>表示使用i号库；</li>
+<li>Redis没有用户，只有密码，且统一密码管理，这16个库使用的都是同一个密码，且要么同时连接上，要么都连接不上；</li>
+<li>Redis使用<strong>单线程+多路IO复用</strong>(memcached使用的是多线程+锁技术)：形像的说就是Redis为每一个请求都贴上一个标签，这个标签表示请求准备完毕了没有，如果准备完毕就执行，没有就看下一个请求，而不是等待；</li>
+</ol>
+<h1 id="基本操作">基本操作</h1>
+<table>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>keys *</code></td>
+<td>查看当前库的所有键</td>
+</tr>
+<tr class="even">
+<td><code>exists &lt;key&gt;</code></td>
+<td>查看是否存在某个键</td>
+</tr>
+<tr class="odd">
+<td><code>type &lt;key&gt;</code></td>
+<td>查看key的类型</td>
+</tr>
+<tr class="even">
+<td><code>del &lt;key&gt;</code></td>
+<td>删除某个键</td>
+</tr>
+<tr class="odd">
+<td><code>expire &lt;key&gt; &lt;seconds&gt;</code></td>
+<td>为某个键值对设置过期时间</td>
+</tr>
+<tr class="even">
+<td><code>ttl &lt;key&gt;</code></td>
+<td>查看某个键值对的还剩多少秒过期，<code>-1</code>表示永不过期，<code>-2</code>表示已过期</td>
+</tr>
+<tr class="odd">
+<td><code>dbsize</code></td>
+<td>查看<strong>当前</strong>数据库中key的数量</td>
+</tr>
+<tr class="even">
+<td><code>Flushdb</code></td>
+<td>清空<strong>当前</strong>库中的所有数据</td>
+</tr>
+<tr class="odd">
+<td><code>Flushall</code></td>
+<td>清空<strong>所有</strong>库中的所有数据</td>
+</tr>
+</tbody>
+</table>
+<h1 id="redis5大基本类型">Redis5大基本类型</h1>
+<p>Redis一共有5种基本类型(这里的类型指的是key-value中value的类型)：</p>
+<ul>
+<li><code>string</code></li>
+<li><code>set</code></li>
+<li><code>list</code></li>
+<li><code>hash</code></li>
+<li><code>zset</code></li>
+</ul>
+<h2 id="string类型">string类型</h2>
+<p><code>string</code>类型是Redis中最基本的数据类型，它是数据安全的，也就是说Redis中的<code>string</code>可以包含任何数据，比如jpg图片或者序列化的对象；一个<code>string</code>最多512MB。</p>
+<p>以下是关于该类型的操作(有些操作并不仅限于该类型)：</p>
+<table>
+<colgroup>
+<col style="width: 39%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>get &lt;key&gt;</code></td>
+<td>查询对应键值</td>
+</tr>
+<tr class="even">
+<td><code>set &lt;key&gt; &lt;value&gt;</code></td>
+<td>存入键值对</td>
+</tr>
+<tr class="odd">
+<td><code>append &lt;key&gt; &lt;value&gt;</code></td>
+<td>在原值上追加<code>&lt;value&gt;</code></td>
+</tr>
+<tr class="even">
+<td><code>strlen &lt;key&gt;</code></td>
+<td>获取值的长度</td>
+</tr>
+<tr class="odd">
+<td><code>setnx &lt;key&gt; &lt;value&gt;</code></td>
+<td>如果该<code>&lt;key&gt;</code>不存在，在存入该键值对，否则不起效</td>
+</tr>
+<tr class="even">
+<td><code>incr &lt;key&gt;</code></td>
+<td>将key对应的value加1，如果key对应的value为空，则最终value为1；如果对应的value不是integer，则报错</td>
+</tr>
+<tr class="odd">
+<td><code>decr &lt;key&gt;</code></td>
+<td>将key对应的value减1，如果key对应的value为空，则最终value为-1；如果对应的value不是integer，则报错</td>
+</tr>
+<tr class="even">
+<td><code>incrby / decrby &lt;key&gt; &lt;步长&gt;</code></td>
+<td>按步长加减对应key的value，其余规则同上</td>
+</tr>
+<tr class="odd">
+<td><code>mset &lt;key1&gt; &lt;value&gt; &lt;key2&gt; &lt;value2&gt;</code></td>
+<td>一次性同时存入多个键值对</td>
+</tr>
+<tr class="even">
+<td><code>mget &lt;key1&gt; &lt;key2&gt;</code></td>
+<td>一次性获取多个值</td>
+</tr>
+<tr class="odd">
+<td><code>msetnx &lt;key1&gt; &lt;value&gt; &lt;key2&gt; &lt;value2&gt;</code></td>
+<td>一次性同时存入多个键值对，当且仅当所有的key都不存在时才生效</td>
+</tr>
+<tr class="even">
+<td><code>getrange &lt;key&gt; &lt;起始位置&gt; &lt;结束位置&gt;</code></td>
+<td>截取某个key对应的value中的值，相当于Java中是<code>substring()</code>方法，但这个方法是<strong>闭区间</strong></td>
+</tr>
+<tr class="odd">
+<td><code>setrange &lt;key&gt; &lt;起始位置&gt; &lt;value&gt;</code></td>
+<td>覆盖某个key对应的value，与<code>getrange</code>相对</td>
+</tr>
+<tr class="even">
+<td><code>setex &lt;key&gt; &lt;过期时间&gt; &lt;value&gt;</code></td>
+<td>设置键值对的同时设置过期时间</td>
+</tr>
+<tr class="odd">
+<td><code>getset &lt;key&gt; &lt;value&gt;</code></td>
+<td>设置新值的同时返回旧值</td>
+</tr>
+</tbody>
+</table>
+<h2 id="list类型">list类型</h2>
+<p>Redis中<code>list</code>默认按插入顺序排序，也可以指定从左(头)插入还是从右(尾)插入。它的底层是双向链表，也就是说，头尾操作性能高，下标操作性能低。</p>
+<p>以下是关于<code>list</code>的操作：</p>
+<table>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>lpush/rpush &lt;key&gt; &lt;value1&gt; &lt;value2&gt;</code></td>
+<td>从左或从右添加一个或多个数据，注意，如果是从左添加，顺序是反的</td>
+</tr>
+<tr class="even">
+<td><code>lpop/rpop &lt;key&gt;</code></td>
+<td>从左或从右弹出一个数据</td>
+</tr>
+<tr class="odd">
+<td><code>rpoplpush &lt;key1&gt; &lt;key2&gt;</code></td>
+<td>从key1的右边弹出一个数据加入到key2的左边</td>
+</tr>
+<tr class="even">
+<td><code>lrange &lt;key&gt; &lt;start&gt; &lt;end&gt;</code></td>
+<td>从key中获取指定下标范围内的数据</td>
+</tr>
+<tr class="odd">
+<td><code>lindex &lt;key&gt; &lt;index&gt;</code></td>
+<td>按照索引下标获取元素</td>
+</tr>
+<tr class="even">
+<td><code>llen &lt;key&gt;</code></td>
+<td>获取列表长度</td>
+</tr>
+<tr class="odd">
+<td><code>linsert &lt;key&gt; BEFORE|AFTER &lt;value&gt; &lt;newvalue&gt;</code></td>
+<td>在key中某个value之前|之后插入某个元素</td>
+</tr>
+<tr class="even">
+<td><code>lrem &lt;key&gt; &lt;n&gt; &lt;value&gt;</code></td>
+<td>从左边删除<code>n</code>个值为<code>value</code>的元素，<code>n</code>为正数表示从左往右删，为负数表示从右往左删</td>
+</tr>
+</tbody>
+</table>
+<h2 id="set类型">set类型</h2>
+<p>跟各种语言中的<code>set</code>类型基本一样。</p>
+<p>可以用于“商品秒杀”场景。</p>
+<p><code>set</code>提供了查询元素是否在集合中的接口，而<code>list</code>类型并没有提供这个接口。</p>
+<p>Redis中<code>set</code>的底层其实是value为<code>null</code>的<code>hash</code>表，所以增删查的时间复杂度都是<span class="math inline">\(O(1)\)</span>。</p>
+<p>以下是关于这个类型的操作：</p>
+<table>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>sadd &lt;k&gt; &lt;v1&gt; &lt;v2&gt; ...</code></td>
+<td>向名为k的set集中添加一个或多个元素</td>
+</tr>
+<tr class="even">
+<td><code>smembers &lt;k&gt;</code></td>
+<td>取出集合中的所有元素</td>
+</tr>
+<tr class="odd">
+<td><code>sismember &lt;k&gt; &lt;v&gt;</code></td>
+<td>判断set集合k中是否有值为v的元素</td>
+</tr>
+<tr class="even">
+<td><code>scard &lt;k&gt;</code></td>
+<td>返回k集合中元素的个数</td>
+</tr>
+<tr class="odd">
+<td><code>srem &lt;k&gt; &lt;v1&gt; &lt;v2&gt;</code></td>
+<td>删除集合k中指定元素</td>
+</tr>
+<tr class="even">
+<td><code>spop &lt;k&gt;</code></td>
+<td>随机从k中弹出一个元素</td>
+</tr>
+<tr class="odd">
+<td><code>srandmember &lt;k&gt; &lt;n&gt;</code></td>
+<td>随机从k中获取n个元素，但不会删除元素</td>
+</tr>
+<tr class="even">
+<td><code>sinter &lt;k1&gt; &lt;k2&gt;</code></td>
+<td>返回两个集合的交集</td>
+</tr>
+<tr class="odd">
+<td><code>sunion &lt;k1&gt; &lt;k2&gt;</code></td>
+<td>返回两个集合的并集</td>
+</tr>
+<tr class="even">
+<td><code>sdiff &lt;k1&gt; &lt;k2&gt;</code></td>
+<td>返回差集：<span class="math inline">\(k1 - k2\)</span></td>
+</tr>
+</tbody>
+</table>
+<h2 id="hash类型">hash类型</h2>
+<p>也跟其他语言中的<code>hash</code>类型基本一样。</p>
+<p>以下是关于<code>hash</code>类型的操作：</p>
+<table>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>hset &lt;k&gt; &lt;f&gt; &lt;v&gt;</code></td>
+<td>在名为<code>k</code>的<code>hash</code>表中添加<code>f-v</code>键值对</td>
+</tr>
+<tr class="even">
+<td><code>hget &lt;k&gt; &lt;f&gt;</code></td>
+<td>从名为<code>k</code>的<code>hash</code>表中取出<code>f</code>对应的值</td>
+</tr>
+<tr class="odd">
+<td><code>hmset &lt;k&gt; &lt;f1&gt; &lt;v1&gt; &lt;f2&gt; &lt;v2&gt;</code></td>
+<td>在名为<code>k</code>的<code>hash</code>表中同时存入多个键值对</td>
+</tr>
+<tr class="even">
+<td><code>hexists &lt;k&gt; &lt;f&gt;</code></td>
+<td>在名为<code>k</code>的<code>hash</code>表中是否存在名为f的键值对</td>
+</tr>
+<tr class="odd">
+<td><code>hkeys &lt;k&gt;</code></td>
+<td>列出名为<code>k</code>的<code>hash</code>表中所有的键</td>
+</tr>
+<tr class="even">
+<td><code>hvals &lt;k&gt;</code></td>
+<td>列出名为<code>k</code>的<code>hash</code>表中所有的值</td>
+</tr>
+<tr class="odd">
+<td><code>hincrby &lt;k&gt; &lt;f&gt; &lt;n&gt;</code></td>
+<td>给名为<code>k</code>的<code>hash</code>表中<code>f</code>键对应的值加上n</td>
+</tr>
+<tr class="even">
+<td><code>hsetnx &lt;k&gt; &lt;f&gt; &lt;v&gt;</code></td>
+<td>当<code>k</code>这个<code>hash</code>表中不存在<code>f</code>键时，添加<code>f-v</code>键值对</td>
+</tr>
+</tbody>
+</table>
+<h2 id="zset类型">zset类型</h2>
+<p>它是Redis中<strong>最复杂</strong>的数据类型。</p>
+<p>它其中的<strong>元素只能是字符串</strong>，且每一个元素都关联一个<code>score</code>，整个集合按元素的<code>score</code>从低到高排序，<code>score</code>可以重复。</p>
+<p>以下是关于<code>zset</code>的操作：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>zadd &lt;k&gt; &lt;s1&gt; &lt;v1&gt; &lt;s2&gt; &lt;v2&gt; ...</code></td>
+<td>给k集合中添加一个或多个元素，其中是<code>&lt;si&gt;</code>表示元素的<code>score</code>，这个命令也可以用于修改元素的分数</td>
+</tr>
+<tr class="even">
+<td><code>zrange &lt;k&gt; &lt;start&gt; &lt;stop&gt; [WITHSCORES]</code></td>
+<td>返回k中下标在<span class="math inline">\([start, stop]\)</span>之间的元素，带有<code>WITHSCORES</code>表示同时返回元素的分数，如果只想获取某一个元素，令<span class="math inline">\(start = stop\)</span>既可</td>
+</tr>
+<tr class="odd">
+<td><code>zrevrange &lt;k&gt; &lt;start&gt; &lt;stop&gt; [WITHSCORES]</code></td>
+<td>同上，只是顺序相反</td>
+</tr>
+<tr class="even">
+<td><code>zrangebyscore &lt;k&gt; &lt;min&gt; &lt;max&gt; [WITHSCORES] [LIMIT OFFSET COUNT]</code></td>
+<td>返回k中<code>score</code>在<span class="math inline">\([min, max]\)</span>之间的元素，元素按从小到大排序；如果只想获取某一个元素，令<span class="math inline">\(min = max\)</span>既可；带有<code>WITHSCORES</code>表示同时返回元素的分数，</td>
+</tr>
+<tr class="odd">
+<td><code>zrevrangebyscore &lt;k&gt; &lt;max&gt; &lt;min&gt; [WITHSCORES] [LIMIT OFFSET COUNT]</code></td>
+<td>同上，只是元素按从大到小排序</td>
+</tr>
+<tr class="even">
+<td><code>zincrby &lt;k&gt; &lt;n&gt; &lt;v&gt;</code></td>
+<td>为<code>k</code>集合中<code>v</code>元素的<code>score</code>增加<code>n</code></td>
+</tr>
+<tr class="odd">
+<td><code>zrem &lt;k&gt; &lt;v&gt;</code></td>
+<td>删除<code>k</code>中的元素<code>v</code></td>
+</tr>
+<tr class="even">
+<td><code>zcount &lt;k&gt; &lt;min&gt; &lt;max&gt;</code></td>
+<td>统计<code>k</code>中<code>score</code>在区间<span class="math inline">\([min, max]\)</span>中元素的个数</td>
+</tr>
+<tr class="odd">
+<td><code>zrank &lt;k&gt; &lt;v&gt;</code></td>
+<td>返回<code>v</code>在<code>k</code>集合中的排名(从0开始)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="redis事务">Redis事务</h1>
+<p>Redis事务的本质：串联过个命令，防止别的命令插队。它更像是批量执行指令的功能。</p>
+<p>一共有三个执行令：</p>
+<ul>
+<li><code>multi</code>：开启事务(组队)</li>
+<li><code>exec</code>：执行事务(执行)</li>
+<li><code>discard</code>：取消事务(取消)</li>
+</ul>
+<h2 id="redis事务的错误处理">Redis事务的错误处理</h2>
+<p>输入指令阶段(multi-exec)：如果输出时发生了错误，直接取消事务(执行exec会提示事务已经被取消)。</p>
+<p>执行阶段(exec)：如果某个指令报错，只有报错的这个指令不执行，其他指令依然会执行，不会被回滚，<strong>也正是这一特点让Redis的事务更像是批量处理</strong>，同时这也说明，<strong>Redis的事务没有原子性</strong>。</p>
+<p>直接输入discard将取消正在输入的事务。</p>
+<h2 id="watch关键字">watch关键字</h2>
+<p>命令<code>watch key1, key2...</code>可以监视多个键，如果事务执行之前这些被监视的key被其他命令改动了，那么事务将被取消。</p>
+<p>该命令需要在<code>multi</code>之前执行。</p>
+<h1 id="rexis持久化">Rexis持久化</h1>
+<p>Redis有两种持久化方式：</p>
+<ul>
+<li>RDB(Redis DabaBase)：将数据库中的数据保存到磁盘中。</li>
+<li>AOF(Append Of File)：将操作追加到记录文件中。</li>
+</ul>
+<h2 id="rdb">RDB</h2>
+<p>在指定时间间隔内将内存中的数据集快照写入磁盘(其实就是将内存中的数据保存到磁盘)，在恢复时直接将快照中的数据读入到内存，随意这种方式恢复的速度特别快。</p>
+<p>Redis会单独创建一个子进程来进行持久化，会先将数据写入到一个临时文件中，待持久化过程都结束了，再用这个临时文件替换上次持久化好的文件。整个过程中，主进程是不进行任何IO操作的，这就确保了极高的性能。如果需要进行大规模数据的恢复，且对数据恢复的完整性不是非常敏感，那RDB方式要比AOF方式更加高效。RDB的缺点就是最后一次持久化后改动的数据可能丢失。</p>
+<p>默认的文件名为<code>dump.rdb</code>，保存在你开启redis时所在的目录之下。</p>
+<p>Redis按两种模式进行持久化，一种是满足持久化策略的时候进行持久化(多少秒之内进行了多少次增删改操作就进行RDB操作)，一种是当执行<code>shutdown</code>正常关闭Redis时也会进行RDB。</p>
+<p>当然也可以执行手动保存命令<code>save</code>，但此时会阻塞所有进程，所以一般不会执行这个命令。</p>
+<h2 id="aof">AOF</h2>
+<p>以日志的形式来记录每个写操作，将Redis执行过的所有写指令记录下来(读操作不记录)，只许追加不许改写该文件。Redis启动之初会读取该文件重新构建数据，也就是把AOF文件中所有的指令重新执行一遍。</p>
+<p>AOF默认不开启，默认文件名为<code>appendonly.aof</code>，和<code>dump.rdb</code>保存在同一目录下。</p>
+<p><strong>如果RDB和AOF同时开启，以AOF为准！</strong></p>
+<p>AOF有三种同步策略：</p>
+<ul>
+<li>每一次操作增删改操作都同步；</li>
+<li>每一秒同步，但宕机时可能丢失本秒数据；</li>
+<li>不同步，将如何同步交给操作系统来决定</li>
+</ul>
+<p>为避免AOF文件过大，AOF还引入了重写机制，而Redis的重写并不会读取旧的aof文件，而是将整个内存中的数据按内容用命令的方式重新写一个aof文件，不同于普通的重写机制。</p>
+<blockquote>
+<p>普通的重写机制：比如连续对同一个key进行<code>set</code>操作，那就只保留最后一次<code>set</code>操作。</p>
+</blockquote>
+<h1 id="主从复制">主从复制</h1>
+<p>就是将主机数据更新后根据配置和策略，自动同步到备机的master/slave机制，master以写为主，slave以读为主(其实<strong>实际情况就是从服务器只能读，不能写</strong>)。</p>
+<p>用处：</p>
+<ul>
+<li>读写分离，性能扩展；</li>
+<li>容灾快速恢复</li>
+</ul>
+<p>配置的原则是：配从不配主。</p>
+<p>相关命令：</p>
+<table>
+<thead>
+<tr class="header">
+<th>命令</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>info replication</code></td>
+<td>输出主从复制的相关信息</td>
+</tr>
+<tr class="even">
+<td><code>slaveof &lt;ip&gt; &lt;port&gt;</code></td>
+<td>成为某个实例的从服务器</td>
+</tr>
+<tr class="odd">
+<td><code>slaveof no one</code></td>
+<td>将该服务器变更为主服务器</td>
+</tr>
+</tbody>
+</table>
+<p>注意：</p>
+<ul>
+<li>从服务器始终要和主服务器保持一致，也就是说，不管从服务器是什么时候加入的，它都会从主服务器中拷贝所有的数据；</li>
+<li>从服务器不能进行写操作；</li>
+<li>当主服务器shutdown后，从服务器不会自动升格为主服务器，而是原地待命等待主服务器上线；</li>
+<li>使用命令的方式配置主从关系只是临时的，如果要配置永久的，需要在配置文件中配置<code>slaveof &lt;masterip&gt; &lt;masterport&gt;</code></li>
+</ul>
+<h2 id="主从复制原理">主从复制原理</h2>
+<ol type="1">
+<li>每次从机加入之后，都会给主机发送sync指令；</li>
+<li>主机立刻进行存盘操作，发送rdb文件给从机；</li>
+<li>从机收到rdb文件后，进行全盘加载；</li>
+<li>之后每次主机的写操作，都会立刻发送给从机，从机执行相同的命令。</li>
+</ol>
+<h3 id="传递">传递</h3>
+<p>上一个slave可以是下一个slave的master，那么此时slave同样可以接收其他slave的连接和同步请求，这样可以有效减轻master的写压力，去中心化以降低风险。</p>
+<p>但这种操作也有风险：如果中间某个slave宕机，链条后面的slave都没法更新数据</p>
+<h2 id="哨兵模式">哨兵模式</h2>
+<p>之前配置的主从模式当主机宕机后，从机依然是从机，它会等待主机上线。而哨兵模式则是当主机宕机后，会自动从从机中投票选择出一个作为主机。</p>
+<p>为了实现该功能，需要编写一个sentinel.conf文件，它只需要一句话既可：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; sentinel monitor [给主服务器起个名] [主服务器ip] [主服务器port] [用于决策的最小投票数n]</span><br><span class="line">sentinel monitor mymaster 127.0.0.1 6379 1</span><br></pre></td></tr></table></figure>
+<p>其中的<code>n</code>表示，至少需要需要<code>n</code>个哨兵同意，决策才能通过，例如上述<code>n=1</code>，它表示，只要有1个哨兵说主服务器宕机了，那主服务器就是宕机了。</p>
+<p>启动哨兵模式，执行如下命令既可：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">redis-sentinel sentinel.conf</span><br></pre></td></tr></table></figure>
+<p>选择策略依次为：</p>
+<ol type="1">
+<li>优先级靠前的优先：在配置文件中配置(<code>slave-priority</code>)</li>
+<li>偏移量越大的越优先：指获得原master数据量最多的slave</li>
+<li><code>runid</code>越小的越优先：每个redis实例启动后都会随机生成一个40位的<code>runid</code></li>
+</ol>
+<p>当挑选出新的master之后，新master会向之前所有的slave发送slaveof指令，将之前的主从关系转移到新master上。</p>
+<p>当下线的旧master重新上线后，新master也会发送slaveof指令给旧master，让其成为slave。</p>
+]]></content>
+      <categories>
+        <category>数据库</category>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring Boot与消息</title>
+    <url>/2020/07/11/Spring%20Boot%E4%B8%8E%E6%B6%88%E6%81%AF/</url>
+    <content><![CDATA[<blockquote>
+<p>记录Spring Boot 2.x中如何使用消息框架RabbitMQ</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="消息规范">消息规范</h1>
+<p>主要是两种规范：</p>
+<ul>
+<li>JMS(Java Message Service)：Java消息服务，它是基于JVM的消息代理规范，它的实现有ActiveMQ、HornetMQ</li>
+<li>AMQP(Advance Message Queuing Protocol)：它兼容JMS，它的实现有：RabbitMQ</li>
+</ul>
+<p>以下是这两种规则的对比：</p>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 45%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>JMS</th>
+<th>AMQP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>定义</td>
+<td>Java API</td>
+<td>网络线级协议</td>
+</tr>
+<tr class="even">
+<td>跨语言</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr class="odd">
+<td>跨平台</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr class="even">
+<td>Model</td>
+<td>提供两种消息模型：<br>(1) Peer-2-Peer<br>(2)Pub/Sub</td>
+<td>提供5种消息模型：<br>(1)direct exchange<br>(2)fanout exchange<br>(3)topic exchange<br/>(4)headers exchange<br/>(5)system exchange<br/>本质来说，后4种和JMS的Pub/Sub模式没有太大差别，仅是在路由机制上做了更详细的划分</td>
+</tr>
+<tr class="odd">
+<td>支持消息类型</td>
+<td>多种消息类型：<br/><code>TextMessage</code><br/><code>MapMessage</code><br/><code>BytesMessage</code><br/><code>StreamMessage</code><br/><code>ObjectMessage</code><br/><code>Message</code>(只有消息头和属性)</td>
+<td><code>byte[]</code><br/>有复杂消息的话，可以将消息序列化后发送</td>
+</tr>
+</tbody>
+</table>
+<h1 id="rabbitmq">RabbitMQ</h1>
+<p>以下是如何在Spring Boot中操作RabbitMQ。</p>
+<h2 id="发送数据">发送数据</h2>
+<p>需要使用一个<code>RabbitTemplate</code>对象来发送/接收数据：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RabbitmqTestApplicationTests</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    RabbitTemplate rabbitTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">send_test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 该方法需要自己设置消息头</span></span><br><span class="line">        <span class="comment">// rabbitTemplate.send(exchange, routingKey, message);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 该方法会自动设置消息头</span></span><br><span class="line">        Map&lt;String, Object&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        map.put(<span class="string">"msg"</span>, <span class="string">"this is the first message from spring boot"</span>);</span><br><span class="line">        map.put(<span class="string">"data"</span>, Arrays.asList(<span class="string">"hello"</span>, <span class="number">123</span>, <span class="keyword">true</span>));</span><br><span class="line">        rabbitTemplate.convertAndSend(<span class="string">"exchange.direct"</span>, <span class="string">"mytest.news"</span>, map);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">receive_test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Object obj = rabbitTemplate.receiveAndConvert(<span class="string">"mytest.news"</span>);</span><br><span class="line">        System.out.println(obj.getClass());</span><br><span class="line">        System.out.println(obj);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时发送的数据将会按照Java默认的序列化方式进行传输，如果想将其转换为json数据，可以自行创建一个配置类：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableRabbit</span> <span class="comment">// 启用消息队列需要加上这个注解</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAMQPConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> MessageConverter <span class="title">messageConverter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 注意是support包下</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Jackson2JsonMessageConverter();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="监听消息队列">监听消息队列</h2>
+<p>监听消息队列也很简单，只需要按如下方式编写Service既可：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTestService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RabbitListener</span>(queues = <span class="string">"atguigu.news"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">rabbitmqListener</span><span class="params">(Book book)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 会直接封装成Book对象</span></span><br><span class="line">        System.out.println(book);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RabbitListener</span>(queues = <span class="string">"atguigu"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">rabbitmqListener</span><span class="params">(Message message)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 获取消息体</span></span><br><span class="line">        System.out.println(message.getBody());</span><br><span class="line">        <span class="comment">// 获取消息头</span></span><br><span class="line">        System.out.println(message.getMessageProperties());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不过需要注意的是，如果要启用RabbitMQ服务，需要在配置类上加上<code>@EnableRabbit</code>注解，主配置类或你自定义的RabbitMQ配置类均可。</p>
+<h2 id="创建消息队列">创建消息队列</h2>
+<p>这里演示的是在程序中创建消息队列。</p>
+<p>这里需要用到<code>AmqpAdmin</code>组件，它能用于创建Queue，Exchange和Binding：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line">AmqpAdmin amqpAdmin;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">testAmqpAdmin</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    amqpAdmin.declareExchange(<span class="keyword">new</span> DirectExchange(<span class="string">"amqpadmin.exchange"</span>));</span><br><span class="line">    amqpAdmin.declareQueue(<span class="keyword">new</span> Queue(<span class="string">"amqpadmin.queue"</span>, <span class="keyword">true</span>));</span><br><span class="line">    amqpAdmin.declareBinding(<span class="keyword">new</span> Binding(<span class="string">"amqpadmin.queue"</span>,</span><br><span class="line">    Binding.DestinationType.QUEUE,</span><br><span class="line">    <span class="string">"amqpadmin.exchange"</span>,</span><br><span class="line">    <span class="string">"amqp.news"</span>,</span><br><span class="line">    <span class="keyword">null</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 以下是删除操作，省略了参数</span></span><br><span class="line">    <span class="comment">// amqpAdmin.removeBinding();</span></span><br><span class="line">    <span class="comment">// amqpAdmin.deleteQueue();</span></span><br><span class="line">    <span class="comment">// amqpAdmin.deleteExchange();</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>笔记</category>
+        <category>Java</category>
+        <category>Spring Boot</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Spring Boot</tag>
+        <tag>AMQP</tag>
+        <tag>RabbitMQ</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spring Boot中使用Redis</title>
     <url>/2020/07/11/Spring%20Boot%E4%B8%AD%E4%BD%BF%E7%94%A8Redis/</url>
     <content><![CDATA[<blockquote>
